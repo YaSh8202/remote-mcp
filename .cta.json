@@ -1,0 +1,21 @@
+{
+  "projectName": "mcp-one",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "pnpm",
+  "git": true,
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": [
+    "biome",
+    "neon",
+    "netlify",
+    "sentry",
+    "shadcn",
+    "start",
+    "t3env",
+    "tanstack-query",
+    "tRPC"
+  ]
+}
