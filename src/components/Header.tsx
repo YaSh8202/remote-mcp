@@ -3,7 +3,12 @@ import { signOut, useSession } from "../lib/auth-client";
 import { Button } from "./ui/button";
 
 export default function Header() {
-	const session = useSession();
+	const { session, refetch } = useSession();
+
+	const signOutHandler = async () => {
+		await signOut();
+		refetch();
+	};
 
 	return (
 		<header className="p-2 flex gap-2 bg-white text-black justify-between">
@@ -23,7 +28,11 @@ export default function Header() {
 				{session?.user ? (
 					<div className="flex items-center gap-2">
 						<span className="text-sm">Hello, {session.user.name}</span>
-						<Button variant="outline" size="sm" onClick={() => signOut()}>
+						<Button
+							variant="outline"
+							size="sm"
+							onClick={() => signOutHandler()}
+						>
 							Sign Out
 						</Button>
 					</div>

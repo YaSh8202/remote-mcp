@@ -1,7 +1,4 @@
-import {
-	createFileRoute,
-	useNavigate,
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "../components/ui/button";
 import {
@@ -18,7 +15,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-	const session = useSession();
+	const { session } = useSession();
 	const navigate = useNavigate();
 
 	// Redirect if already authenticated

@@ -20,6 +20,13 @@ export function useSession() {
 	const loaderData = Route.useLoaderData();
 	const serverSession = loaderData.session;
 
-	// Fallback to client session
-	return serverSession;
+	const { data, isPending, ...rest } = useClientSession();
+
+	const session = isPending ? serverSession : data;
+
+	return {
+		session,
+		isPending,
+		...rest,
+	};
 }
