@@ -26,6 +26,6 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day (update session every day)
   },
-  secret: env.BETTER_AUTH_SECRET || 'fallback-secret-for-development-only-change-in-production',
+  secret: env.BETTER_AUTH_SECRET ,
   baseURL: env.BETTER_AUTH_URL,
 })

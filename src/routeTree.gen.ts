@@ -14,11 +14,6 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as LoginImport } from './routes/login'
 import { Route as DashboardImport } from './routes/dashboard'
 import { Route as IndexImport } from './routes/index'
-import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
-import { Route as DemoNeonImport } from './routes/demo.neon'
-import { Route as DemoStartServerFuncsImport } from './routes/demo.start.server-funcs'
-import { Route as DemoStartApiRequestImport } from './routes/demo.start.api-request'
-import { Route as DemoSentryTestingImport } from './routes/demo.sentry.testing'
 
 // Create/Update Routes
 
@@ -37,36 +32,6 @@ const DashboardRoute = DashboardImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoNeonRoute = DemoNeonImport.update({
-  id: '/demo/neon',
-  path: '/demo/neon',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoStartServerFuncsRoute = DemoStartServerFuncsImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoStartApiRequestRoute = DemoStartApiRequestImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoSentryTestingRoute = DemoSentryTestingImport.update({
-  id: '/demo/sentry/testing',
-  path: '/demo/sentry/testing',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,41 +60,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginImport
       parentRoute: typeof rootRoute
     }
-    '/demo/neon': {
-      id: '/demo/neon'
-      path: '/demo/neon'
-      fullPath: '/demo/neon'
-      preLoaderRoute: typeof DemoNeonImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/sentry/testing': {
-      id: '/demo/sentry/testing'
-      path: '/demo/sentry/testing'
-      fullPath: '/demo/sentry/testing'
-      preLoaderRoute: typeof DemoSentryTestingImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -139,22 +69,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/demo/neon': typeof DemoNeonRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/demo/neon': typeof DemoNeonRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRoutesById {
@@ -162,44 +82,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
   '/login': typeof LoginRoute
-  '/demo/neon': typeof DemoNeonRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/sentry/testing': typeof DemoSentryTestingRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/demo/neon'
-    | '/demo/tanstack-query'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+  fullPaths: '/' | '/dashboard' | '/login'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/demo/neon'
-    | '/demo/tanstack-query'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-  id:
-    | '__root__'
-    | '/'
-    | '/dashboard'
-    | '/login'
-    | '/demo/neon'
-    | '/demo/tanstack-query'
-    | '/demo/sentry/testing'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
+  to: '/' | '/dashboard' | '/login'
+  id: '__root__' | '/' | '/dashboard' | '/login'
   fileRoutesById: FileRoutesById
 }
 
@@ -207,22 +97,12 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
   LoginRoute: typeof LoginRoute
-  DemoNeonRoute: typeof DemoNeonRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  DemoSentryTestingRoute: typeof DemoSentryTestingRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
   LoginRoute: LoginRoute,
-  DemoNeonRoute: DemoNeonRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  DemoSentryTestingRoute: DemoSentryTestingRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 
 export const routeTree = rootRoute
@@ -237,12 +117,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/dashboard",
-        "/login",
-        "/demo/neon",
-        "/demo/tanstack-query",
-        "/demo/sentry/testing",
-        "/demo/start/api-request",
-        "/demo/start/server-funcs"
+        "/login"
       ]
     },
     "/": {
@@ -253,21 +128,6 @@ export const routeTree = rootRoute
     },
     "/login": {
       "filePath": "login.tsx"
-    },
-    "/demo/neon": {
-      "filePath": "demo.neon.tsx"
-    },
-    "/demo/tanstack-query": {
-      "filePath": "demo.tanstack-query.tsx"
-    },
-    "/demo/sentry/testing": {
-      "filePath": "demo.sentry.testing.tsx"
-    },
-    "/demo/start/api-request": {
-      "filePath": "demo.start.api-request.tsx"
-    },
-    "/demo/start/server-funcs": {
-      "filePath": "demo.start.server-funcs.tsx"
     }
   }
 }
