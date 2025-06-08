@@ -3,7 +3,7 @@ import { signOut, useSession } from "../lib/auth-client";
 import { Button } from "./ui/button";
 
 export default function Header() {
-	const { data: session, isPending } = useSession();
+	const session = useSession();
 
 	return (
 		<header className="p-2 flex gap-2 bg-white text-black justify-between">
@@ -20,9 +20,7 @@ export default function Header() {
 			</nav>
 
 			<div className="flex items-center gap-2">
-				{isPending ? (
-					<div>Loading...</div>
-				) : session?.user ? (
+				{session?.user ? (
 					<div className="flex items-center gap-2">
 						<span className="text-sm">Hello, {session.user.name}</span>
 						<Button variant="outline" size="sm" onClick={() => signOut()}>

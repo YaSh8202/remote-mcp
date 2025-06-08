@@ -1,4 +1,7 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	useNavigate,
+} from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "../components/ui/button";
 import {
@@ -15,7 +18,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
-	const { data: session, isPending } = useSession();
+	const session = useSession();
 	const navigate = useNavigate();
 
 	// Redirect if already authenticated
@@ -35,14 +38,6 @@ function LoginPage() {
 			console.error("Sign in error:", error);
 		}
 	};
-
-	if (isPending) {
-		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<div className="text-lg">Loading...</div>
-			</div>
-		);
-	}
 
 	// Don't render if already authenticated (while navigating)
 	if (session?.user) {
