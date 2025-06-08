@@ -1,13 +1,62 @@
-Welcome to your new TanStack app! 
+# MCP One - TanStack Start with Authentication
+
+This is a TanStack Start project with Drizzle ORM and Better Auth integration, featuring Google OAuth authentication.
+
+## Features
+
+- **TanStack Start** - Full-stack React framework
+- **Drizzle ORM** - Type-safe database ORM with PostgreSQL
+- **Better Auth** - Modern authentication library
+- **Google OAuth** - Social authentication with Google
+- **Tailwind CSS** - Utility-first CSS framework
+- **TypeScript** - Full type safety
 
 # Getting Started
 
-To run this application:
+## Prerequisites
 
-```bash
-pnpm install
-pnpm start  
-```
+- Node.js 18+ and pnpm
+- PostgreSQL database (can use Neon, Supabase, or local)
+- Google OAuth credentials
+
+## Setup
+
+1. **Install dependencies:**
+   ```bash
+   pnpm install
+   ```
+
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Fill in your environment variables:
+   - `DATABASE_URL` - Your PostgreSQL connection string
+   - `GOOGLE_CLIENT_ID` - Your Google OAuth client ID
+   - `GOOGLE_CLIENT_SECRET` - Your Google OAuth client secret
+   - `BETTER_AUTH_SECRET` - A random secret key (min 32 characters)
+
+3. **Set up Google OAuth:**
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing
+   - Enable Google+ API
+   - Create OAuth 2.0 credentials
+   - Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
+
+4. **Set up the database:**
+   ```bash
+   # Generate migration files
+   pnpm run db:generate
+   
+   # Run migrations to your database
+   # Example: npx drizzle-kit push (for schema push)
+   ```
+
+5. **Start the development server:**
+   ```bash
+   pnpm run dev
+   ```
 
 # Building For Production
 
