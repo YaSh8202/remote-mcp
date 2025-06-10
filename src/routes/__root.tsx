@@ -16,6 +16,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { AppSidebar } from "@/components/app-sidebar.tsx";
 import { SidebarProvider } from "@/components/ui/sidebar.tsx";
 import type { TRPCRouter } from "@/integrations/trpc/router";
+import { redirect } from "@tanstack/react-router";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
 interface MyRouterContext {
@@ -24,8 +25,19 @@ interface MyRouterContext {
 }
 
 export const Route = createRootRouteWithContext<MyRouterContext>()({
-	loader: async () => {
+	loader: async (ctx) => {
 		const session = await getUserSession();
+		const isAuthenticated = !!session?.user;
+		const isLoginPage = ctx.location.pathname === "/login";
+		if (!isAuthenticated && !isLoginPage) {
+			// Redirect to login if not authenticated and not already on the login page
+			throw redirect({ to: "/login", statusCode: 302 });
+		}
+		if (isAuthenticated && isLoginPage) {
+			// Redirect to home if already authenticated and trying to access login page
+			throw redirect({ to: "/", replace: true });
+		}
+
 		return {
 			session,
 		};
