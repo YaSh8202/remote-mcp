@@ -5,7 +5,6 @@ import {
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-import Header from "../components/Header";
 
 import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
 
@@ -14,6 +13,8 @@ import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 
+import { AppSidebar } from "@/components/app-sidebar.tsx";
+import { SidebarProvider } from "@/components/ui/sidebar.tsx";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
@@ -52,9 +53,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 	component: () => (
 		<RootDocument>
-			<Header />
+			<SidebarProvider>
+				<AppSidebar />
+				<main className="w-full">
+					<Outlet />
+				</main>
+			</SidebarProvider>
 
-			<Outlet />
 			<TanStackRouterDevtools />
 
 			<TanStackQueryLayout />
