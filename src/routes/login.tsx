@@ -1,3 +1,5 @@
+import { LoadingSpinner } from "@/components/ui/spinner";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Button } from "../components/ui/button";
@@ -36,6 +38,10 @@ function LoginPage() {
 		}
 	};
 
+	const socialSignInMutation = useMutation({
+		mutationFn: handleGoogleSignIn,
+	});
+
 	// Don't render if already authenticated (while navigating)
 	if (session?.user) {
 		return (
@@ -46,7 +52,7 @@ function LoginPage() {
 	}
 
 	return (
-		<div className="flex min-h-screen items-center justify-center bg-gray-50">
+		<div className="flex min-h-screen items-center justify-center bg-secondary/70">
 			<Card className="w-full max-w-md">
 				<CardHeader className="text-center">
 					<CardTitle className="text-2xl font-bold">Welcome Back</CardTitle>
@@ -54,14 +60,16 @@ function LoginPage() {
 				</CardHeader>
 				<CardContent className="space-y-4">
 					<Button
-						onClick={handleGoogleSignIn}
+						onClick={() => socialSignInMutation.mutate()}
+						disabled={socialSignInMutation.isPending}
 						className="w-full"
 						variant="outline"
 					>
+						{socialSignInMutation.isPending && <LoadingSpinner />}
 						Continue with Google
 					</Button>
 
-					<div className="text-center text-sm text-gray-600">
+					<div className="text-center text-sm text-muted-foreground">
 						By signing in, you agree to our Terms of Service and Privacy Policy
 					</div>
 				</CardContent>

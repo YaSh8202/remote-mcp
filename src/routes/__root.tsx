@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 
 import { AppSidebar } from "@/components/app-sidebar.tsx";
+import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { SidebarProvider } from "@/components/ui/sidebar.tsx";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { redirect } from "@tanstack/react-router";
@@ -52,7 +53,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "MCP One",
 			},
 		],
 		links: [
@@ -81,12 +82,20 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
 	return (
-		<html lang="en">
+		<html suppressHydrationWarning lang="en">
 			<head>
 				<HeadContent />
 			</head>
 			<body>
-				{children}
+				<ThemeProvider
+					attribute="class"
+					defaultTheme="system"
+					enableSystem
+					storageKey="mcp-one-theme"
+					enableColorScheme
+				>
+					{children}
+				</ThemeProvider>
 				<Scripts />
 			</body>
 		</html>

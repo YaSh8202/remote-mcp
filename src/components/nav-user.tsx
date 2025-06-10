@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { signOut, useSession } from "@/lib/auth-client";
 import { useRouter } from "@tanstack/react-router";
+import { ThemeToggle } from "./theme-toggle";
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
@@ -79,6 +80,8 @@ export function NavUser() {
 								</div>
 							</div>
 						</DropdownMenuLabel>
+						<DropdownMenuSeparator />
+						<ThemeToggle />
 						<DropdownMenuSeparator />
 
 						<DropdownMenuGroup>
