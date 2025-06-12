@@ -6,3 +6,4 @@ dist-ssr
 .output
 .vinxi
 .env
+.vscode/mcp.json
