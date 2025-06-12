@@ -1,7 +1,6 @@
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import {
 	Card,
@@ -10,23 +9,20 @@ import {
 	CardHeader,
 	CardTitle,
 } from "../components/ui/card";
-import { signIn, useSession } from "../lib/auth-client";
+import { signIn } from "../lib/auth-client";
 
 export const Route = createFileRoute("/login")({
 	component: LoginPage,
+	beforeLoad: async ({ context }) => {
+		if (context.userSession?.user) {
+			throw redirect({
+				to: "/",
+			});
+		}
+	},
 });
 
 function LoginPage() {
-	const { session } = useSession();
-	const navigate = useNavigate();
-
-	// Redirect if already authenticated
-	useEffect(() => {
-		if (session?.user) {
-			navigate({ to: "/" });
-		}
-	}, [session, navigate]);
-
 	const handleGoogleSignIn = async () => {
 		try {
 			await signIn.social({
@@ -41,15 +37,6 @@ function LoginPage() {
 	const socialSignInMutation = useMutation({
 		mutationFn: handleGoogleSignIn,
 	});
-
-	// Don't render if already authenticated (while navigating)
-	if (session?.user) {
-		return (
-			<div className="flex min-h-screen items-center justify-center">
-				<div className="text-lg">Redirecting...</div>
-			</div>
-		);
-	}
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-secondary/70">

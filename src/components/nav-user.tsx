@@ -18,25 +18,23 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { signOut, useSession } from "@/lib/auth-client";
+import { useUserSession } from "@/hooks/auth";
+import { signOut } from "@/lib/auth-client";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { ThemeToggle } from "./theme-toggle";
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
-	const { session, refetch } = useSession();
+	const { user } = useUserSession();
+	const queryClient = useQueryClient();
+
 	const router = useRouter();
-
-	if (!session?.user) {
-		return null; // Don't render if no user session
-	}
-
-	const user = session.user;
 
 	const signOutHandler = async () => {
 		await signOut();
-		refetch();
 		router.invalidate();
+		await queryClient.invalidateQueries();
 		router.navigate({ to: "/login" });
 	};
 

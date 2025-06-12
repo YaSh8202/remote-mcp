@@ -9,7 +9,6 @@ import {
 	SidebarHeader,
 	SidebarRail,
 } from "@/components/ui/sidebar";
-import { useSession } from "@/lib/auth-client";
 import { MCPIcon } from "./icons";
 
 const data = {
@@ -39,12 +38,6 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { session } = useSession();
-
-	if (!session) {
-		return null;
-	}
-
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
