@@ -149,7 +149,7 @@ const Theme = ({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleMediaQuery = React.useCallback(
 		(e: MediaQueryListEvent | MediaQueryList) => {
-			const resolved = getSystemTheme(e);
+			getSystemTheme(e);
 
 			if (theme === "system" && enableSystem && !forcedTheme) {
 				applyTheme("system");

@@ -2,11 +2,11 @@ import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 
 import { randomUUID } from "node:crypto";
+import { githubMcpApp } from "@/app/mcp/apps/github";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { getEvent } from "vinxi/http";
-import { z } from "zod";
 const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
 
 type VinxiRequest = ReturnType<typeof getEvent>["node"]["req"];
@@ -66,23 +66,17 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				}
 			};
 			const server = new McpServer({
-				name: "example-server",
+				name: "mcp-one-server",
 				version: "1.0.0",
 			});
 
-			// ... set up server resources, tools, and prompts ...
-
-			server.tool(
-				"roll_dice",
-				"Rolls an N-sided die",
-				{ sides: z.number().int().min(2) },
-				async ({ sides }) => {
-					const value = 1 + Math.floor(Math.random() * sides);
-					return {
-						content: [{ type: "text", text: `🎲 You rolled a ${value}!` }],
-					};
-				},
-			);
+			for (const tool of githubMcpApp.tools) {
+				if (tool.paramsSchema) {
+					server.tool(tool.name, tool.paramsSchema, async (args) => {
+						return tool.callback(args);
+					});
+				}
+			}
 
 			// Connect to the MCP server
 			await server.connect(transport);
