@@ -1,100 +1,82 @@
-import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-
-import { randomUUID } from "node:crypto";
 import { githubMcpApp } from "@/app/mcp/apps/github";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
+import { json } from "@tanstack/react-start";
+import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { getEvent } from "vinxi/http";
-const transports: { [sessionId: string]: StreamableHTTPServerTransport } = {};
-
-type VinxiRequest = ReturnType<typeof getEvent>["node"]["req"];
-type VinxiResponse = ReturnType<typeof getEvent>["node"]["res"];
-
-const handleSessionRequest = async (req: VinxiRequest, res: VinxiResponse) => {
-	const sessionId = req.headers["mcp-session-id"] as string | undefined;
-	if (!sessionId || !transports[sessionId]) {
-		res.statusCode = 400;
-		res.end("Invalid or missing session ID");
-		return;
-	}
-
-	const transport = transports[sessionId];
-	await transport.handleRequest(req, res);
-};
 
 export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
-	// @ts-expect-error
-	GET: async ({ request, params }) => {
-		const req = getEvent().node.req;
-		const res = getEvent().node.res;
-
-		handleSessionRequest(req, res);
+	GET: async () => {
+		return json(
+			{
+				jsonrpc: "2.0",
+				error: {
+					code: -32000,
+					message: "Method not allowed.",
+				},
+				id: null,
+			},
+			{ status: 405 },
+		);
 	},
-	// @ts-expect-error
-	DELETE: async ({ request }) => {
-		const req = getEvent().node.req;
-		const res = getEvent().node.res;
-
-		handleSessionRequest(req, res);
+	DELETE: async () => {
+		return json(
+			{
+				jsonrpc: "2.0",
+				error: {
+					code: -32000,
+					message: "Method not allowed.",
+				},
+				id: null,
+			},
+			{ status: 405 },
+		);
 	},
 
 	// @ts-expect-error
 	POST: async ({ request, params }) => {
-		// const sessionId = req.headers['mcp-session-id'] as string | undefined;
-		const sessionId = request.headers.get("mcp-session-id") || undefined;
-		let transport: StreamableHTTPServerTransport;
 		const body = await request.json();
-		if (sessionId && transports[sessionId]) {
-			// Reuse existing transport
-			transport = transports[sessionId];
-		} else if (!sessionId && isInitializeRequest(body)) {
-			// New initialization request
-			transport = new StreamableHTTPServerTransport({
-				sessionIdGenerator: () => randomUUID(),
-				onsessioninitialized: (sessionId) => {
-					// Store the transport by session ID
-					transports[sessionId] = transport;
-				},
-			});
+		const req = getEvent().node.req;
+		const res = getEvent().node.res;
 
-			// Clean up transport when closed
-			transport.onclose = () => {
-				if (transport.sessionId) {
-					delete transports[transport.sessionId];
-				}
-			};
-			const server = new McpServer({
-				name: "mcp-one-server",
-				version: "1.0.0",
-			});
+		const transport = new StreamableHTTPServerTransport({
+			sessionIdGenerator: undefined,
+		});
 
-			for (const tool of githubMcpApp.tools) {
-				if (tool.paramsSchema) {
+		res.on("close", () => {
+			console.log("Request closed");
+			transport.close();
+			server.close();
+		});
+
+		const server = new McpServer({
+			name: "mcp-one-server",
+			version: "1.0.0",
+		});
+
+		for (const tool of githubMcpApp.tools) {
+			if (tool.paramsSchema) {
+				if (tool.description) {
+					server.tool(
+						tool.name,
+						tool.description,
+						tool.paramsSchema,
+						async (args) => {
+							return tool.callback(args);
+						},
+					);
+				} else {
 					server.tool(tool.name, tool.paramsSchema, async (args) => {
 						return tool.callback(args);
 					});
 				}
 			}
-
-			// Connect to the MCP server
-			await server.connect(transport);
-		} else {
-			return json(
-				{
-					error: "Bad Request: No valid session ID provided",
-					code: -32000,
-				},
-				{ status: 400 },
-			);
 		}
 
+		// Connect to the MCP server
+		await server.connect(transport);
+
 		// Handle the request
-		await transport.handleRequest(
-			getEvent().node.req,
-			getEvent().node.res,
-			body,
-		);
+		await transport.handleRequest(req, res, body);
 	},
 });
