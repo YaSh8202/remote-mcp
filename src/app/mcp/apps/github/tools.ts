@@ -136,6 +136,7 @@ const getRepoFileSchema = {
 
 const getRepoFileTool = createMcpTool({
 	name: "getRepoFile",
+	description: "Fetch a file from a GitHub repository",
 	paramsSchema: getRepoFileSchema,
 	callback: async (args, extra) => {
 		try {

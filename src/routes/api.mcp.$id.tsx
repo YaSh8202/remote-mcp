@@ -39,16 +39,6 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 		const req = getEvent().node.req;
 		const res = getEvent().node.res;
 
-		const transport = new StreamableHTTPServerTransport({
-			sessionIdGenerator: undefined,
-		});
-
-		res.on("close", () => {
-			console.log("Request closed");
-			transport.close();
-			server.close();
-		});
-
 		const server = new McpServer({
 			name: "mcp-one-server",
 			version: "1.0.0",
@@ -72,6 +62,17 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				}
 			}
 		}
+
+		const transport = new StreamableHTTPServerTransport({
+			sessionIdGenerator: undefined,
+			enableJsonResponse: true,
+		});
+
+		res.on("close", () => {
+			console.log("Request closed");
+			transport.close();
+			server.close();
+		});
 
 		// Connect to the MCP server
 		await server.connect(transport);
