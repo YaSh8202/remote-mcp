@@ -1,6 +1,6 @@
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { Button } from "../components/ui/button";
 import {
 	Card,
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+	const navigate = useNavigate();
 	const handleGoogleSignIn = async () => {
 		try {
 			await signIn.social({
@@ -36,6 +37,10 @@ function LoginPage() {
 
 	const socialSignInMutation = useMutation({
 		mutationFn: handleGoogleSignIn,
+		onSuccess: () => {
+			// Handle successful sign-in, e.g., redirect or show a success message
+			navigate({ to: "/" });
+		},
 	});
 
 	return (

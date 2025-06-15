@@ -1,4 +1,4 @@
-import { boolean, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),
@@ -71,8 +71,116 @@ export const verifications = pgTable("verifications", {
 		.defaultNow(),
 });
 
+export enum AppConnectionStatus {
+	ACTIVE = "ACTIVE",
+	MISSING = "MISSING",
+	ERROR = "ERROR",
+}
+
+export enum AppConnectionType {
+	OAUTH2 = "OAUTH2",
+	NO_AUTH = "NO_AUTH",
+}
+
+export const appConnections = pgTable("app_connections", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	displayName: text("display_name").notNull(),
+	type: text("type").$type<AppConnectionType>().notNull(),
+	status: text("status")
+		.$type<AppConnectionStatus>()
+		.notNull()
+		.default(AppConnectionStatus.ACTIVE),
+	appName: text("app_name").notNull(),
+	ownerId: text("owner_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	value: jsonb("value").$type<EncryptedObject>().notNull(),
+});
+
+export enum McpRunStatus {
+	SUCCESS = "SUCCESS",
+	FAILED = "FAILED",
+}
+
+export const mcpServer = pgTable("mcp_server", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	name: text("name").notNull(),
+	ownerId: text("owner_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	token: text("token").notNull(),
+});
+
+export const mcpApps = pgTable("mcp_apps", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	appName: text("app_name").notNull(),
+	serverId: text("server_id")
+		.notNull()
+		.references(() => mcpServer.id, { onDelete: "cascade" }),
+	tools: jsonb("tools").$type<string[]>().notNull(),
+});
+
+export const mcpRuns = pgTable("mcp_runs", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	serverId: text("server_id")
+		.notNull()
+		.references(() => mcpServer.id, { onDelete: "cascade" }),
+	appId: text("app_id")
+		.notNull()
+		.references(() => mcpApps.id, { onDelete: "cascade" }),
+	toolName: text("tool_name").notNull(),
+	metadata: jsonb("metadata")
+		.$type<{ appName: string; toolName: string }>()
+		.notNull(),
+	// biome-ignore lint/suspicious/noExplicitAny:  mcp run input can be any JSON structure
+	input: jsonb("input").$type<{ [x: string]: any }>().notNull(),
+	// biome-ignore lint/suspicious/noExplicitAny: mcp run output can be any JSON structure
+	output: jsonb("output").$type<{ [x: string]: any }>().notNull(),
+	status: text("status").$type<McpRunStatus>().notNull(),
+	ownerId: text("owner_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+});
+
+export type EncryptedObject = {
+	iv: string;
+	data: string;
+};
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
 export type Verification = typeof verifications.$inferSelect;
+export type AppConnection = typeof appConnections.$inferSelect;
+export type NewAppConnection = typeof appConnections.$inferInsert;
+export type McpServer = typeof mcpServer.$inferSelect;
+export type NewMcpServer = typeof mcpServer.$inferInsert;
+export type McpApp = typeof mcpApps.$inferSelect;
+export type NewMcpApp = typeof mcpApps.$inferInsert;
+export type McpRun = typeof mcpRuns.$inferSelect;
+export type NewMcpRun = typeof mcpRuns.$inferInsert;
