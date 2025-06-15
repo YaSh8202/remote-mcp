@@ -39,45 +39,62 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 		const req = getEvent().node.req;
 		const res = getEvent().node.res;
 
-		const server = new McpServer({
-			name: "mcp-one-server",
-			version: "1.0.0",
-		});
+		try {
+			const server = new McpServer({
+				name: "mcp-one-server",
+				version: "1.0.0",
+			});
 
-		for (const tool of githubMcpApp.tools) {
-			if (tool.paramsSchema) {
-				if (tool.description) {
-					server.tool(
-						tool.name,
-						tool.description,
-						tool.paramsSchema,
-						async (args) => {
+			for (const tool of githubMcpApp.tools) {
+				if (tool.paramsSchema) {
+					if (tool.description) {
+						server.tool(
+							tool.name,
+							tool.description,
+							tool.paramsSchema,
+							async (args) => {
+								return tool.callback(args);
+							},
+						);
+					} else {
+						server.tool(tool.name, tool.paramsSchema, async (args) => {
 							return tool.callback(args);
-						},
-					);
-				} else {
-					server.tool(tool.name, tool.paramsSchema, async (args) => {
-						return tool.callback(args);
-					});
+						});
+					}
 				}
 			}
+
+			const transport = new StreamableHTTPServerTransport({
+				sessionIdGenerator: undefined,
+			});
+
+			res.on("close", async () => {
+				await transport.close();
+				await server.close();
+			});
+
+			// Connect to the MCP server
+			await server.connect(transport);
+
+			// Handle the request
+			await transport.handleRequest(req, res, body);
+		} catch (error) {
+			console.error("Error handling MCP request:", error);
+			if (!res.headersSent) {
+				return json(
+					{
+						jsonrpc: "2.0",
+						error: {
+							code: -32603,
+							message: "Internal server error",
+						},
+						id: null,
+					},
+					{
+						status: 500,
+					},
+				);
+			}
 		}
-
-		const transport = new StreamableHTTPServerTransport({
-			sessionIdGenerator: undefined,
-			enableJsonResponse: true,
-		});
-
-		res.on("close", () => {
-			console.log("Request closed");
-			transport.close();
-			server.close();
-		});
-
-		// Connect to the MCP server
-		await server.connect(transport);
-
-		// Handle the request
-		await transport.handleRequest(req, res, body);
 	},
 });
