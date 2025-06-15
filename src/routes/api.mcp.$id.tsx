@@ -45,24 +45,13 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				version: "1.0.0",
 			});
 
-			for (const tool of githubMcpApp.tools) {
-				if (tool.paramsSchema) {
-					if (tool.description) {
-						server.tool(
-							tool.name,
-							tool.description,
-							tool.paramsSchema,
-							async (args) => {
-								return tool.callback(args);
-							},
-						);
-					} else {
-						server.tool(tool.name, tool.paramsSchema, async (args) => {
-							return tool.callback(args);
-						});
-					}
-				}
-			}
+			// const sampleGithubAuth = {
+			// 	access_token: "sample-github-access-token", // Replace with a valid GitHub access token
+			// 	data: {},
+			// } as unknown as typeof githubMcpApp.auth;
+
+			// Register all tools from the GitHub app with the auth
+			githubMcpApp.registerTools(server);
 
 			const transport = new StreamableHTTPServerTransport({
 				sessionIdGenerator: undefined,

@@ -1,5 +1,5 @@
 import { McpApp, McpAppCategory } from "../../mcp-app";
-import { MCPAppAuthType } from "../../mcp-app/auth";
+import { MCPAppAuthType, type McpAppAuthProperty } from "../../mcp-app/auth";
 import { githubTools } from "./tools";
 
 export const githubMcpApp = new McpApp(
@@ -11,10 +11,8 @@ export const githubMcpApp = new McpApp(
 		authUrl: "https://github.com/login/oauth/authorize",
 		tokenUrl: "https://github.com/login/oauth/access_token",
 		scope: ["admin:repo_hook", "admin:org", "repo"],
-		access_token: "",
-		data: {},
 		type: MCPAppAuthType.OAUTH2,
 		extra: {},
-	},
+	} as McpAppAuthProperty,
 	githubTools,
 );

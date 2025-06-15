@@ -1,8 +1,6 @@
-#!/usr/bin/env node
-
 import { Octokit } from "octokit";
 import { z } from "zod";
-import { type McpTool, createMcpTool } from "../../mcp-app";
+import { type AnyMcpToolConfig, createParameterizedTool } from "../../mcp-app";
 
 function parseGitHubUrl(url: string) {
 	const regex = /github\.com\/([^\/]+)\/([^\/]+)/;
@@ -18,7 +16,7 @@ const getRepoAllDirectoriesSchema = {
 	repoUrl: z.string().url().describe("The URL of the Github repo"),
 };
 
-const getRepoAllDirectoriesTool = createMcpTool({
+const getRepoAllDirectoriesTool = createParameterizedTool({
 	name: "getRepoAllDirectories",
 	description: "Fetch all directories in the root of a GitHub repository",
 	paramsSchema: getRepoAllDirectoriesSchema,
@@ -51,7 +49,7 @@ const getRepoAllDirectoriesTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `Repository root contents for ${owner}/${repo}:\n\n${itemsDisplay}`,
 					},
 				],
@@ -61,7 +59,7 @@ const getRepoAllDirectoriesTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `Error fetching repo: ${error instanceof Error ? error.message : String(error)}`,
 					},
 				],
@@ -76,7 +74,7 @@ const getRepoDirectoriesSchema = {
 	path: z.string().describe("The directory path to fetch"),
 };
 
-const getRepoDirectoriesTool = createMcpTool({
+const getRepoDirectoriesTool = createParameterizedTool({
 	name: "getRepoDirectories",
 	description: "Fetch directories in a specific path of a GitHub repository",
 	paramsSchema: getRepoDirectoriesSchema,
@@ -109,7 +107,7 @@ const getRepoDirectoriesTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `Contents for ${args.path} in ${owner}/${repo}:\n\n${itemsDisplay}`,
 					},
 				],
@@ -119,7 +117,7 @@ const getRepoDirectoriesTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `Error fetching directory: ${error instanceof Error ? error.message : String(error)}`,
 					},
 				],
@@ -134,7 +132,7 @@ const getRepoFileSchema = {
 	path: z.string().describe("The file path to fetch"),
 };
 
-const getRepoFileTool = createMcpTool({
+const getRepoFileTool = createParameterizedTool({
 	name: "getRepoFile",
 	description: "Fetch a file from a GitHub repository",
 	paramsSchema: getRepoFileSchema,
@@ -177,7 +175,7 @@ const getRepoFileTool = createMcpTool({
 				return {
 					content: [
 						{
-							type: "text",
+							type: "text" as const,
 							text: `File ${args.path} appears to be a binary file and cannot be displayed as text.`,
 						},
 					],
@@ -187,7 +185,7 @@ const getRepoFileTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `File content for ${args.path} in ${owner}/${repo}:\n\n${content}`,
 					},
 				],
@@ -197,7 +195,7 @@ const getRepoFileTool = createMcpTool({
 			return {
 				content: [
 					{
-						type: "text",
+						type: "text" as const,
 						text: `Error fetching file: ${error instanceof Error ? error.message : String(error)}`,
 					},
 				],
@@ -207,9 +205,8 @@ const getRepoFileTool = createMcpTool({
 	},
 });
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-export const githubTools: McpTool[] = [
-	getRepoAllDirectoriesTool as McpTool,
-	getRepoDirectoriesTool as McpTool,
-	getRepoFileTool as McpTool,
+export const githubTools: AnyMcpToolConfig[] = [
+	getRepoAllDirectoriesTool,
+	getRepoDirectoriesTool,
+	getRepoFileTool,
 ];

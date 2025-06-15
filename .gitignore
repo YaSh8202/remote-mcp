@@ -7,3 +7,4 @@ dist-ssr
 .vinxi
 .env
 .vscode/mcp.json
+.vercel
