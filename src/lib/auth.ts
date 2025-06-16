@@ -1,12 +1,12 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { reactStartCookies } from "better-auth/react-start";
-import { getDb } from "../db";
+import { db } from "../db";
 import * as schema from "../db/schema";
 import { env } from "../env";
 
 export const auth = betterAuth({
-	database: drizzleAdapter(getDb(), {
+	database: drizzleAdapter(db, {
 		provider: "pg",
 		schema: {
 			user: schema.users,

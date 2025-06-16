@@ -4,11 +4,10 @@ import * as schema from "./db/schema";
 import { env } from "./env";
 
 let client: ReturnType<typeof neon>;
-let db: ReturnType<typeof drizzle>;
 
-export async function getClient() {
+export function getClient() {
 	if (!env.DATABASE_URL) {
-		return undefined;
+		throw new Error("DATABASE_URL is not set");
 	}
 	if (!client) {
 		client = neon(env.DATABASE_URL);
@@ -16,13 +15,4 @@ export async function getClient() {
 	return client;
 }
 
-export function getDb() {
-	if (!env.DATABASE_URL) {
-		throw new Error("DATABASE_URL is not set");
-	}
-	if (!db) {
-		const sql = neon(env.DATABASE_URL);
-		db = drizzle(sql, { schema });
-	}
-	return db;
-}
+export const db = drizzle(getClient(), { schema });

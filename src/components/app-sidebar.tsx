@@ -15,7 +15,7 @@ const data = {
 	navMain: [
 		{
 			title: "Servers",
-			url: "#",
+			url: "/servers",
 			icon: SquareTerminal,
 			isActive: true,
 		},
