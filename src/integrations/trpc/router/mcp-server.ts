@@ -1,30 +1,48 @@
+import { db } from "@/db";
+import { mcpServer } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { protectedProcedure } from "../init";
 
-import { db } from "@/db";
-import { mcpServer } from "@/db/schema";
-import { createTRPCRouter, protectedProcedure } from "./init";
+const findMcpServer = async (id: string, userId: string) => {
+	return await db.query.mcpServer.findFirst({
+		where: (mcpServer, { eq, and }) =>
+			and(eq(mcpServer.id, id), eq(mcpServer.ownerId, userId)),
+		with: {
+			apps: true,
+		},
+	});
+};
 
-const mcpServerRouter = {
+export const mcpServerRouter = {
 	list: protectedProcedure.query(async ({ ctx }) => {
 		return await db.query.mcpServer.findMany({
 			where: (mcpServer, { eq }) => eq(mcpServer.ownerId, ctx.user.id),
 			orderBy: (mcpServer, { desc }) => [desc(mcpServer.createdAt)],
+			with: {
+				apps: true,
+			},
 		});
 	}),
 
 	get: protectedProcedure
 		.input(z.object({ id: z.string() }))
 		.query(async ({ ctx, input }) => {
-			const server = await db.query.mcpServer.findFirst({
-				where: (mcpServer, { eq, and }) =>
-					and(eq(mcpServer.id, input.id), eq(mcpServer.ownerId, ctx.user.id)),
-				with: {
-					owner: true,
-				},
-			});
+			const server = await findMcpServer(input.id, ctx.user.id);
+
+			if (!server) {
+				throw null;
+			}
+
+			return server;
+		}),
+
+	findOrThrow: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const server = await findMcpServer(input.id, ctx.user.id);
 
 			if (!server) {
 				throw new TRPCError({
@@ -112,8 +130,3 @@ const mcpServerRouter = {
 			return { success: true };
 		}),
 } satisfies TRPCRouterRecord;
-
-export const trpcRouter = createTRPCRouter({
-	mcpServer: mcpServerRouter,
-});
-export type TRPCRouter = typeof trpcRouter;

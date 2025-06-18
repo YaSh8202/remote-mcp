@@ -10,8 +10,8 @@ import type {
 	ServerRequest,
 	ToolAnnotations,
 } from "@modelcontextprotocol/sdk/types.js";
-import type { ZodRawShape, z } from "zod";
-import type { McpAppAuthProperty } from "./auth";
+import z, { type ZodRawShape } from "zod";
+import { McpAppAuthProperty } from "./auth";
 
 export enum McpAppCategory {
 	DEVELOPER_TOOLS = "DEVELOPER_TOOLS",
@@ -183,12 +183,31 @@ export function registerTool(
 	);
 }
 
+export const McpAppMetadata = z.object({
+	name: z.string(),
+	description: z.string(),
+	logoUrl: z.string().url(),
+	categories: z.array(z.nativeEnum(McpAppCategory)),
+	auth: McpAppAuthProperty,
+	tools: z.array(
+		z.object({
+			name: z.string(),
+			description: z.string().optional(),
+			paramsSchema: z.object({}).passthrough().optional(),
+			annotations: z.object({}).passthrough().optional(),
+		}),
+	),
+});
+
+export type McpAppMetadata = z.infer<typeof McpAppMetadata>;
+
 export class McpApp<
 	McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty,
 > {
 	constructor(
 		public readonly name: string,
 		public readonly description: string,
+		public readonly logoUrl: string,
 		public readonly categories: McpAppCategory[],
 		public auth: McpAppAuth,
 		public tools: AnyMcpToolConfig[],
@@ -203,5 +222,21 @@ export class McpApp<
 		return this.tools.map((toolConfig) =>
 			registerTool(server, toolConfig, authToUse),
 		);
+	}
+
+	metadata(): McpAppMetadata {
+		return {
+			name: this.name,
+			description: this.description,
+			logoUrl: this.logoUrl,
+			categories: this.categories,
+			auth: this.auth,
+			tools: this.tools.map((tool) => ({
+				name: tool.name,
+				description: "description" in tool ? tool.description : undefined,
+				paramsSchema: "paramsSchema" in tool ? tool.paramsSchema : undefined,
+				annotations: "annotations" in tool ? tool.annotations : undefined,
+			})),
+		};
 	}
 }

@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -184,3 +185,65 @@ export type McpApp = typeof mcpApps.$inferSelect;
 export type NewMcpApp = typeof mcpApps.$inferInsert;
 export type McpRun = typeof mcpRuns.$inferSelect;
 export type NewMcpRun = typeof mcpRuns.$inferInsert;
+
+// Database Relations
+export const usersRelations = relations(users, ({ many }) => ({
+	sessions: many(sessions),
+	accounts: many(accounts),
+	appConnections: many(appConnections),
+	mcpServers: many(mcpServer),
+	mcpRuns: many(mcpRuns),
+}));
+
+export const mcpServerRelations = relations(mcpServer, ({ one, many }) => ({
+	owner: one(users, {
+		fields: [mcpServer.ownerId],
+		references: [users.id],
+	}),
+	apps: many(mcpApps),
+	runs: many(mcpRuns),
+}));
+
+export const mcpAppsRelations = relations(mcpApps, ({ one, many }) => ({
+	server: one(mcpServer, {
+		fields: [mcpApps.serverId],
+		references: [mcpServer.id],
+	}),
+	runs: many(mcpRuns),
+}));
+
+export const mcpRunsRelations = relations(mcpRuns, ({ one }) => ({
+	server: one(mcpServer, {
+		fields: [mcpRuns.serverId],
+		references: [mcpServer.id],
+	}),
+	app: one(mcpApps, {
+		fields: [mcpRuns.appId],
+		references: [mcpApps.id],
+	}),
+	owner: one(users, {
+		fields: [mcpRuns.ownerId],
+		references: [users.id],
+	}),
+}));
+
+export const appConnectionsRelations = relations(appConnections, ({ one }) => ({
+	owner: one(users, {
+		fields: [appConnections.ownerId],
+		references: [users.id],
+	}),
+}));
+
+export const sessionsRelations = relations(sessions, ({ one }) => ({
+	user: one(users, {
+		fields: [sessions.userId],
+		references: [users.id],
+	}),
+}));
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+	user: one(users, {
+		fields: [accounts.userId],
+		references: [users.id],
+	}),
+}));

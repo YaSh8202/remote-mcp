@@ -5,6 +5,7 @@ import { githubTools } from "./tools";
 export const githubMcpApp = new McpApp(
 	"github",
 	"GitHub MCP App",
+	"https://api.iconify.design/mdi:github.svg",
 	[McpAppCategory.DEVELOPER_TOOLS],
 	{
 		required: true,
