@@ -133,6 +133,9 @@ export const mcpApps = pgTable("mcp_apps", {
 		.notNull()
 		.defaultNow(),
 	appName: text("app_name").notNull(),
+	connectionId: text("connection_id")
+		.notNull()
+		.references(() => appConnections.id, { onDelete: "cascade" }),
 	serverId: text("server_id")
 		.notNull()
 		.references(() => mcpServer.id, { onDelete: "cascade" }),
@@ -210,6 +213,10 @@ export const mcpAppsRelations = relations(mcpApps, ({ one, many }) => ({
 		references: [mcpServer.id],
 	}),
 	runs: many(mcpRuns),
+	connection: one(appConnections, {
+		fields: [mcpApps.connectionId],
+		references: [appConnections.id],
+	}),
 }));
 
 export const mcpRunsRelations = relations(mcpRuns, ({ one }) => ({

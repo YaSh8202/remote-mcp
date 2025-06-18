@@ -1,0 +1,2 @@
+ALTER TABLE "mcp_apps" ADD COLUMN "connection_id" text NOT NULL;--> statement-breakpoint
+ALTER TABLE "mcp_apps" ADD CONSTRAINT "mcp_apps_connection_id_app_connections_id_fk" FOREIGN KEY ("connection_id") REFERENCES "public"."app_connections"("id") ON DELETE cascade ON UPDATE no action;
