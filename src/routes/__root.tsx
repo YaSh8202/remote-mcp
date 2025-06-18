@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
 
 import { ThemeProvider } from "@/components/theme-provider.tsx";
+import { Toaster } from "@/components/ui/sonner";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { authQueries } from "@/services/queries";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
@@ -78,6 +79,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				>
 					{children}
 				</ThemeProvider>
+				<Toaster />
 				<Scripts />
 			</body>
 		</html>

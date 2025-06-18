@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, type ReactNode } from "react";
+import type { Button } from "@/components/ui/button";
+import React, {
+	createContext,
+	useContext,
+	useState,
+	type ReactNode,
+} from "react";
 
 export interface BreadcrumbItem {
 	label: string;
@@ -10,7 +16,7 @@ export interface HeaderAction {
 	label: string;
 	icon?: ReactNode;
 	onClick: () => void;
-	variant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+	variant?: Parameters<typeof Button>[0]["variant"];
 	disabled?: boolean;
 }
 
@@ -80,5 +86,12 @@ export function usePageHeader(config: {
 			setActions([]);
 			setTitle(undefined);
 		};
-	}, [config.breadcrumbs, config.actions, config.title, setBreadcrumbs, setActions, setTitle]);
+	}, [
+		config.breadcrumbs,
+		config.actions,
+		config.title,
+		setBreadcrumbs,
+		setActions,
+		setTitle,
+	]);
 }

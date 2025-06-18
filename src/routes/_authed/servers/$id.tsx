@@ -1,4 +1,5 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -9,7 +10,11 @@ import {
 } from "@/components/ui/card";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
@@ -37,6 +42,8 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const serverId = Route.useParams().id;
 	const [copied, setCopied] = useState<string | null>(null);
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const queryClient = useQueryClient();
 
 	const { data: server } = useSuspenseQuery(
 		trpc.mcpServer.findOrThrow.queryOptions({
@@ -56,9 +63,6 @@ function RouteComponent() {
 
 	const deleteServerMutation = useMutation({
 		...trpc.mcpServer.delete.mutationOptions(),
-		onSuccess: () => {
-			navigate({ to: "/servers" });
-		},
 	});
 
 	const copyToClipboard = async (text: string, type: string) => {
@@ -85,7 +89,7 @@ function RouteComponent() {
 		return appsMetadata.find((app: McpAppMetadata) => app.name === appName);
 	};
 
-	const serverUrl = `https://cloud.activepieces.com/api/v1/mcp/${server.token}/sse`;
+	const serverUrl = `${window.location.origin}/api/mcp/${server.token}`;
 
 	// Configure page header with breadcrumbs and actions
 	usePageHeader({
@@ -109,9 +113,7 @@ function RouteComponent() {
 				label: "Delete",
 				icon: <Trash2 className="h-4 w-4" />,
 				onClick: () => {
-					if (confirm(`Are you sure you want to delete "${server?.name}"?`)) {
-						deleteServerMutation.mutate({ id: serverId });
-					}
+					setDeleteDialogOpen(true);
 				},
 				variant: "destructive" as const,
 				disabled: deleteServerMutation.isPending,
@@ -399,53 +401,7 @@ function RouteComponent() {
 						<CardContent className="space-y-4">
 							<div>
 								<p className="text-sm font-medium text-muted-foreground">
-									Server ID
-								</p>
-								<div className="flex items-center gap-2 mt-1">
-									<code className="px-2 py-1 bg-muted rounded text-xs font-mono flex-1 truncate">
-										{server.id}
-									</code>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => copyToClipboard(server.id, "id")}
-										className="h-7 w-7 p-0"
-									>
-										{copied === "id" ? (
-											<CheckCircle className="h-3 w-3 text-green-500" />
-										) : (
-											<Copy className="h-3 w-3" />
-										)}
-									</Button>
-								</div>
-							</div>
-
-							<div>
-								<p className="text-sm font-medium text-muted-foreground">
-									Auth Token
-								</p>
-								<div className="flex items-center gap-2 mt-1">
-									<code className="px-2 py-1 bg-muted rounded text-xs font-mono flex-1 truncate">
-										{server.token.substring(0, 8)}...
-									</code>
-									<Button
-										variant="ghost"
-										size="sm"
-										onClick={() => copyToClipboard(server.token, "token")}
-										className="h-7 w-7 p-0"
-									>
-										{copied === "token" ? (
-											<CheckCircle className="h-3 w-3 text-green-500" />
-										) : (
-											<Copy className="h-3 w-3" />
-										)}
-									</Button>
-								</div>
-							</div>
-
-							<div>
-								<p className="text-sm font-medium text-muted-foreground">
-									Server URL
+									MCP URL
 								</p>
 								<div className="flex items-center gap-2 mt-1">
 									<code className="px-2 py-1 bg-muted rounded text-xs font-mono flex-1 truncate">
@@ -586,6 +542,34 @@ function RouteComponent() {
 					</Card>
 				</div>
 			</div>
+
+			{/* Delete Confirmation Dialog */}
+			<ConfirmationDeleteDialog
+				title="Delete Server"
+				message={
+					<span>
+						Are you sure you want to delete the server{" "}
+						<strong>"{server?.name}"</strong>? This action cannot be undone and
+						will disconnect all associated applications.
+					</span>
+				}
+				entityName={server?.name || "server"}
+				mutationFn={async () => {
+					await deleteServerMutation.mutateAsync({ id: serverId });
+					navigate({ to: "/servers" });
+					queryClient.invalidateQueries({
+						queryKey: trpc.mcpServer.list.queryKey(),
+					});
+				}}
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}
+				isDanger={true}
+				buttonText="Delete Server"
+				showToast={true}
+				onError={(error) => {
+					console.error("Failed to delete server:", error);
+				}}
+			/>
 		</div>
 	);
 }
