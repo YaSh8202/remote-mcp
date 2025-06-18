@@ -1,3 +1,4 @@
+export { AddAppDialog } from "./add-app-dialog";
 export { AvailableApps } from "./available-apps";
 export { ConnectedApps } from "./connected-apps";
 export { HowToConnect } from "./how-to-connect";

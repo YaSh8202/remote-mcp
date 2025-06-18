@@ -15,6 +15,8 @@ import {
 	Trash2,
 	Zap,
 } from "lucide-react";
+import { useState } from "react";
+import { AddAppDialog } from "./add-app-dialog";
 
 interface ConnectedAppsProps {
 	serverApps: Array<{
@@ -23,28 +25,41 @@ interface ConnectedAppsProps {
 		tools: string[];
 	}>;
 	getAppMetadata: (appName: string) => McpAppMetadata | undefined;
+	serverId: string;
+	onAppInstalled?: () => void;
 }
 
-export function ConnectedApps({ serverApps, getAppMetadata }: ConnectedAppsProps) {
+export function ConnectedApps({ 
+	serverApps, 
+	getAppMetadata, 
+	serverId, 
+	onAppInstalled 
+}: ConnectedAppsProps) {
+	const [addDialogOpen, setAddDialogOpen] = useState(false);
+
 	return (
-		<Card>
-			<CardHeader>
-				<div className="flex items-center justify-between">
-					<div>
-						<CardTitle className="flex items-center gap-2">
-							<Activity className="h-5 w-5" />
-							Connected Applications ({serverApps.length})
-						</CardTitle>
-						<CardDescription>
-							Manage applications connected to this MCP server
-						</CardDescription>
+		<>
+			<Card>
+				<CardHeader>
+					<div className="flex items-center justify-between">
+						<div>
+							<CardTitle className="flex items-center gap-2">
+								<Activity className="h-5 w-5" />
+								Connected Applications ({serverApps.length})
+							</CardTitle>
+							<CardDescription>
+								Manage applications connected to this MCP server
+							</CardDescription>
+						</div>
+						<Button 
+							className="gap-2"
+							onClick={() => setAddDialogOpen(true)}
+						>
+							<Plus className="h-4 w-4" />
+							Add App
+						</Button>
 					</div>
-					<Button className="gap-2">
-						<Plus className="h-4 w-4" />
-						Add App
-					</Button>
-				</div>
-			</CardHeader>
+				</CardHeader>
 			<CardContent>
 				{serverApps.length > 0 ? (
 					<div className="grid gap-4">
@@ -153,7 +168,10 @@ export function ConnectedApps({ serverApps, getAppMetadata }: ConnectedAppsProps
 							Connect your first application to start using this MCP
 							server
 						</p>
-						<Button className="gap-2">
+						<Button 
+							className="gap-2"
+							onClick={() => setAddDialogOpen(true)}
+						>
 							<Plus className="h-4 w-4" />
 							Add Your First App
 						</Button>
@@ -161,5 +179,13 @@ export function ConnectedApps({ serverApps, getAppMetadata }: ConnectedAppsProps
 				)}
 			</CardContent>
 		</Card>
+
+		<AddAppDialog
+			open={addDialogOpen}
+			onOpenChange={setAddDialogOpen}
+			serverId={serverId}
+			onAppInstalled={onAppInstalled}
+		/>
+	</>
 	);
 }

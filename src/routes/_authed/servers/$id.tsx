@@ -31,7 +31,7 @@ function RouteComponent() {
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const queryClient = useQueryClient();
 
-	const { data: server } = useSuspenseQuery(
+	const { data: server, refetch: refetchServer } = useSuspenseQuery(
 		trpc.mcpServer.findOrThrow.queryOptions({
 			id: serverId,
 		}),
@@ -41,11 +41,12 @@ function RouteComponent() {
 		trpc.mcpApp.getAvailableApps.queryOptions(),
 	);
 
-	const { data: serverApps = [] } = useSuspenseQuery(
-		trpc.mcpApp.listServerApps.queryOptions({
-			serverId,
-		}),
-	);
+	const { data: serverApps = [], refetch: refetchServerApps } =
+		useSuspenseQuery(
+			trpc.mcpApp.listServerApps.queryOptions({
+				serverId,
+			}),
+		);
 
 	const deleteServerMutation = useMutation({
 		...trpc.mcpServer.delete.mutationOptions(),
@@ -123,13 +124,15 @@ function RouteComponent() {
 					<ConnectedApps
 						serverApps={serverApps}
 						getAppMetadata={getAppMetadata}
+						serverId={serverId}
+						onAppInstalled={() => {
+							refetchServerApps();
+							refetchServer();
+						}}
 					/>
 
 					{/* Available Apps to Connect */}
-					<AvailableApps
-						appsMetadata={appsMetadata}
-						serverApps={serverApps}
-					/>
+					<AvailableApps appsMetadata={appsMetadata} serverApps={serverApps} />
 				</div>
 
 				{/* Sidebar */}
