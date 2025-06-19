@@ -5,7 +5,10 @@ import { githubTools } from "./tools";
 export const githubMcpApp = new McpApp(
 	"github",
 	"GitHub MCP App",
-	"https://api.iconify.design/mdi:github.svg",
+	{
+		type: "icon",
+		icon: "github",
+	},
 	[McpAppCategory.DEVELOPER_TOOLS],
 	{
 		required: true,

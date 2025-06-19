@@ -1,4 +1,5 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -179,15 +180,12 @@ export function AddAppDialog({
 											}}
 										>
 											<div className="flex flex-col items-center gap-3">
-												<img
-													src={app.logoUrl}
-													alt={app.name}
+												<AppLogo
+													logo={app.logo}
+													appName={app.name}
 													className="h-12 w-12 rounded"
-													onError={(e) => {
-														const target = e.target as HTMLImageElement;
-														target.src = "/favicon.ico";
-													}}
 												/>
+
 												<h3 className="font-medium text-center">{app.name}</h3>
 											</div>
 										</div>

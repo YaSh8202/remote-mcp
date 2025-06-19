@@ -183,10 +183,21 @@ export function registerTool(
 	);
 }
 
+export const McpAppLogo = z.union([
+	z.object({
+		type: z.literal("icon"),
+		icon: z.string(),
+	}),
+	z.object({
+		type: z.literal("url"),
+		url: z.string().url(),
+	}),
+]);
+
 export const McpAppMetadata = z.object({
 	name: z.string(),
 	description: z.string(),
-	logoUrl: z.string().url(),
+	logo: McpAppLogo,
 	categories: z.array(z.nativeEnum(McpAppCategory)),
 	auth: McpAppAuthProperty,
 	tools: z.array(
@@ -201,13 +212,15 @@ export const McpAppMetadata = z.object({
 
 export type McpAppMetadata = z.infer<typeof McpAppMetadata>;
 
+export type McpAppLogo = z.infer<typeof McpAppLogo>;
+
 export class McpApp<
 	McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty,
 > {
 	constructor(
 		public readonly name: string,
 		public readonly description: string,
-		public readonly logoUrl: string,
+		public readonly logo: McpAppLogo,
 		public readonly categories: McpAppCategory[],
 		public auth: McpAppAuth,
 		public tools: AnyMcpToolConfig[],
@@ -228,7 +241,7 @@ export class McpApp<
 		return {
 			name: this.name,
 			description: this.description,
-			logoUrl: this.logoUrl,
+			logo: this.logo,
 			categories: this.categories,
 			auth: this.auth,
 			tools: this.tools.map((tool) => ({

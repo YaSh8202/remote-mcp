@@ -1,4 +1,5 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import { AppLogo } from "@/components/AppLogo";
 import {
 	Card,
 	CardContent,
@@ -13,9 +14,9 @@ interface AvailableAppsProps {
 	serverApps: Array<{ appName: string }>;
 }
 
-export function AvailableApps({ 
-	appsMetadata, 
-	serverApps 
+export function AvailableApps({
+	appsMetadata,
+	serverApps,
 }: AvailableAppsProps) {
 	const availableApps = appsMetadata.filter(
 		(app: McpAppMetadata) =>
@@ -44,7 +45,8 @@ export function AvailableApps({
 					<>
 						<div className="flex justify-between items-center mb-4">
 							<p className="text-sm text-muted-foreground">
-								{availableApps.length} app{availableApps.length !== 1 ? "s" : ""} available
+								{availableApps.length} app
+								{availableApps.length !== 1 ? "s" : ""} available
 							</p>
 						</div>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -55,14 +57,10 @@ export function AvailableApps({
 								>
 									<CardContent className="p-4">
 										<div className="flex items-center gap-3 mb-3">
-											<img
-												src={app.logoUrl}
-												alt={app.name}
+											<AppLogo
+												logo={app.logo}
+												appName={app.name}
 												className="h-8 w-8 rounded"
-												onError={(e) => {
-													const target = e.target as HTMLImageElement;
-													target.src = "/favicon.ico";
-												}}
 											/>
 											<div className="flex-1">
 												<h3 className="font-medium">{app.name}</h3>
