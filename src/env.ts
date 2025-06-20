@@ -14,6 +14,7 @@ export const env = createEnv({
 			.optional()
 			.default("http://localhost:3000"),
 		SENTRY_AUTH_TOKEN: z.string().min(1).optional(),
+		OAUTH_APP_SECRETS: z.string().optional(),
 	},
 
 	/**
@@ -50,3 +51,48 @@ export const env = createEnv({
 	 */
 	emptyStringAsUndefined: true,
 });
+
+/**
+ * Parse OAuth app secrets from the environment variable
+ * @returns Record of app names to their client credentials
+ */
+export function getOAuthAppSecrets(): Record<
+	string,
+	{ clientId: string; clientSecret: string }
+> {
+	if (!env.OAUTH_APP_SECRETS) {
+		return {};
+	}
+
+	try {
+		const parsed = JSON.parse(env.OAUTH_APP_SECRETS);
+
+		// Validate the structure of the parsed JSON
+		if (typeof parsed !== "object" || parsed === null) {
+			console.warn("OAUTH_APP_SECRETS is not a valid object");
+			return {};
+		}
+
+		// Validate each entry has the required structure
+		for (const [key, value] of Object.entries(parsed)) {
+			if (
+				typeof value !== "object" ||
+				value === null ||
+				!('clientId' in value) ||
+				!('clientSecret' in value) ||
+				typeof value.clientId !== "string" ||
+				typeof value.clientSecret !== "string"
+			) {
+				console.warn(`Invalid OAuth app secret structure for key: ${key}`);
+				delete parsed[key];
+			}
+		}
+
+		return parsed as Record<string, { clientId: string; clientSecret: string }>;
+	} catch (error) {
+		console.error("Failed to parse OAUTH_APP_SECRETS:", error);
+		return {};
+	}
+}
+
+

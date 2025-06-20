@@ -1,6 +1,7 @@
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { mcpApps as mcpAppsTable } from "@/db/schema";
+import { getOAuthAppSecrets } from "@/env";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
@@ -9,11 +10,14 @@ import { protectedProcedure, publicProcedure } from "../init";
 
 export const mcpAppRouter = {
 	getAvailableApps: publicProcedure.query(async () => {
-		return Sentry.startSpan({ name: "Getting available MCP apps" }, async () => {
-			return mcpApps
-				.map((appDefinition) => appDefinition.metadata())
-				.sort((a, b) => a.name.localeCompare(b.name));
-		});
+		return Sentry.startSpan(
+			{ name: "Getting available MCP apps" },
+			async () => {
+				return mcpApps
+					.map((appDefinition) => appDefinition.metadata())
+					.sort((a, b) => a.name.localeCompare(b.name));
+			},
+		);
 	}),
 	listServerApps: protectedProcedure
 		.input(
@@ -58,6 +62,7 @@ export const mcpAppRouter = {
 				serverId: z.string().min(1, "Server ID is required"),
 				appName: z.string().min(1, "App name is required"),
 				tools: z.array(z.string()).min(1, "At least one tool must be selected"),
+				connectionId: z.string(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -77,12 +82,29 @@ export const mcpAppRouter = {
 					});
 				}
 
+				// validate connection exists
+				const connection = await db.query.appConnections.findFirst({
+					where: (appConnections, { eq, and }) =>
+						and(
+							eq(appConnections.id, input.connectionId),
+							eq(appConnections.ownerId, ctx.user.id),
+						),
+				});
+
+				if (!connection) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "Connection not found or you do not own it",
+					});
+				}
+
 				// Check if app is already installed
 				const existingApp = await db.query.mcpApps.findFirst({
 					where: (mcpApps, { eq, and }) =>
 						and(
 							eq(mcpApps.serverId, input.serverId),
 							eq(mcpApps.appName, input.appName),
+							eq(mcpApps.connectionId, input.connectionId),
 						),
 				});
 
@@ -122,10 +144,27 @@ export const mcpAppRouter = {
 						serverId: input.serverId,
 						appName: input.appName,
 						tools: input.tools,
+						connectionId: input.connectionId,
 					})
 					.returning();
 
 				return newApp;
 			});
 		}),
+
+	oauthAppsClientId: protectedProcedure.query(async () => {
+		const appSecrets = getOAuthAppSecrets();
+
+		if (Object.keys(appSecrets).length === 0) {
+			throw new TRPCError({
+				code: "NOT_FOUND",
+				message: "No OAuth apps configured",
+			});
+		}
+
+		return Object.entries(appSecrets).map(([name, { clientId }]) => ({
+			name,
+			clientId,
+		}));
+	}),
 } satisfies TRPCRouterRecord;

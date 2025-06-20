@@ -23,6 +23,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { NewConnectionDialog } from "./new-connection-dialog";
 
 interface AddAppDialogProps {
 	open: boolean;
@@ -43,6 +44,7 @@ export function AddAppDialog({
 	const [selectedApp, setSelectedApp] = useState<McpAppMetadata | null>(null);
 	const [selectedConnection, setSelectedConnection] = useState<string>("");
 	const [selectedTools, setSelectedTools] = useState<string[]>([]);
+	const [newConnectionDialogOpen, setNewConnectionDialogOpen] = useState(false);
 
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
@@ -92,6 +94,7 @@ export function AddAppDialog({
 		setSelectedApp(null);
 		setSelectedConnection("");
 		setSelectedTools([]);
+		setNewConnectionDialogOpen(false);
 		onOpenChange(false);
 	};
 
@@ -106,6 +109,21 @@ export function AddAppDialog({
 		setSelectedApp(null);
 		setSelectedConnection("");
 		setSelectedTools([]);
+	};
+
+	const handleConnectionChange = (value: string) => {
+		if (value === "add-new") {
+			setNewConnectionDialogOpen(true);
+		} else {
+			setSelectedConnection(value);
+		}
+	};
+
+	const handleNewConnectionSave = (data: { displayName: string }) => {
+		// TODO: Create the connection via API
+		console.log("Creating new connection:", data);
+		// For now, just close the dialog
+		setNewConnectionDialogOpen(false);
 	};
 
 	const handleToolToggle = (toolName: string, checked: boolean) => {
@@ -131,6 +149,7 @@ export function AddAppDialog({
 			serverId,
 			appName: selectedApp.name,
 			tools: selectedTools,
+			connectionId: selectedConnection,
 		});
 	};
 
@@ -227,7 +246,7 @@ export function AddAppDialog({
 								<div className="text-sm font-medium">Connection</div>
 								<Select
 									value={selectedConnection}
-									onValueChange={setSelectedConnection}
+									onValueChange={handleConnectionChange}
 								>
 									<SelectTrigger>
 										<SelectValue placeholder="Select or add a connection" />
@@ -329,6 +348,14 @@ export function AddAppDialog({
 					</>
 				)}
 			</DialogContent>
+			{selectedApp && (
+				<NewConnectionDialog
+					open={newConnectionDialogOpen}
+					onOpenChange={setNewConnectionDialogOpen}
+					app={selectedApp}
+					onSave={handleNewConnectionSave}
+				/>
+			)}
 		</Dialog>
 	);
 }

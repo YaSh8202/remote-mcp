@@ -1,4 +1,5 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -51,7 +52,11 @@ function ServerCard({ server, appsMetadata }: ServerCardProps) {
 
 	const getAppLogo = (appName: string) => {
 		const appMetadata = appsMetadata.find((app) => app.name === appName);
-		return appMetadata?.logoUrl || "/favicon.ico";
+
+		if (!appMetadata) {
+			throw new Error(`App metadata not found for ${appName}`);
+		}
+		return appMetadata.logo;
 	};
 
 	const connectedApps = server.apps || [];
@@ -107,14 +112,10 @@ function ServerCard({ server, appsMetadata }: ServerCardProps) {
 										key={app.id}
 										className="flex items-center gap-2 bg-muted rounded-md px-2 py-1 text-xs"
 									>
-										<img
-											src={getAppLogo(app.appName)}
-											alt={app.appName}
+										<AppLogo
+											logo={getAppLogo(app.appName)}
+											appName={app.appName}
 											className="h-4 w-4 rounded"
-											onError={(e) => {
-												const target = e.target as HTMLImageElement;
-												target.src = "/favicon.ico";
-											}}
 										/>
 										<span className="capitalize">{app.appName}</span>
 										<span className="text-muted-foreground">
@@ -186,7 +187,7 @@ function ServerCardSkeleton() {
 function RouteComponent() {
 	const navigate = useNavigate();
 	const trpc = useTRPC();
-	
+
 	const { data: servers = [], isLoading: serversLoading } = useQuery(
 		trpc.mcpServer.list.queryOptions(),
 	);
@@ -202,25 +203,23 @@ function RouteComponent() {
 			});
 		},
 	});
-	
+
 	// Configure page header
 	usePageHeader({
-		breadcrumbs: [
-			{ label: "Servers" }
-		],
+		breadcrumbs: [{ label: "Servers" }],
 		actions: [
 			{
 				id: "add-server",
-				label: "Add Server", 
+				label: "Add Server",
 				icon: <Plus className="h-4 w-4" />,
 				onClick: () => {
 					addServerMutation.mutate({
 						name: "Untitled Server",
 					});
 				},
-				disabled: addServerMutation.isPending
-			}
-		]
+				disabled: addServerMutation.isPending,
+			},
+		],
 	});
 
 	// Calculate total connected apps across all servers
@@ -368,14 +367,10 @@ function RouteComponent() {
 								className="p-4 hover:shadow-md transition-all duration-200 hover:scale-105"
 							>
 								<div className="flex items-center gap-3">
-									<img
-										src={app.logoUrl}
-										alt={app.name}
+									<AppLogo
+										logo={app.logo}
+										appName={app.name}
 										className="h-8 w-8 rounded"
-										onError={(e) => {
-											const target = e.target as HTMLImageElement;
-											target.src = "/favicon.ico";
-										}}
 									/>
 									<div className="flex-1 min-w-0">
 										<p className="font-medium truncate">{app.name}</p>
