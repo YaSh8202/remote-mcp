@@ -20,9 +20,7 @@ function HeaderBreadcrumb() {
 						{breadcrumbs.map((item, index) => (
 							<BreadcrumbItem key={`${item.label}-${index}`}>
 								{item.href ? (
-									<BreadcrumbLink href={item.href}>
-										{item.label}
-									</BreadcrumbLink>
+									<BreadcrumbLink href={item.href}>{item.label}</BreadcrumbLink>
 								) : (
 									<BreadcrumbPage>{item.label}</BreadcrumbPage>
 								)}
@@ -40,7 +38,7 @@ function HeaderBreadcrumb() {
 					</>
 				)}
 			</div>
-			
+
 			{actions.length > 0 && (
 				<div className="flex items-center gap-2">
 					{actions.map((action) => (

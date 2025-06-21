@@ -1,14 +1,4 @@
 import { nanoid } from "nanoid";
-// import { useSearchParams } from 'react-router-dom';
-
-// import { ThirdPartyAuthnProviderEnum } from '@activepieces/shared';
-
-// import {
-//   FROM_QUERY_PARAM,
-//   LOGIN_QUERY_PARAM,
-//   PROVIDER_NAME_QUERY_PARAM,
-//   STATE_QUERY_PARAM,
-// } from './navigation-utils';
 
 let currentPopup: Window | null = null;
 

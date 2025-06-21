@@ -162,9 +162,11 @@ export const mcpAppRouter = {
 			});
 		}
 
-		return Object.entries(appSecrets).map(([name, { clientId }]) => ({
-			name,
-			clientId,
-		}));
+		return Object.fromEntries(
+			Object.entries(appSecrets).map(([key, value]) => [
+				key,
+				{ clientId: value.clientId },
+			]),
+		);
 	}),
 } satisfies TRPCRouterRecord;

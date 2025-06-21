@@ -1,34 +1,34 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1749366360678,
-      "tag": "0000_cheerful_puma",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1749999428292,
-      "tag": "0001_goofy_lila_cheney",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750013429924,
-      "tag": "0002_glorious_professor_monster",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750274461171,
-      "tag": "0003_great_vapor",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1749366360678,
+			"tag": "0000_cheerful_puma",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1749999428292,
+			"tag": "0001_goofy_lila_cheney",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1750013429924,
+			"tag": "0002_glorious_professor_monster",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1750274461171,
+			"tag": "0003_great_vapor",
+			"breakpoints": true
+		}
+	]
 }

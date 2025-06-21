@@ -1,6 +1,7 @@
 import { Octokit } from "octokit";
 import { z } from "zod";
-import { type AnyMcpToolConfig, createParameterizedTool } from "../../mcp-app";
+import { githubAuth } from ".";
+import { createParameterizedTool } from "../../mcp-app/tools";
 
 function parseGitHubUrl(url: string) {
 	const regex = /github\.com\/([^\/]+)\/([^\/]+)/;
@@ -18,6 +19,7 @@ const getRepoAllDirectoriesSchema = {
 
 const getRepoAllDirectoriesTool = createParameterizedTool({
 	name: "getRepoAllDirectories",
+	auth: githubAuth,
 	description: "Fetch all directories in the root of a GitHub repository",
 	paramsSchema: getRepoAllDirectoriesSchema,
 	callback: async (args, extra) => {
@@ -77,12 +79,13 @@ const getRepoDirectoriesSchema = {
 const getRepoDirectoriesTool = createParameterizedTool({
 	name: "getRepoDirectories",
 	description: "Fetch directories in a specific path of a GitHub repository",
+	auth: githubAuth,
 	paramsSchema: getRepoDirectoriesSchema,
 	callback: async (args, extra) => {
+		const oauth = extra.auth;
 		try {
 			const octokit = new Octokit({
-				auth:
-					extra?.auth?.access_token || process.env.GITHUB_TOKEN || undefined,
+				auth: oauth?.access_token || process.env.GITHUB_TOKEN || undefined,
 			});
 
 			const { owner, repo } = parseGitHubUrl(args.repoUrl);
@@ -134,6 +137,7 @@ const getRepoFileSchema = {
 
 const getRepoFileTool = createParameterizedTool({
 	name: "getRepoFile",
+	auth: githubAuth,
 	description: "Fetch a file from a GitHub repository",
 	paramsSchema: getRepoFileSchema,
 	callback: async (args, extra) => {
@@ -205,7 +209,7 @@ const getRepoFileTool = createParameterizedTool({
 	},
 });
 
-export const githubTools: AnyMcpToolConfig[] = [
+export const githubTools = [
 	getRepoAllDirectoriesTool,
 	getRepoDirectoriesTool,
 	getRepoFileTool,

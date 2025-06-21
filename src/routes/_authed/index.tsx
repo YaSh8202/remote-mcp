@@ -9,9 +9,7 @@ export const Route = createFileRoute("/_authed/")({
 function RouteComponent() {
 	// Configure page header
 	usePageHeader({
-		breadcrumbs: [
-			{ label: "Dashboard" }
-		],
+		breadcrumbs: [{ label: "Dashboard" }],
 		actions: [
 			{
 				id: "settings",
@@ -20,9 +18,9 @@ function RouteComponent() {
 				onClick: () => {
 					console.log("Open settings");
 				},
-				variant: "outline" as const
-			}
-		]
+				variant: "outline" as const,
+			},
+		],
 	});
 
 	return (
@@ -38,7 +36,7 @@ function RouteComponent() {
 					</p>
 				</div>
 			</div>
-			
+
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				{/* Dashboard content would go here */}
 				<div className="p-6 border rounded-lg">

@@ -78,8 +78,8 @@ export function getOAuthAppSecrets(): Record<
 			if (
 				typeof value !== "object" ||
 				value === null ||
-				!('clientId' in value) ||
-				!('clientSecret' in value) ||
+				!("clientId" in value) ||
+				!("clientSecret" in value) ||
 				typeof value.clientId !== "string" ||
 				typeof value.clientSecret !== "string"
 			) {
@@ -94,5 +94,3 @@ export function getOAuthAppSecrets(): Record<
 		return {};
 	}
 }
-
-

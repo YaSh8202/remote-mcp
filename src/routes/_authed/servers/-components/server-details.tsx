@@ -1,10 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Copy, Server } from "lucide-react";
 
 interface ServerDetailsProps {
@@ -28,9 +23,7 @@ export function ServerDetails({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div>
-					<p className="text-sm font-medium text-muted-foreground">
-						MCP URL
-					</p>
+					<p className="text-sm font-medium text-muted-foreground">MCP URL</p>
 					<div className="flex items-center gap-2 mt-1">
 						<code className="px-2 py-1 bg-muted rounded text-xs font-mono flex-1 truncate">
 							{serverUrl}

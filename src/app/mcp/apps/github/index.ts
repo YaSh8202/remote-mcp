@@ -1,22 +1,24 @@
-import { McpApp, McpAppCategory } from "../../mcp-app";
-import { MCPAppAuthType, type McpAppAuthProperty } from "../../mcp-app/auth";
+import { createMcpApp } from "../../mcp-app";
+import { McpAppCategory } from "../../mcp-app/app-metadata";
+import { McpAppAuth } from "../../mcp-app/property";
 import { githubTools } from "./tools";
 
-export const githubMcpApp = new McpApp(
-	"github",
-	"GitHub MCP App",
-	{
+export const githubAuth = McpAppAuth.OAuth2({
+	required: true,
+	authUrl: "https://github.com/login/oauth/authorize",
+	tokenUrl: "https://github.com/login/oauth/access_token",
+	scope: ["admin:repo_hook", "admin:org", "repo"],
+});
+
+export const githubMcpApp = createMcpApp({
+	name: "github",
+	displayName: "GitHub",
+	description: "GitHub MCP App",
+	logo: {
 		type: "icon",
 		icon: "github",
 	},
-	[McpAppCategory.DEVELOPER_TOOLS],
-	{
-		required: true,
-		authUrl: "https://github.com/login/oauth/authorize",
-		tokenUrl: "https://github.com/login/oauth/access_token",
-		scope: ["admin:repo_hook", "admin:org", "repo"],
-		type: MCPAppAuthType.OAUTH2,
-		extra: {},
-	} as McpAppAuthProperty,
-	githubTools,
-);
+	categories: [McpAppCategory.DEVELOPER_TOOLS],
+	auth: githubAuth,
+	tools: githubTools,
+});

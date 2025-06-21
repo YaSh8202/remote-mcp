@@ -1,4 +1,5 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
+import { PropertyType } from "@/app/mcp/mcp-app/property";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,7 +81,9 @@ export function NewConnectionDialog({
 		trpc.mcpApp.oauthAppsClientId.queryOptions(),
 	);
 	console.log("🚀 ~ appToClientIdMap:", appToClientIdMap);
-	const predefinedClientId = appToClientIdMap?.[app.name]?.clientId;
+	const predefinedClientId = !appToClientIdMap
+		? undefined
+		: appToClientIdMap[app.name]?.clientId;
 
 	const handleSubmit = (data: NewConnectionFormData) => {
 		onSave(data);
@@ -107,6 +110,10 @@ export function NewConnectionDialog({
 		clientId: string,
 		props: Record<string, unknown> | undefined,
 	) {
+		if (app.auth?.type !== PropertyType.OAUTH2) {
+			return;
+		}
+
 		const { authUrl, scope } = replaceVariables(
 			app.auth.authUrl,
 			app.auth.scope.join(" "),
@@ -117,7 +124,7 @@ export function NewConnectionDialog({
 			clientId,
 			redirectUrl,
 			scope,
-			pkce: false,
+			pkce: app.auth.pkce ?? false,
 			extraParams: app.auth.extra ?? {},
 		});
 		console.log("OAuth2 Code:", code);
