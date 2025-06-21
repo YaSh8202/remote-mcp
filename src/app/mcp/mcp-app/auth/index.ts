@@ -5,9 +5,9 @@ export enum OAuth2AuthorizationMethod {
 	BODY = "BODY",
 }
 
-export enum MCPAppAuthType {
-	OAUTH2 = "OAUTH2",
-}
+export const MCPAppAuthType = z.enum(["OAUTH2", "NO_AUTH"]);
+
+export type MCPAppAuthType = z.infer<typeof MCPAppAuthType>;
 
 export const OAuth2ExtraProps = z.object({
 	authUrl: z
@@ -40,7 +40,7 @@ export const OAuth2PropertyValue = z.object({
 		.optional()
 		.describe("Additional data returned from the OAuth2 provider"),
 	required: z.boolean().describe("Whether this OAuth2 property is required"),
-	type: z.literal(MCPAppAuthType.OAUTH2).describe("The type of authentication"),
+	type: z.literal(MCPAppAuthType.enum.OAUTH2),
 });
 
 export const OAuth2Property = OAuth2ExtraProps.merge(OAuth2PropertyValue);

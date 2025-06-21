@@ -1,245 +1,40 @@
 import type {
 	McpServer,
 	RegisteredTool,
-	ToolCallback,
 } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import type {
-	CallToolResult,
-	ServerNotification,
-	ServerRequest,
-	ToolAnnotations,
-} from "@modelcontextprotocol/sdk/types.js";
-import z, { type ZodRawShape } from "zod";
-import { McpAppAuthProperty } from "./auth";
+	McpAppBase,
+	McpAppCategory,
+	McpAppLogo,
+	McpAppMetadata,
+} from "./app-metadata";
+import type { McpAppAuthProperty } from "./property/authentication";
+import { type AnyMcpToolConfig, registerTool } from "./tools";
 
-export enum McpAppCategory {
-	DEVELOPER_TOOLS = "DEVELOPER_TOOLS",
-	PRODUCTIVITY = "PRODUCTIVITY",
-}
-
-export type Callback<
-	McpAppAuth extends McpAppAuthProperty,
-	Args extends ZodRawShape,
-> = (auth: McpAppAuth, args: Args) => Promise<unknown>;
-
-// Enhanced RequestHandlerExtra that includes auth
-export type McpRequestHandlerExtra = RequestHandlerExtra<
-	ServerRequest,
-	ServerNotification
-> & {
-	auth?: McpAppAuthProperty;
-};
-
-// Custom tool callback that includes auth in extra
-export type McpToolCallback<Args extends ZodRawShape | undefined = undefined> =
-	Args extends ZodRawShape
-		? (
-				args: z.objectOutputType<Args, z.ZodTypeAny>,
-				extra: McpRequestHandlerExtra,
-			) => CallToolResult | Promise<CallToolResult>
-		: (
-				extra: McpRequestHandlerExtra,
-			) => CallToolResult | Promise<CallToolResult>;
-
-// Simplified tool type for zero-argument tools
-export interface McpSimpleToolConfig {
-	name: string;
-	description?: string;
-	callback: (
-		extra: McpRequestHandlerExtra,
-	) => CallToolResult | Promise<CallToolResult>;
-}
-
-// Tool type with parameters - more flexible callback type
-export interface McpParameterizedToolConfig<Args extends ZodRawShape> {
-	name: string;
-	description?: string;
-	paramsSchema: Args;
-	annotations?: ToolAnnotations;
-	callback: (
-		args: Record<string, unknown>,
-		extra: McpRequestHandlerExtra,
-	) => CallToolResult | Promise<CallToolResult>;
-}
-
-// Union type for all tool configurations
-export type AnyMcpToolConfig =
-	| McpSimpleToolConfig
-	| McpParameterizedToolConfig<ZodRawShape>;
-
-// Helper function to create a simple tool (no parameters)
-export function createSimpleTool(
-	config: McpSimpleToolConfig,
-): McpSimpleToolConfig {
-	return config;
-}
-
-// Helper function to create a parameterized tool
-export function createParameterizedTool<Args extends ZodRawShape>(config: {
-	name: string;
-	description?: string;
-	paramsSchema: Args;
-	annotations?: ToolAnnotations;
-	callback: (
-		args: z.objectOutputType<Args, z.ZodTypeAny>,
-		extra: McpRequestHandlerExtra,
-	) => CallToolResult | Promise<CallToolResult>;
-}): McpParameterizedToolConfig<Args> {
-	return {
-		name: config.name,
-		description: config.description,
-		paramsSchema: config.paramsSchema,
-		annotations: config.annotations,
-		callback: config.callback as (
-			args: Record<string, unknown>,
-			extra: McpRequestHandlerExtra,
-		) => CallToolResult | Promise<CallToolResult>,
-	};
-}
-
-// Helper function to register a tool with McpServer
-export function registerTool(
-	server: McpServer,
-	config: AnyMcpToolConfig,
-	authOverride?: McpAppAuthProperty,
-): RegisteredTool {
-	const wrappedCallback =
-		"paramsSchema" in config
-			? (((
-					args: Record<string, unknown>,
-					extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
-				) => {
-					const enhancedExtra: McpRequestHandlerExtra = {
-						...extra,
-						auth:
-							authOverride ||
-							(extra.authInfo
-								? (extra.authInfo as unknown as McpAppAuthProperty)
-								: undefined),
-					};
-					return (config as McpParameterizedToolConfig<ZodRawShape>).callback(
-						args as z.objectOutputType<ZodRawShape, z.ZodTypeAny>,
-						enhancedExtra,
-					);
-				}) as ToolCallback<ZodRawShape>)
-			: (((extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-					const enhancedExtra: McpRequestHandlerExtra = {
-						...extra,
-						auth:
-							authOverride ||
-							(extra.authInfo
-								? (extra.authInfo as unknown as McpAppAuthProperty)
-								: undefined),
-					};
-					return (config as McpSimpleToolConfig).callback(enhancedExtra);
-				}) as ToolCallback<undefined>);
-
-	if ("paramsSchema" in config) {
-		const paramConfig = config as McpParameterizedToolConfig<ZodRawShape>;
-		if (paramConfig.description && paramConfig.annotations) {
-			return server.tool(
-				paramConfig.name,
-				paramConfig.description,
-				paramConfig.paramsSchema,
-				paramConfig.annotations,
-				wrappedCallback as ToolCallback<ZodRawShape>,
-			);
-		}
-		if (paramConfig.description) {
-			return server.tool(
-				paramConfig.name,
-				paramConfig.description,
-				paramConfig.paramsSchema,
-				wrappedCallback as ToolCallback<ZodRawShape>,
-			);
-		}
-		if (paramConfig.annotations) {
-			return server.tool(
-				paramConfig.name,
-				paramConfig.paramsSchema,
-				paramConfig.annotations,
-				wrappedCallback as ToolCallback<ZodRawShape>,
-			);
-		}
-		return server.tool(
-			paramConfig.name,
-			paramConfig.paramsSchema,
-			wrappedCallback as ToolCallback<ZodRawShape>,
-		);
-	}
-
-	const simpleConfig = config as McpSimpleToolConfig;
-	if (simpleConfig.description) {
-		return server.tool(
-			simpleConfig.name,
-			simpleConfig.description,
-			wrappedCallback as ToolCallback<undefined>,
-		);
-	}
-	return server.tool(
-		simpleConfig.name,
-		wrappedCallback as ToolCallback<undefined>,
-	);
-}
-
-export const McpAppLogo = z.union([
-	z.object({
-		type: z.literal("icon"),
-		icon: z.string(),
-	}),
-	z.object({
-		type: z.literal("url"),
-		url: z.string().url(),
-	}),
-]);
-
-export const McpAppMetadata = z.object({
-	name: z.string(),
-	description: z.string(),
-	logo: McpAppLogo,
-	categories: z.array(z.nativeEnum(McpAppCategory)),
-	auth: McpAppAuthProperty,
-	tools: z.array(
-		z.object({
-			name: z.string(),
-			description: z.string().optional(),
-			paramsSchema: z.object({}).passthrough().optional(),
-			annotations: z.object({}).passthrough().optional(),
-		}),
-	),
-});
-
-export type McpAppMetadata = z.infer<typeof McpAppMetadata>;
-
-export type McpAppLogo = z.infer<typeof McpAppLogo>;
-
-export class McpApp<
-	McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty,
-> {
+export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
+	implements McpAppBase
+{
 	constructor(
 		public readonly name: string,
+		public readonly displayName: string,
 		public readonly description: string,
 		public readonly logo: McpAppLogo,
 		public readonly categories: McpAppCategory[],
-		public auth: McpAppAuth,
-		public tools: AnyMcpToolConfig[],
+		public auth: McpAppAuth | undefined,
+		public tools: AnyMcpToolConfig<McpAppAuth>[],
 	) {}
 
 	// Register all tools with the MCP server
-	registerTools(
-		server: McpServer,
-		authOverride?: McpAppAuth,
-	): RegisteredTool[] {
-		const authToUse = authOverride || this.auth;
+	registerTools(server: McpServer): RegisteredTool[] {
 		return this.tools.map((toolConfig) =>
-			registerTool(server, toolConfig, authToUse),
+			registerTool(server, toolConfig, this.auth),
 		);
 	}
 
 	metadata(): McpAppMetadata {
 		return {
 			name: this.name,
+			displayName: this.displayName,
 			description: this.description,
 			logo: this.logo,
 			categories: this.categories,
@@ -253,3 +48,31 @@ export class McpApp<
 		};
 	}
 }
+
+export const createMcpApp = <
+	McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty,
+>(
+	params: CreateMcpAppParams<McpAppAuth>,
+): McpApp<McpAppAuth> => {
+	return new McpApp<McpAppAuth>(
+		params.name,
+		params.displayName,
+		params.description,
+		params.logo,
+		params.categories,
+		params.auth,
+		params.tools,
+	);
+};
+
+type CreateMcpAppParams<
+	McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty,
+> = {
+	name: string;
+	displayName: string;
+	description: string;
+	logo: McpAppLogo;
+	categories: McpAppCategory[];
+	auth: McpAppAuth | undefined;
+	tools: AnyMcpToolConfig<McpAppAuth>[];
+};
