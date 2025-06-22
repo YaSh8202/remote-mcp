@@ -1,4 +1,4 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
@@ -54,9 +54,11 @@ function RouteComponent() {
 
 	const copyToClipboard = async (text: string, type: string) => {
 		try {
-			await navigator.clipboard.writeText(text);
-			setCopied(type);
-			setTimeout(() => setCopied(null), 2000);
+			if (typeof window !== "undefined" && navigator.clipboard) {
+				await navigator.clipboard.writeText(text);
+				setCopied(type);
+				setTimeout(() => setCopied(null), 2000);
+			}
 		} catch (err) {
 			console.error("Failed to copy:", err);
 		}

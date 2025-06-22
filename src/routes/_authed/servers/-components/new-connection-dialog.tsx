@@ -61,7 +61,6 @@ interface NewConnectionDialogProps {
 	onSave: (data: NewConnectionFormData) => void;
 }
 
-const redirectUrl = `${window.location.origin}/redirect`;
 
 export function NewConnectionDialog({
 	open,
@@ -69,6 +68,7 @@ export function NewConnectionDialog({
 	app,
 	onSave,
 }: NewConnectionDialogProps) {
+	const redirectUrl = `${window.location.origin}/redirect`;
 	const form = useForm<NewConnectionFormData>({
 		resolver: zodResolver(newConnectionSchema),
 		defaultValues: {
