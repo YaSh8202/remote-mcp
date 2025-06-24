@@ -8,6 +8,7 @@ import type {
 	McpAppLogo,
 	McpAppMetadata,
 } from "./app-metadata";
+import type { AppPropValueSchema } from "./property";
 import type { McpAppAuthProperty } from "./property/authentication";
 import { type AnyMcpToolConfig, registerTool } from "./tools";
 
@@ -25,9 +26,12 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 	) {}
 
 	// Register all tools with the MCP server
-	registerTools(server: McpServer): RegisteredTool[] {
+	registerTools(
+		server: McpServer,
+		auth: AppPropValueSchema<McpAppAuth>,
+	): RegisteredTool[] {
 		return this.tools.map((toolConfig) =>
-			registerTool(server, toolConfig, this.auth),
+			registerTool(server, toolConfig, auth),
 		);
 	}
 

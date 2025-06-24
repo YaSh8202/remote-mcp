@@ -1,5 +1,5 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
-import { PropertyType } from "@/app/mcp/mcp-app/property";
+import type { OAuth2Property, OAuth2Props } from "@/app/mcp/mcp-app/property";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/integrations/trpc/react";
 import { oauth2Utils } from "@/lib/oauth2-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -61,7 +61,6 @@ interface NewConnectionDialogProps {
 	onSave: (data: NewConnectionFormData) => void;
 }
 
-
 export function NewConnectionDialog({
 	open,
 	onOpenChange,
@@ -69,6 +68,7 @@ export function NewConnectionDialog({
 	onSave,
 }: NewConnectionDialogProps) {
 	const redirectUrl = `${window.location.origin}/redirect`;
+	const authProperty = app.auth as OAuth2Property<OAuth2Props>;
 	const form = useForm<NewConnectionFormData>({
 		resolver: zodResolver(newConnectionSchema),
 		defaultValues: {
@@ -77,9 +77,24 @@ export function NewConnectionDialog({
 	});
 	const trpc = useTRPC();
 	const [readyToConnect, setReadyToConnect] = useState(false);
+
 	const { data: appToClientIdMap } = useQuery(
 		trpc.mcpApp.oauthAppsClientId.queryOptions(),
 	);
+	const [value, setValue] = useState<Record<string, any>>({});
+
+	const addConnectionMutation = useMutation({
+		...trpc.appConnection.create.mutationOptions(),
+		onSuccess: (data) => {
+			console.log("Connection created successfully:", data);
+			onSave({
+				displayName: form.getValues("displayName"),
+			});
+			form.reset();
+			onOpenChange(false);
+		},
+	});
+
 	console.log("🚀 ~ appToClientIdMap:", appToClientIdMap);
 	const predefinedClientId = !appToClientIdMap
 		? undefined
@@ -89,6 +104,19 @@ export function NewConnectionDialog({
 		onSave(data);
 		form.reset();
 		onOpenChange(false);
+
+		addConnectionMutation.mutate({
+			appName: app.name,
+			displayName: data.displayName,
+			value: {
+				code: value.code,
+				code_challenge: value.code_challenge,
+				scope: value.scope,
+				type: "OAUTH2",
+				redirect_url: redirectUrl,
+				props: {},
+			},
+		});
 	};
 
 	const handleClose = () => {
@@ -110,13 +138,9 @@ export function NewConnectionDialog({
 		clientId: string,
 		props: Record<string, unknown> | undefined,
 	) {
-		if (app.auth?.type !== PropertyType.OAUTH2) {
-			return;
-		}
-
 		const { authUrl, scope } = replaceVariables(
-			app.auth.authUrl,
-			app.auth.scope.join(" "),
+			authProperty.authUrl,
+			authProperty.scope.join(" "),
 			props ?? {},
 		);
 		const { code, codeChallenge } = await oauth2Utils.openOAuth2Popup({
@@ -124,16 +148,16 @@ export function NewConnectionDialog({
 			clientId,
 			redirectUrl,
 			scope,
-			pkce: app.auth.pkce ?? false,
-			extraParams: app.auth.extra ?? {},
+			pkce: authProperty.pkce ?? false,
+			extraParams: authProperty.extra ?? {},
 		});
-		console.log("OAuth2 Code:", code);
-		console.log("OAuth2 Code Challenge:", codeChallenge);
-		// form.setValue("request.value.code", code, { shouldValidate: true });
-		// form.setValue("request.value.code_challenge", codeChallenge, {
-		// 	shouldValidate: true,
-		// });
-		// setRefresh(refresh + 1);
+
+		setValue({
+			code,
+			code_challenge: codeChallenge,
+			scope: authProperty.scope.join(" "),
+			type: "OAUTH2",
+		});
 	}
 
 	return (

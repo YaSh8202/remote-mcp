@@ -15,6 +15,7 @@ export const env = createEnv({
 			.default("http://localhost:3000"),
 		SENTRY_AUTH_TOKEN: z.string().min(1).optional(),
 		OAUTH_APP_SECRETS: z.string().optional(),
+		ENCRYPTION_KEY: z.string().min(1),
 	},
 
 	/**

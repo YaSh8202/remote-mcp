@@ -1,4 +1,7 @@
-import { githubMcpApp } from "@/app/mcp/apps/github";
+import { mcpApps } from "@/app/mcp/apps";
+import { db } from "@/db";
+import { decryptObject } from "@/lib/encryption";
+import type { AppConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
@@ -38,6 +41,7 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 		const body = await request.json();
 		const req = getEvent().node.req;
 		const res = getEvent().node.res;
+		const mcpTokenId = params.id;
 
 		try {
 			const server = new McpServer({
@@ -45,13 +49,31 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				version: "1.0.0",
 			});
 
-			// const sampleGithubAuth = {
-			// 	access_token: "sample-github-access-token", // Replace with a valid GitHub access token
-			// 	data: {},
-			// } as unknown as typeof githubMcpApp.auth;
+			const mcpServer = await db.query.mcpServer.findFirst({
+				where: (mcpServer, { eq }) => eq(mcpServer.token, mcpTokenId),
+				with: {
+					apps: {
+						with: {
+							connection: true,
+						},
+					},
+				},
+			});
 
-			// Register all tools from the GitHub app with the auth
-			githubMcpApp.registerTools(server);
+			const apps = mcpServer?.apps || [];
+
+			for (const app of apps) {
+				const authValue = app.connection?.value;
+				const decryptedAuthValue = decryptObject<AppConnectionValue>(authValue);
+
+				const mcpApp = mcpApps.find((a) => a.name === app.appName);
+				if (!mcpApp) {
+					console.warn(`MCP app ${app.appName} not found.`);
+					continue;
+				}
+
+				mcpApp.registerTools(server, decryptedAuthValue);
+			}
 
 			const transport = new StreamableHTTPServerTransport({
 				sessionIdGenerator: undefined,

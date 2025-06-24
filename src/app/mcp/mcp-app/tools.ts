@@ -107,7 +107,7 @@ export function createParameterizedTool<
 export function registerTool<McpAppAuth extends McpAppAuthProperty>(
 	server: McpServer,
 	config: AnyMcpToolConfig<McpAppAuth>,
-	auth: McpAppAuth | undefined,
+	authValue: AppPropValueSchema<McpAppAuth> | undefined,
 ): RegisteredTool {
 	const wrappedCallback =
 		"paramsSchema" in config
@@ -117,7 +117,7 @@ export function registerTool<McpAppAuth extends McpAppAuthProperty>(
 				) => {
 					const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
 						...extra,
-						auth: auth?.valueSchema as AppPropValueSchema<McpAppAuth>,
+						auth: authValue,
 					};
 					return (
 						config as McpParameterizedToolConfig<McpAppAuth, ZodRawShape>
@@ -129,7 +129,7 @@ export function registerTool<McpAppAuth extends McpAppAuthProperty>(
 			: (((extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
 					const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
 						...extra,
-						auth: auth?.valueSchema as AppPropValueSchema<McpAppAuth>,
+						auth: authValue,
 					};
 					return (config as McpSimpleToolConfig).callback(enhancedExtra);
 				}) as ToolCallback<undefined>);
