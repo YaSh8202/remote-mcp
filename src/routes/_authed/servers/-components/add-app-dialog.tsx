@@ -1,4 +1,4 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,7 +17,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { AppConnection } from "@/db/schema";
+import type { AppConnectionSchema } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Plus } from "lucide-react";
@@ -258,7 +258,7 @@ export function AddAppDialog({
 											</SelectItem>
 										) : (
 											<>
-												{connections?.map((connection: AppConnection) => (
+												{connections?.map((connection: AppConnectionSchema) => (
 													<SelectItem key={connection.id} value={connection.id}>
 														{connection.displayName}
 													</SelectItem>

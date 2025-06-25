@@ -1,6 +1,7 @@
 import { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/auth";
 import { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
 import { AppConnectionType } from "@/db/schema";
+import { isNil } from "@/lib/utils";
 import type {
 	BaseOAuth2ConnectionValue,
 	ClaimOAuth2Request,
@@ -8,7 +9,7 @@ import type {
 	RefreshOAuth2Request,
 } from "@/types/app-connection";
 import axios, { AxiosError } from "axios";
-import { oauth2Util } from "./oauth2-util";
+import { oauth2Util } from "../integrations/trpc/router/app-connection/oauth2-util";
 
 const log = console;
 
@@ -33,9 +34,9 @@ export const credentialsOauth2Service = {
 						body.scope = resolveValueFromProps(request.props, request.scope);
 					}
 					if (request.props) {
-						Object.entries(request.props).forEach(([key, value]) => {
+						for (const [key, value] of Object.entries(request.props)) {
 							body[key] = value;
-						});
+						}
 					}
 					break;
 			}
@@ -121,9 +122,9 @@ export const credentialsOauth2Service = {
 					);
 				}
 				if (appConnection.props) {
-					Object.entries(appConnection.props).forEach(([key, value]) => {
+					for (const [key, value] of Object.entries(appConnection.props)) {
 						body[key] = value;
-					});
+					}
 				}
 				break;
 			}
@@ -208,8 +209,8 @@ export const resolveValueFromProps = (
 	if (!props) {
 		return resolvedScope;
 	}
-	Object.entries(props).forEach(([key, value]) => {
+	for (const [key, value] of Object.entries(props)) {
 		resolvedScope = resolvedScope.replace(`{${key}}`, String(value));
-	});
+	}
 	return resolvedScope;
 };

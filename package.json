@@ -16,6 +16,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@gitbeaker/rest": "^42.5.0",
     "@hookform/resolvers": "^5.1.1",
     "@modelcontextprotocol/sdk": "^1.12.1",
     "@neondatabase/serverless": "^1.0.0",

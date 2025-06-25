@@ -1,6 +1,6 @@
 import type { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/property";
 import type { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
-import type { AppConnectionType } from "@/db/schema";
+import type { AppConnectionSchema, AppConnectionType } from "@/db/schema";
 
 export type BaseOAuth2ConnectionValue = {
 	expires_in?: number;
@@ -40,9 +40,8 @@ export type OAuth2Service<CONNECTION_VALUE extends BaseOAuth2ConnectionValue> =
 	};
 
 export type RefreshOAuth2Request<T extends BaseOAuth2ConnectionValue> = {
-	pieceName: string;
-	projectId: string | undefined;
-	platformId: string;
+	appName: string;
+	ownerId: string;
 	connectionValue: T;
 };
 
@@ -63,3 +62,9 @@ export type ClaimOAuth2Request = {
 	appName: string;
 	request: OAuth2RequestBody;
 };
+
+export type AppConnection<Type extends AppConnectionType = AppConnectionType> =
+	Omit<AppConnectionSchema, "value"> & {
+		type: Type;
+		value: AppConnectionValue<Type>;
+	};

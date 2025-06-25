@@ -19,6 +19,7 @@ import {
 	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { AppConnectionType } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { oauth2Utils } from "@/lib/oauth2-utils";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -108,6 +109,7 @@ export function NewConnectionDialog({
 		addConnectionMutation.mutate({
 			appName: app.name,
 			displayName: data.displayName,
+			type: AppConnectionType.OAUTH2,
 			value: {
 				code: value.code,
 				code_challenge: value.code_challenge,

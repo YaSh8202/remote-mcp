@@ -1,5 +1,9 @@
 import { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
-import type { BaseOAuth2ConnectionValue } from "@/types/app-connection";
+import { AppConnectionType } from "@/db/schema";
+import type {
+	AppConnection,
+	BaseOAuth2ConnectionValue,
+} from "@/types/app-connection";
 
 export const oauth2Util = {
 	formatOAuth2Response: (
@@ -38,27 +42,23 @@ export const oauth2Util = {
 		);
 	},
 
-	// removeRefreshTokenAndClientSecret: (
-	// 	connection: AppConnection,
-	// ): AppConnection => {
-	// 	if (
-	// 		connection.value.type === AppConnectionType.OAUTH2 &&
-	// 		connection.value.grant_type === OAuth2GrantType.CLIENT_CREDENTIALS
-	// 	) {
-	// 		connection.value.client_secret = "(REDACTED)";
-	// 	}
-	// 	if (
-	// 		connection.value.type === AppConnectionType.OAUTH2 ||
-	// 		connection.value.type === AppConnectionType.CLOUD_OAUTH2 ||
-	// 		connection.value.type === AppConnectionType.PLATFORM_OAUTH2
-	// 	) {
-	// 		connection.value = {
-	// 			...connection.value,
-	// 			refresh_token: "(REDACTED)",
-	// 		};
-	// 	}
-	// 	return connection;
-	// },
+	removeRefreshTokenAndClientSecret: (
+		connection: AppConnection,
+	): AppConnection => {
+		if (
+			connection.value.type === AppConnectionType.OAUTH2 &&
+			connection.value.grant_type === OAuth2GrantType.CLIENT_CREDENTIALS
+		) {
+			connection.value.client_secret = "(REDACTED)";
+		}
+		if (connection.value.type === AppConnectionType.OAUTH2) {
+			connection.value = {
+				...connection.value,
+				refresh_token: "(REDACTED)",
+			};
+		}
+		return connection;
+	},
 };
 
 export function deleteProps<

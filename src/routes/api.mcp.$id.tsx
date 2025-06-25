@@ -1,7 +1,6 @@
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
-import { decryptObject } from "@/lib/encryption";
-import type { AppConnectionValue } from "@/types/app-connection";
+import { appConnectionService } from "@/services/app-connection-service";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
@@ -52,19 +51,39 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 			const mcpServer = await db.query.mcpServer.findFirst({
 				where: (mcpServer, { eq }) => eq(mcpServer.token, mcpTokenId),
 				with: {
-					apps: {
-						with: {
-							connection: true,
-						},
-					},
+					apps: true,
 				},
 			});
+
+			if (!mcpServer) {
+				return json(
+					{
+						jsonrpc: "2.0",
+						error: {
+							code: -32601,
+							message: "MCP server not found.",
+						},
+						id: null,
+					},
+					{ status: 404 },
+				);
+			}
 
 			const apps = mcpServer?.apps || [];
 
 			for (const app of apps) {
-				const authValue = app.connection?.value;
-				const decryptedAuthValue = decryptObject<AppConnectionValue>(authValue);
+				// const authValue =
+				const connection = await appConnectionService.getOne({
+					id: app.connectionId,
+					ownerId: mcpServer.ownerId,
+				});
+
+				if (!connection) {
+					console.warn(`Connection for app ${app.appName} not found.`);
+					continue;
+				}
+
+				const authValue = connection.value;
 
 				const mcpApp = mcpApps.find((a) => a.name === app.appName);
 				if (!mcpApp) {
@@ -72,7 +91,7 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 					continue;
 				}
 
-				mcpApp.registerTools(server, decryptedAuthValue);
+				mcpApp.registerTools(server, authValue);
 			}
 
 			const transport = new StreamableHTTPServerTransport({

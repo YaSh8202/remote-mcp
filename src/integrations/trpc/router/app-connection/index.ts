@@ -1,18 +1,11 @@
-import { mcpApps } from "@/app/mcp/apps";
 import { MCPAppAuthType } from "@/app/mcp/mcp-app/auth";
 import { db } from "@/db";
-import {
-	AppConnectionStatus,
-	type NewAppConnection,
-	appConnections,
-} from "@/db/schema";
-import { getOAuthAppSecrets } from "@/env";
-import { encryptObject } from "@/lib/encryption";
+import { AppConnectionType } from "@/db/schema";
+import { appConnectionService } from "@/services/app-connection-service";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod";
 import { protectedProcedure } from "../../init";
-import { credentialsOauth2Service } from "./credentials-oauth2-service";
 
 export const appConnectionRouter = {
 	listConnections: protectedProcedure
@@ -59,6 +52,7 @@ export const appConnectionRouter = {
 			z.object({
 				appName: z.string().min(1, "App name is required"),
 				displayName: z.string().min(1, "Display name is required"),
+				type: z.nativeEnum(AppConnectionType),
 				value: z.object({
 					code: z.string().min(1, "Code is required"),
 					code_challenge: z
@@ -73,63 +67,16 @@ export const appConnectionRouter = {
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
-			const type = input.value.type;
+			const type = input.type;
 
-			if (type !== MCPAppAuthType.enum.OAUTH2) {
-				throw new Error("Unsupported app connection type");
-			}
-
-			const secrets = getOAuthAppSecrets();
-			const secret = secrets[input.appName];
-			if (!secret) {
-				throw new Error(`No secrets found for app: ${input.appName}`);
-			}
-
-			const client_id = secret.clientId;
-			const client_secret = secret.clientSecret;
-
-			const mcpApp = await mcpApps.find((app) => app.name === input.appName);
-			if (!mcpApp) {
-				throw new Error(`MCP app not found: ${input.appName}`);
-			}
-
-			const tokenUrl = mcpApp.auth?.tokenUrl;
-			if (!tokenUrl) {
-				throw new Error(`Token URL not found for app: ${input.appName}`);
-			}
 			try {
-				const validatedConnectionValue = await credentialsOauth2Service.claim({
+				const savedConnection = await appConnectionService.upsert({
 					appName: input.appName,
-					request: {
-						code: input.value.code,
-						codeVerifier: input.value.code_challenge,
-						clientId: client_id,
-						clientSecret: client_secret,
-						tokenUrl,
-						scope: input.value.scope,
-						authorizationMethod: mcpApp.auth?.authorizationMethod,
-						props: input.value.props,
-						redirectUrl: input.value.redirect_url,
-					},
+					ownerId: ctx.user.id,
+					displayName: input.displayName,
+					type: type,
+					value: input.value,
 				});
-
-				const encryptedConnectionValue = encryptObject({
-					...validatedConnectionValue,
-					...input.value,
-				});
-
-				const savedConnection = await db
-					.insert(appConnections)
-					.values({
-						id: crypto.randomUUID(),
-						appName: input.appName,
-						ownerId: ctx.user.id,
-						displayName: input.displayName,
-						value: encryptedConnectionValue,
-						type: type,
-						status: AppConnectionStatus.ACTIVE,
-					} as NewAppConnection)
-					.returning();
 
 				return savedConnection;
 			} catch (error) {
