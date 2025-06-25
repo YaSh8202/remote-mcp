@@ -21,6 +21,13 @@ import {
 
 export const Route = createFileRoute("/_authed/servers/$id")({
 	component: RouteComponent,
+	loader: async ({ params, context }) => {
+		await context.queryClient.ensureQueryData(
+			context.trpc.mcpServer.findOrThrow.queryOptions({
+				id: params.id,
+			}),
+		);
+	},
 });
 
 function RouteComponent() {
@@ -78,7 +85,7 @@ function RouteComponent() {
 		return appsMetadata.find((app: McpAppMetadata) => app.name === appName);
 	};
 
-	const serverUrl = `${window.location.origin}/api/mcp/${server.token}`;
+	const serverUrl = `${typeof window === "undefined" ? "" : window.location.origin}/api/mcp/${server.token}`;
 
 	// Configure page header with breadcrumbs and actions
 	usePageHeader({
