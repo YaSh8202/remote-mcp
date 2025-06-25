@@ -72,7 +72,6 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 			const apps = mcpServer?.apps || [];
 
 			for (const app of apps) {
-				// const authValue =
 				const connection = await appConnectionService.getOne({
 					id: app.connectionId,
 					ownerId: mcpServer.ownerId,
@@ -91,7 +90,13 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 					continue;
 				}
 
-				mcpApp.registerTools(server, authValue);
+				// Register tools with logging context
+				await mcpApp.registerTools(server, authValue, {
+					serverId: mcpServer.id,
+					appId: app.id,
+					appName: app.appName,
+					ownerId: mcpServer.ownerId,
+				});
 			}
 
 			const transport = new StreamableHTTPServerTransport({

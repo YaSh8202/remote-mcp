@@ -26,13 +26,27 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 	) {}
 
 	// Register all tools with the MCP server
-	registerTools(
+	async registerTools(
 		server: McpServer,
 		auth: AppPropValueSchema<McpAppAuth>,
-	): RegisteredTool[] {
-		return this.tools.map((toolConfig) =>
-			registerTool(server, toolConfig, auth),
-		);
+		loggingContext?: {
+			serverId: string;
+			appId: string;
+			appName: string;
+			ownerId: string;
+		},
+	): Promise<RegisteredTool[]> {
+		const registeredTools: RegisteredTool[] = [];
+		for (const toolConfig of this.tools) {
+			const registeredTool = await registerTool(
+				server,
+				toolConfig,
+				auth,
+				loggingContext,
+			);
+			registeredTools.push(registeredTool);
+		}
+		return registeredTools;
 	}
 
 	metadata(): McpAppMetadata {

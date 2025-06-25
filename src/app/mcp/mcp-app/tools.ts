@@ -1,3 +1,5 @@
+import { McpRunStatus } from "@/db/schema";
+import { mcpRunService } from "@/services/mcp-run-service";
 import type {
 	McpServer,
 	RegisteredTool,
@@ -19,10 +21,16 @@ export type Callback<
 	Args extends ZodRawShape,
 > = (auth: McpAppAuth, args: Args) => Promise<unknown>;
 
-// Enhanced RequestHandlerExtra that includes auth
+// Enhanced RequestHandlerExtra that includes auth and logging context
 export type McpRequestHandlerExtra<McpAppAuth extends McpAppAuthProperty> =
 	RequestHandlerExtra<ServerRequest, ServerNotification> & {
 		auth?: AppPropValueSchema<McpAppAuth>;
+		loggingContext?: {
+			serverId: string;
+			appId: string;
+			appName: string;
+			ownerId: string;
+		};
 	};
 
 // Custom tool callback that includes auth in extra
@@ -103,36 +111,187 @@ export function createParameterizedTool<
 	};
 }
 
+/**
+ * Wraps a tool callback with logging functionality
+ */
+async function createLoggingWrapper<McpAppAuth extends McpAppAuthProperty>(
+	toolName: string,
+	callback: (
+		args: Record<string, unknown>,
+		extra: McpRequestHandlerExtra<McpAppAuth>,
+	) => CallToolResult | Promise<CallToolResult>,
+): Promise<
+	(
+		args: Record<string, unknown>,
+		extra: McpRequestHandlerExtra<McpAppAuth>,
+	) => Promise<CallToolResult>
+> {
+	return async (
+		args: Record<string, unknown>,
+		extra: McpRequestHandlerExtra<McpAppAuth>,
+	): Promise<CallToolResult> => {
+		let runId: string | undefined;
+
+		try {
+			// Only log if we have logging context
+			if (extra.loggingContext) {
+				// Create a run record
+				runId = await mcpRunService.createRun({
+					serverId: extra.loggingContext.serverId,
+					appId: extra.loggingContext.appId,
+					appName: extra.loggingContext.appName,
+					toolName,
+					input: args,
+					ownerId: extra.loggingContext.ownerId,
+				});
+			}
+
+			// Execute the actual tool callback
+			const result = await callback(args, extra);
+
+			// Log success
+			if (runId && extra.loggingContext) {
+				await mcpRunService.updateRunResult(runId, {
+					output: result,
+					status: McpRunStatus.SUCCESS,
+				});
+			}
+
+			return result;
+		} catch (error) {
+			// Log failure
+			if (runId && extra.loggingContext) {
+				await mcpRunService.updateRunResult(runId, {
+					output: {
+						error: error instanceof Error ? error.message : String(error),
+					},
+					status: McpRunStatus.FAILED,
+				});
+			}
+
+			// Re-throw the error
+			throw error;
+		}
+	};
+}
+
+/**
+ * Wraps a simple tool callback (no args) with logging functionality
+ */
+async function createSimpleLoggingWrapper<
+	McpAppAuth extends McpAppAuthProperty,
+>(
+	toolName: string,
+	callback: (
+		extra: McpRequestHandlerExtra<McpAppAuth>,
+	) => CallToolResult | Promise<CallToolResult>,
+): Promise<
+	(extra: McpRequestHandlerExtra<McpAppAuth>) => Promise<CallToolResult>
+> {
+	return async (
+		extra: McpRequestHandlerExtra<McpAppAuth>,
+	): Promise<CallToolResult> => {
+		let runId: string | undefined;
+
+		try {
+			// Only log if we have logging context
+			if (extra.loggingContext) {
+				// Create a run record with empty args
+				runId = await mcpRunService.createRun({
+					serverId: extra.loggingContext.serverId,
+					appId: extra.loggingContext.appId,
+					appName: extra.loggingContext.appName,
+					toolName,
+					input: {},
+					ownerId: extra.loggingContext.ownerId,
+				});
+			}
+
+			// Execute the actual tool callback
+			const result = await callback(extra);
+
+			// Log success
+			if (runId && extra.loggingContext) {
+				await mcpRunService.updateRunResult(runId, {
+					output: result,
+					status: McpRunStatus.SUCCESS,
+				});
+			}
+
+			return result;
+		} catch (error) {
+			// Log failure
+			if (runId && extra.loggingContext) {
+				await mcpRunService.updateRunResult(runId, {
+					output: {
+						error: error instanceof Error ? error.message : String(error),
+					},
+					status: McpRunStatus.FAILED,
+				});
+			}
+
+			// Re-throw the error
+			throw error;
+		}
+	};
+}
+
 // Helper function to register a tool with McpServer
-export function registerTool<McpAppAuth extends McpAppAuthProperty>(
+export async function registerTool<McpAppAuth extends McpAppAuthProperty>(
 	server: McpServer,
 	config: AnyMcpToolConfig<McpAppAuth>,
 	authValue: AppPropValueSchema<McpAppAuth> | undefined,
-): RegisteredTool {
-	const wrappedCallback =
-		"paramsSchema" in config
-			? (((
-					args: Record<string, unknown>,
-					extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
-				) => {
-					const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
-						...extra,
-						auth: authValue,
-					};
-					return (
-						config as McpParameterizedToolConfig<McpAppAuth, ZodRawShape>
-					).callback(
-						args as z.objectOutputType<ZodRawShape, z.ZodTypeAny>,
-						enhancedExtra,
-					);
-				}) as ToolCallback<ZodRawShape>)
-			: (((extra: RequestHandlerExtra<ServerRequest, ServerNotification>) => {
-					const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
-						...extra,
-						auth: authValue,
-					};
-					return (config as McpSimpleToolConfig).callback(enhancedExtra);
-				}) as ToolCallback<undefined>);
+	loggingContext?: {
+		serverId: string;
+		appId: string;
+		appName: string;
+		ownerId: string;
+	},
+): Promise<RegisteredTool> {
+	let wrappedCallback: ToolCallback<ZodRawShape> | ToolCallback<undefined>;
+
+	if ("paramsSchema" in config) {
+		// Parameterized tool
+		const originalCallback = (
+			config as McpParameterizedToolConfig<McpAppAuth, ZodRawShape>
+		).callback;
+
+		const loggingCallback = await createLoggingWrapper(
+			config.name,
+			originalCallback,
+		);
+
+		wrappedCallback = (async (
+			args: Record<string, unknown>,
+			extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
+		) => {
+			const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
+				...extra,
+				auth: authValue,
+				loggingContext,
+			};
+			return await loggingCallback(args, enhancedExtra);
+		}) as ToolCallback<ZodRawShape>;
+	} else {
+		// Simple tool
+		const originalCallback = (config as McpSimpleToolConfig).callback;
+
+		const loggingCallback = await createSimpleLoggingWrapper(
+			config.name,
+			originalCallback,
+		);
+
+		wrappedCallback = (async (
+			extra: RequestHandlerExtra<ServerRequest, ServerNotification>,
+		) => {
+			const enhancedExtra: McpRequestHandlerExtra<McpAppAuth> = {
+				...extra,
+				auth: authValue,
+				loggingContext,
+			};
+			return await loggingCallback(enhancedExtra);
+		}) as ToolCallback<undefined>;
+	}
 
 	if ("paramsSchema" in config) {
 		const paramConfig = config as McpParameterizedToolConfig<
