@@ -15,6 +15,7 @@ import { Route as RedirectImport } from './routes/redirect'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthedIndexImport } from './routes/_authed/index'
+import { Route as AuthedRunsImport } from './routes/_authed/runs'
 import { Route as AuthedServersIndexImport } from './routes/_authed/servers/index'
 import { Route as AuthedServersIdImport } from './routes/_authed/servers/$id'
 
@@ -40,6 +41,12 @@ const AuthedRoute = AuthedImport.update({
 const AuthedIndexRoute = AuthedIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+
+const AuthedRunsRoute = AuthedRunsImport.update({
+  id: '/runs',
+  path: '/runs',
   getParentRoute: () => AuthedRoute,
 } as any)
 
@@ -80,6 +87,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RedirectImport
       parentRoute: typeof rootRoute
     }
+    '/_authed/runs': {
+      id: '/_authed/runs'
+      path: '/runs'
+      fullPath: '/runs'
+      preLoaderRoute: typeof AuthedRunsImport
+      parentRoute: typeof AuthedImport
+    }
     '/_authed/': {
       id: '/_authed/'
       path: '/'
@@ -107,12 +121,14 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface AuthedRouteChildren {
+  AuthedRunsRoute: typeof AuthedRunsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedServersIdRoute: typeof AuthedServersIdRoute
   AuthedServersIndexRoute: typeof AuthedServersIndexRoute
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedRunsRoute: AuthedRunsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedServersIdRoute: AuthedServersIdRoute,
   AuthedServersIndexRoute: AuthedServersIndexRoute,
@@ -125,6 +141,7 @@ export interface FileRoutesByFullPath {
   '': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/runs': typeof AuthedRunsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/servers': typeof AuthedServersIndexRoute
@@ -133,6 +150,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/runs': typeof AuthedRunsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/servers': typeof AuthedServersIndexRoute
@@ -143,6 +161,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
@@ -150,14 +169,22 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '' | '/login' | '/redirect' | '/' | '/servers/$id' | '/servers'
+  fullPaths:
+    | ''
+    | '/login'
+    | '/redirect'
+    | '/runs'
+    | '/'
+    | '/servers/$id'
+    | '/servers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/redirect' | '/' | '/servers/$id' | '/servers'
+  to: '/login' | '/redirect' | '/runs' | '/' | '/servers/$id' | '/servers'
   id:
     | '__root__'
     | '/_authed'
     | '/login'
     | '/redirect'
+    | '/_authed/runs'
     | '/_authed/'
     | '/_authed/servers/$id'
     | '/_authed/servers/'
@@ -194,6 +221,7 @@ export const routeTree = rootRoute
     "/_authed": {
       "filePath": "_authed.tsx",
       "children": [
+        "/_authed/runs",
         "/_authed/",
         "/_authed/servers/$id",
         "/_authed/servers/"
@@ -204,6 +232,10 @@ export const routeTree = rootRoute
     },
     "/redirect": {
       "filePath": "redirect.tsx"
+    },
+    "/_authed/runs": {
+      "filePath": "_authed/runs.tsx",
+      "parent": "/_authed"
     },
     "/_authed/": {
       "filePath": "_authed/index.tsx",

@@ -53,6 +53,7 @@ export const credentialsOauth2Service = {
 			switch (authorizationMethod) {
 				case OAuth2AuthorizationMethod.BODY:
 					body.client_id = request.clientId;
+					// biome-ignore lint/style/noNonNullAssertion: <explanation>
 					body.client_secret = request.clientSecret!;
 					break;
 				case OAuth2AuthorizationMethod.HEADER:
@@ -75,7 +76,9 @@ export const credentialsOauth2Service = {
 				...oauth2Util.formatOAuth2Response(response),
 				token_url: request.tokenUrl,
 				client_id: request.clientId,
+				// biome-ignore lint/style/noNonNullAssertion: client secret will pre present
 				client_secret: request.clientSecret!,
+				// biome-ignore lint/style/noNonNullAssertion: redirectUrl will be present
 				redirect_url: request.redirectUrl!,
 				grant_type: grantType,
 				props: request.props,

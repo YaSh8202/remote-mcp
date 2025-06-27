@@ -1,5 +1,5 @@
 import { appIcons } from "@/app/mcp/apps/icons";
-import type { McpAppLogo } from "@/app/mcp/mcp-app";
+import type { McpAppLogo } from "@/app/mcp/mcp-app/app-metadata";
 
 export const AppLogo = ({
 	logo,

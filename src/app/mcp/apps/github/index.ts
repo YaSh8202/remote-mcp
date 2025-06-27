@@ -12,8 +12,8 @@ export const githubAuth = McpAppAuth.OAuth2({
 
 export const githubMcpApp = createMcpApp({
 	name: "github",
-	displayName: "GitHub",
-	description: "GitHub MCP App",
+	displayName: "Github",
+	description: "Github MCP App",
 	logo: {
 		type: "icon",
 		icon: "github",

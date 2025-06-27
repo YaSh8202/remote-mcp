@@ -1,24 +1,27 @@
 import {
 	createFileRoute,
-	useLocation,
 	useNavigate,
+	useSearch,
 } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
+import { z } from "zod";
 
 export const Route = createFileRoute("/redirect")({
 	component: RouteComponent,
+	validateSearch: z.object({
+		code: z.string().optional(),
+	}),
 });
 
 function RouteComponent() {
-	const location = useLocation();
 	const navigate = useNavigate();
 	const hasCheckedParams = useRef(false);
+	const params = useSearch({ strict: false });
 	useEffect(() => {
 		if (hasCheckedParams.current) {
 			return;
 		}
-		const params = new URLSearchParams(location.search);
-		const code = params.get("code");
+		const code = params.code;
 		if (window.opener && code) {
 			window.opener.postMessage(
 				{
@@ -30,7 +33,7 @@ function RouteComponent() {
 		if (!window.opener && !code) {
 			navigate({ to: "/" });
 		}
-	}, [location.search, navigate]);
+	}, [navigate, params.code]);
 
 	return (
 		<div className="flex flex-col items-center justify-center gap-4">

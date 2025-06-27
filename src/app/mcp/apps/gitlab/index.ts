@@ -12,8 +12,8 @@ export const gitlabAuth = McpAppAuth.OAuth2({
 
 export const gitlabMcpApp = createMcpApp({
 	name: "gitlab",
-	displayName: "GitLab",
-	description: "GitLab MCP App",
+	displayName: "Gitlab",
+	description: "Gitlab MCP App",
 	logo: {
 		type: "url",
 		url: "https://api.iconify.design/vscode-icons:file-type-gitlab.svg",

@@ -1,4 +1,10 @@
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import {
+	Activity,
+	BookOpen,
+	Bot,
+	Settings2,
+	SquareTerminal,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -18,6 +24,11 @@ const data = {
 			url: "/servers",
 			icon: SquareTerminal,
 			isActive: true,
+		},
+		{
+			title: "Runs",
+			url: "/runs",
+			icon: Activity,
 		},
 		{
 			title: "Apps",

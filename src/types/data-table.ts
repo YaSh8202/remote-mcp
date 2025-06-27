@@ -1,6 +1,17 @@
-import type { DataTableConfig } from "@/config/data-table";
-import type { FilterItemSchema } from "@/lib/parsers";
+import { type DataTableConfig, dataTableConfig } from "@/config/data-table";
 import type { ColumnSort, Row, RowData } from "@tanstack/react-table";
+import { z } from "zod";
+
+const filterItemSchema = z.object({
+	id: z.string(),
+	value: z.union([z.string(), z.array(z.string())]),
+	variant: z.enum(dataTableConfig.filterVariants),
+	operator: z.enum(dataTableConfig.operators),
+	filterId: z.string(),
+});
+
+export type FilterItemSchema = z.infer<typeof filterItemSchema>;
+
 
 declare module "@tanstack/react-table" {
 	interface ColumnMeta<TData extends RowData, TValue> {

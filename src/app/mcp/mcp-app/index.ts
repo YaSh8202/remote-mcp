@@ -94,3 +94,6 @@ type CreateMcpAppParams<
 	auth: McpAppAuth | undefined;
 	tools: AnyMcpToolConfig<McpAppAuth>[];
 };
+
+// Re-export types for external use
+export type { McpAppMetadata, McpAppCategory, McpAppLogo, McpAppBase } from "./app-metadata";

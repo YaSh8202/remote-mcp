@@ -77,12 +77,11 @@ export function NewConnectionDialog({
 		},
 	});
 	const trpc = useTRPC();
-	const [readyToConnect, setReadyToConnect] = useState(false);
 
 	const { data: appToClientIdMap } = useQuery(
 		trpc.mcpApp.oauthAppsClientId.queryOptions(),
 	);
-	const [value, setValue] = useState<Record<string, any>>({});
+	const [value, setValue] = useState<Record<string, string | undefined>>({});
 
 	const addConnectionMutation = useMutation({
 		...trpc.appConnection.create.mutationOptions(),
@@ -102,8 +101,12 @@ export function NewConnectionDialog({
 		: appToClientIdMap[app.name]?.clientId;
 
 	const handleSubmit = (data: NewConnectionFormData) => {
+		if(!value.code){
+			return;
+		}
 		onSave(data);
 		form.reset();
+
 		onOpenChange(false);
 
 		addConnectionMutation.mutate({

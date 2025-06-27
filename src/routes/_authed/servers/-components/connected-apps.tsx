@@ -1,4 +1,4 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
 import {
