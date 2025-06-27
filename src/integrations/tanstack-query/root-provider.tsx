@@ -6,8 +6,8 @@ import superjson from "superjson";
 import { TRPCProvider } from "@/integrations/trpc/react";
 
 import type { TRPCRouter } from "@/integrations/trpc/router";
-import { createIsomorphicFn } from "@tanstack/react-start";
-import { getHeaders } from "@tanstack/react-start/server";
+import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
+import { getWebRequest } from "@tanstack/react-start/server";
 
 function getUrl() {
 	const base = (() => {
@@ -17,16 +17,25 @@ function getUrl() {
 	return `${base}/api/trpc`;
 }
 
-const getIncomingHeaders = createIsomorphicFn()
+const getRequestHeaders = createServerFn({ method: "GET" }).handler(
+	async () => {
+		const request = getWebRequest()!;
+		const headers = new Headers(request.headers);
+
+		return Object.fromEntries(headers);
+	},
+);
+
+const headers = createIsomorphicFn()
 	.client(() => ({}))
-	.server(() => getHeaders());
+	.server(() => getRequestHeaders());
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [
 		httpBatchStreamLink({
 			transformer: superjson,
 			url: getUrl(),
-			headers: getIncomingHeaders(),
+			headers,
 		}),
 	],
 });
