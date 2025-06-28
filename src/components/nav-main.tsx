@@ -1,5 +1,3 @@
-import type { LucideIcon } from "lucide-react";
-
 import {
 	SidebarGroup,
 	SidebarMenu,
@@ -7,28 +5,65 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
+import {
+	Activity,
+	BookOpen,
+	Bot,
+	Settings2,
+	SquareTerminal,
+} from "lucide-react";
 
-export function NavMain({
-	items,
-}: {
-	items: {
-		title: string;
-		url: string;
-		icon?: LucideIcon;
-		isActive?: boolean;
-	}[];
-}) {
+const items = [
+	{
+		title: "Servers",
+		url: "/servers",
+		icon: SquareTerminal,
+	},
+	{
+		title: "Runs",
+		url: "/runs",
+		icon: Activity,
+	},
+	{
+		title: "Apps",
+		url: "/",
+		icon: Bot,
+	},
+	{
+		title: "Connections",
+		url: "/",
+		icon: BookOpen,
+	},
+	{
+		title: "Settings",
+		url: "/",
+		icon: Settings2,
+	},
+] as const;
+
+export function NavMain() {
+	
+
 	return (
 		<SidebarGroup>
 			{/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem className="text-base" key={item.title}>
-						<Link to={item.url}>
-							<SidebarMenuButton tooltip={item.title}>
-								{item.icon && <item.icon />}
-								<span>{item.title}</span>
-							</SidebarMenuButton>
+						<Link
+							activeOptions={{ exact: false }}
+							to={item.url}
+						>
+							{({ isActive }) => (
+								<SidebarMenuButton
+									isActive={isActive}
+									className="" 
+									tooltip={item.title}
+								>
+									{item.icon && <item.icon />}
+									<span>{item.title}</span>
+								</SidebarMenuButton>
+							)}
 						</Link>
 					</SidebarMenuItem>
 				))}

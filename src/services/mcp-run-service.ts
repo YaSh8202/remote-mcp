@@ -332,6 +332,28 @@ export class McpRunService {
 					: 0,
 		};
 	}
+
+	/**
+	 * Get total count of runs for a specific server
+	 */
+	async getRunsCount(params: {
+		serverId: string;
+		ownerId: string;
+	}): Promise<number> {
+		const { serverId, ownerId } = params;
+
+		const conditions = [
+			eq(mcpRuns.ownerId, ownerId),
+			eq(mcpRuns.serverId, serverId),
+		];
+
+		const result = await db
+			.select({ count: count() })
+			.from(mcpRuns)
+			.where(and(...conditions));
+
+		return result[0]?.count || 0;
+	}
 }
 
 export const mcpRunService = new McpRunService();

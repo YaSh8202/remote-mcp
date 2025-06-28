@@ -1,17 +1,25 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Activity, Globe, Server, Zap } from "lucide-react";
+import { useTRPC } from "@/integrations/trpc/react";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { Activity, BarChart3, Server, Zap } from "lucide-react";
 
 interface ServerStatsCardsProps {
 	serverApps: Array<{ tools: string[] }>;
-	createdAt: Date | string;
-	formatDate: (date: Date) => string;
+	serverId: string;
 }
 
 export function ServerStatsCards({
 	serverApps,
-	createdAt,
-	formatDate,
+	serverId,
 }: ServerStatsCardsProps) {
+	const trpc = useTRPC();
+	
+	const { data: runsCount = 0 } = useQuery(
+		trpc.mcpRun.count.queryOptions({
+			serverId,
+		}),
+	);
 	const totalTools = serverApps.reduce(
 		(total, app) => total + app.tools.length,
 		0,
@@ -61,21 +69,26 @@ export function ServerStatsCards({
 				</CardContent>
 			</Card>
 
-			<Card className="border-purple-200 dark:border-purple-800">
-				<CardContent className="p-4">
-					<div className="flex items-center gap-3">
-						<div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-							<Globe className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+			<Link
+				to="/runs"
+				search={{
+					server: [serverId],
+				}}
+			>
+				<Card className="border-purple-200 dark:border-purple-800 hover:bg-muted/50 transition-colors cursor-pointer">
+					<CardContent className="p-4">
+						<div className="flex items-center gap-3">
+							<div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
+								<BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+							</div>
+							<div>
+								<p className="text-lg font-bold">{runsCount}</p>
+								<p className="text-sm text-muted-foreground">Total Runs</p>
+							</div>
 						</div>
-						<div>
-							<p className="text-lg font-bold">
-								{formatDate(new Date(createdAt))}
-							</p>
-							<p className="text-sm text-muted-foreground">Created</p>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
+					</CardContent>
+				</Card>
+			</Link>
 		</div>
 	);
 }

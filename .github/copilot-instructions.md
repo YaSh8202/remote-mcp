@@ -23,6 +23,7 @@ To run type and lint checks, use the following command:
 After completing your task, run the following commands to ensure everything is in order:
 
 ```bash
+pnpm tsc --noEmit
 pnpm check
 pnpm lint
 pnpm build

@@ -11,10 +11,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Settings, Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
-	AvailableApps,
 	ConnectedApps,
 	HowToConnect,
-	QuickActions,
 	ServerDetails,
 	ServerStatsCards,
 } from "./-components";
@@ -71,16 +69,6 @@ function RouteComponent() {
 		}
 	};
 
-	const formatDate = (date: Date) => {
-		return new Intl.DateTimeFormat("en-US", {
-			month: "short",
-			day: "numeric",
-			year: "numeric",
-			hour: "2-digit",
-			minute: "2-digit",
-		}).format(new Date(date));
-	};
-
 	const getAppMetadata = (appName: string): McpAppMetadata | undefined => {
 		return appsMetadata.find((app: McpAppMetadata) => app.name === appName);
 	};
@@ -119,17 +107,13 @@ function RouteComponent() {
 
 	return (
 		<div className="container mx-auto p-6 space-y-6">
-			{/* Stats Cards */}
 			<ServerStatsCards
 				serverApps={serverApps}
-				createdAt={server.createdAt}
-				formatDate={formatDate}
+				serverId={serverId}
 			/>
 
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-				{/* Main Content */}
 				<div className="lg:col-span-2 space-y-6">
-					{/* Connected Apps */}
 					<ConnectedApps
 						serverApps={serverApps}
 						getAppMetadata={getAppMetadata}
@@ -140,8 +124,7 @@ function RouteComponent() {
 						}}
 					/>
 
-					{/* Available Apps to Connect */}
-					<AvailableApps appsMetadata={appsMetadata} serverApps={serverApps} />
+					{/* <AvailableApps appsMetadata={appsMetadata} serverApps={serverApps} /> */}
 				</div>
 
 				{/* Sidebar */}
@@ -160,9 +143,6 @@ function RouteComponent() {
 						copied={copied}
 						copyToClipboard={copyToClipboard}
 					/>
-
-					{/* Quick Actions */}
-					<QuickActions />
 				</div>
 			</div>
 

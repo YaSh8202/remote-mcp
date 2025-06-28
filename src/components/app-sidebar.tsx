@@ -1,11 +1,3 @@
-import {
-	Activity,
-	BookOpen,
-	Bot,
-	Settings2,
-	SquareTerminal,
-} from "lucide-react";
-
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
 import {
@@ -16,37 +8,6 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import { MCPIcon } from "./icons";
-
-const data = {
-	navMain: [
-		{
-			title: "Servers",
-			url: "/servers",
-			icon: SquareTerminal,
-			isActive: true,
-		},
-		{
-			title: "Runs",
-			url: "/runs",
-			icon: Activity,
-		},
-		{
-			title: "Apps",
-			url: "#",
-			icon: Bot,
-		},
-		{
-			title: "Connections",
-			url: "#",
-			icon: BookOpen,
-		},
-		{
-			title: "Settings",
-			url: "#",
-			icon: Settings2,
-		},
-	],
-};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
@@ -64,7 +25,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				</div>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser />

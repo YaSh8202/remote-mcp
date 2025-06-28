@@ -205,7 +205,7 @@ export function AddAppDialog({
 													className="h-12 w-12 rounded"
 												/>
 
-												<h3 className="font-medium text-center">{app.name}</h3>
+												<h3 className="font-medium text-center">{app.displayName}</h3>
 											</div>
 										</div>
 									))}

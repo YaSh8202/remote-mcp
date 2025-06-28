@@ -127,4 +127,20 @@ export const mcpRunRouter = createTRPCRouter({
 
 			return stats;
 		}),
+
+	// Get count of runs for a specific server
+	count: protectedProcedure
+		.input(
+			z.object({
+				serverId: z.string(),
+			}),
+		)
+		.query(async ({ input, ctx }) => {
+			const count = await mcpRunService.getRunsCount({
+				serverId: input.serverId,
+				ownerId: ctx.user.id,
+			});
+
+			return count;
+		}),
 });
