@@ -42,22 +42,17 @@ const items = [
 ] as const;
 
 export function NavMain() {
-	
-
 	return (
 		<SidebarGroup>
 			{/* <SidebarGroupLabel>Platform</SidebarGroupLabel> */}
 			<SidebarMenu>
 				{items.map((item) => (
 					<SidebarMenuItem className="text-base" key={item.title}>
-						<Link
-							activeOptions={{ exact: false }}
-							to={item.url}
-						>
+						<Link activeOptions={{ exact: false }} to={item.url}>
 							{({ isActive }) => (
 								<SidebarMenuButton
 									isActive={isActive}
-									className="" 
+									className=""
 									tooltip={item.title}
 								>
 									{item.icon && <item.icon />}

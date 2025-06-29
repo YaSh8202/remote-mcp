@@ -14,7 +14,7 @@ export function ServerStatsCards({
 	serverId,
 }: ServerStatsCardsProps) {
 	const trpc = useTRPC();
-	
+
 	const { data: runsCount = 0 } = useQuery(
 		trpc.mcpRun.count.queryOptions({
 			serverId,

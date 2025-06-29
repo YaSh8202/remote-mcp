@@ -101,7 +101,7 @@ export function NewConnectionDialog({
 		: appToClientIdMap[app.name]?.clientId;
 
 	const handleSubmit = (data: NewConnectionFormData) => {
-		if(!value.code){
+		if (!value.code) {
 			return;
 		}
 		onSave(data);

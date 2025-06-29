@@ -12,7 +12,6 @@ const filterItemSchema = z.object({
 
 export type FilterItemSchema = z.infer<typeof filterItemSchema>;
 
-
 declare module "@tanstack/react-table" {
 	interface ColumnMeta<TData extends RowData, TValue> {
 		label?: string;

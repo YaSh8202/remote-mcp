@@ -40,7 +40,7 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 		for (const toolConfig of this.tools) {
 			const registeredTool = await registerTool(
 				server,
-				toolConfig,
+				{ ...toolConfig, name: `${this.name}-${toolConfig.name}` },
 				auth,
 				loggingContext,
 			);
@@ -96,4 +96,9 @@ type CreateMcpAppParams<
 };
 
 // Re-export types for external use
-export type { McpAppMetadata, McpAppCategory, McpAppLogo, McpAppBase } from "./app-metadata";
+export type {
+	McpAppMetadata,
+	McpAppCategory,
+	McpAppLogo,
+	McpAppBase,
+} from "./app-metadata";

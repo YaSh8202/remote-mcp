@@ -44,6 +44,9 @@ const queryClient = new QueryClient({
 	defaultOptions: {
 		dehydrate: { serializeData: superjson.serialize },
 		hydrate: { deserializeData: superjson.deserialize },
+		queries: {
+			refetchOnWindowFocus: false,
+		},
 	},
 });
 

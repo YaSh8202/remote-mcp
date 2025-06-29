@@ -78,9 +78,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					storageKey="mcp-one-theme"
 					enableColorScheme
 				>
-					<TooltipProvider>
-						{children}
-					</TooltipProvider>
+					<TooltipProvider>{children}</TooltipProvider>
 				</ThemeProvider>
 				<Toaster />
 				<Scripts />
