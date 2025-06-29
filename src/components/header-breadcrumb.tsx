@@ -34,7 +34,11 @@ function HeaderBreadcrumb() {
 				{title && (
 					<>
 						<BreadcrumbSeparator className="hidden md:block" />
-						<h1 className="text-lg font-semibold">{title}</h1>
+						{typeof title === "string" ? (
+							<h1 className="text-lg font-semibold">{title}</h1>
+						) : (
+							<div className="flex items-center">{title}</div>
+						)}
 					</>
 				)}
 			</div>

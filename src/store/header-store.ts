@@ -25,17 +25,17 @@ export interface HeaderAction {
 interface HeaderState {
 	breadcrumbs: BreadcrumbItem[];
 	actions: HeaderAction[];
-	title?: string;
+	title?: string | ReactNode;
 }
 
 interface HeaderActions {
 	setBreadcrumbs: (breadcrumbs: BreadcrumbItem[]) => void;
 	setActions: (actions: HeaderAction[]) => void;
-	setTitle: (title?: string) => void;
+	setTitle: (title?: string | ReactNode) => void;
 	setHeader: (config: {
 		breadcrumbs?: BreadcrumbItem[];
 		actions?: HeaderAction[];
-		title?: string;
+		title?: string | ReactNode;
 	}) => void;
 	clearHeader: () => void;
 }
@@ -74,7 +74,7 @@ let currentPageId = 0;
 export function usePageHeader(config: {
 	breadcrumbs?: BreadcrumbItem[];
 	actions?: HeaderAction[];
-	title?: string;
+	title?: string | ReactNode;
 }) {
 	// Serialize the config to create stable dependency values
 	const serializedBreadcrumbs = JSON.stringify(config.breadcrumbs || []);

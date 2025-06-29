@@ -1,5 +1,6 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
+import EditableText from "@/components/ui/editable-text";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import {
@@ -34,6 +35,7 @@ function RouteComponent() {
 	const serverId = Route.useParams().id;
 	const [copied, setCopied] = useState<string | null>(null);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const [isEditingName, setIsEditingName] = useState(false);
 	const queryClient = useQueryClient();
 
 	const { data: server, refetch: refetchServer } = useSuspenseQuery(
@@ -57,6 +59,16 @@ function RouteComponent() {
 		...trpc.mcpServer.delete.mutationOptions(),
 	});
 
+	const updateServerMutation = useMutation({
+		...trpc.mcpServer.update.mutationOptions(),
+		onSuccess: () => {
+			refetchServer();
+			queryClient.invalidateQueries({
+				queryKey: trpc.mcpServer.list.queryKey(),
+			});
+		},
+	});
+
 	const copyToClipboard = async (text: string, type: string) => {
 		try {
 			if (typeof window !== "undefined" && navigator.clipboard) {
@@ -66,6 +78,19 @@ function RouteComponent() {
 			}
 		} catch (err) {
 			console.error("Failed to copy:", err);
+		}
+	};
+
+	const handleServerNameUpdate = async (newName: string) => {
+		if (newName.trim() && newName !== server.name) {
+			try {
+				await updateServerMutation.mutateAsync({
+					id: serverId,
+					name: newName.trim(),
+				});
+			} catch (error) {
+				console.error("Failed to update server name:", error);
+			}
 		}
 	};
 
@@ -79,8 +104,18 @@ function RouteComponent() {
 	usePageHeader({
 		breadcrumbs: [
 			{ label: "Servers", href: "/servers" },
-			{ label: server?.name || "Server" },
 		],
+		title: (
+			<EditableText
+				value={server.name}
+				className="text-base font-semibold cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 px-2 py-1 rounded"
+				readonly={false}
+				onValueChange={handleServerNameUpdate}
+				tooltipContent="Click to edit server name"
+				isEditing={isEditingName}
+				setIsEditing={setIsEditingName}
+			/>
+		),
 		actions: [
 			{
 				id: "edit-server",

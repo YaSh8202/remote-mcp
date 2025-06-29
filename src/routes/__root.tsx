@@ -14,6 +14,7 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { authQueries } from "@/services/queries";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
@@ -77,7 +78,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					storageKey="mcp-one-theme"
 					enableColorScheme
 				>
-					{children}
+					<TooltipProvider>
+						{children}
+					</TooltipProvider>
 				</ThemeProvider>
 				<Toaster />
 				<Scripts />

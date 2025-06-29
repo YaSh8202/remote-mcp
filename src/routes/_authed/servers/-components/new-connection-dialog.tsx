@@ -68,7 +68,7 @@ export function NewConnectionDialog({
 	app,
 	onSave,
 }: NewConnectionDialogProps) {
-	const redirectUrl = `${window.location.origin}/redirect`;
+	const redirectUrl = "https://one-mcp.vercel.app/redirect";
 	const authProperty = app.auth as OAuth2Property<OAuth2Props>;
 	const form = useForm<NewConnectionFormData>({
 		resolver: zodResolver(newConnectionSchema),
