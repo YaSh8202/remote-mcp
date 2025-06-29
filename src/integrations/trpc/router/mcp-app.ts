@@ -5,6 +5,7 @@ import { getOAuthAppSecrets } from "@/env";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure, publicProcedure } from "../init";
 
@@ -169,4 +170,42 @@ export const mcpAppRouter = {
 			]),
 		);
 	}),
+
+	removeApp: protectedProcedure
+		.input(
+			z.object({
+				appId: z.string().min(1, "App ID is required"),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			return Sentry.startSpan({ name: "Removing MCP app" }, async () => {
+				// First check if the app exists and belongs to a server owned by the user
+				const existingApp = await db.query.mcpApps.findFirst({
+					where: (mcpApps, { eq }) => eq(mcpApps.id, input.appId),
+					with: {
+						server: true,
+					},
+				});
+
+				if (!existingApp) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "App not found",
+					});
+				}
+
+				// Check if the user owns the server that this app belongs to
+				if (existingApp.server.ownerId !== ctx.user.id) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: "You do not have permission to remove this app",
+					});
+				}
+
+				// Delete the app
+				await db.delete(mcpAppsTable).where(eq(mcpAppsTable.id, input.appId));
+
+				return { success: true };
+			});
+		}),
 } satisfies TRPCRouterRecord;

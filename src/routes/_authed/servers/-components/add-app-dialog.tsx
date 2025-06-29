@@ -119,11 +119,16 @@ export function AddAppDialog({
 		}
 	};
 
-	const handleNewConnectionSave = (data: { displayName: string }) => {
-		// TODO: Create the connection via API
-		console.log("Creating new connection:", data);
-		// For now, just close the dialog
+	const handleNewConnectionSave = () => {
+		// The connection is created inside the dialog, so we need to refresh the connections list
+		// and the dialog will handle closing itself
 		setNewConnectionDialogOpen(false);
+		// Invalidate connections query to refresh the list
+		queryClient.invalidateQueries({
+			queryKey: trpc.appConnection.listConnections.queryKey({
+				appName: selectedApp?.name ?? "",
+			}),
+		});
 	};
 
 	const handleToolToggle = (toolName: string, checked: boolean) => {
@@ -245,36 +250,57 @@ export function AddAppDialog({
 						<div className="py-4 space-y-6">
 							{/* Connection Selection */}
 							<div className="space-y-3">
-								<div className="text-sm font-medium">Connection</div>
-								<Select
-									value={selectedConnection}
-									onValueChange={handleConnectionChange}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select or add a connection" />
-									</SelectTrigger>
-									<SelectContent>
-										{loadingConnections ? (
-											<SelectItem value="loading" disabled>
-												Loading connections...
-											</SelectItem>
-										) : (
-											<>
-												{connections?.map((connection: AppConnectionSchema) => (
-													<SelectItem key={connection.id} value={connection.id}>
-														{connection.displayName}
-													</SelectItem>
-												))}
-												<SelectItem value="add-new">
-													<div className="flex items-center gap-2">
-														<Plus className="h-3 w-3" />
-														Add new connection
-													</div>
+								<p className="text-base font-bold">Connection</p>
+								{loadingConnections ? (
+									<div className="flex items-center justify-center p-4 border rounded-lg">
+										<div className="text-sm text-muted-foreground">
+											Loading connections...
+										</div>
+									</div>
+								) : connections && connections.length > 0 ? (
+									<Select
+										value={selectedConnection}
+										onValueChange={handleConnectionChange}
+									>
+										<SelectTrigger>
+											<SelectValue placeholder="Select or add a connection" />
+										</SelectTrigger>
+										<SelectContent>
+											{connections.map((connection: AppConnectionSchema) => (
+												<SelectItem key={connection.id} value={connection.id}>
+													{connection.displayName}
 												</SelectItem>
-											</>
-										)}
-									</SelectContent>
-								</Select>
+											))}
+											<SelectItem value="add-new">
+												<div className="flex items-center gap-2">
+													<Plus className="h-3 w-3" />
+													Add new connection
+												</div>
+											</SelectItem>
+										</SelectContent>
+									</Select>
+								) : (
+									<div className="space-y-3">
+										<div className="p-4 border rounded-lg text-center">
+											<p className="text-sm text-muted-foreground mb-3">
+												No connections available for {selectedApp.displayName}
+											</p>
+											<Button
+												variant="outline"
+												className="gap-2"
+												onClick={() => setNewConnectionDialogOpen(true)}
+											>
+												<Plus className="h-4 w-4" />
+												Connect to {selectedApp.displayName}
+											</Button>
+										</div>
+									</div>
+								)}
+								{!selectedConnection && !loadingConnections && (
+									<p className="text-xs text-destructive">
+										A connection must be selected to add tools
+									</p>
+								)}
 							</div>
 
 							{/* Tools Selection */}
@@ -342,7 +368,11 @@ export function AddAppDialog({
 							</Button>
 							<Button
 								onClick={handleInstall}
-								disabled={selectedTools.length === 0 || installApp.isPending}
+								disabled={
+									selectedTools.length === 0 ||
+									!selectedConnection ||
+									installApp.isPending
+								}
 							>
 								{installApp.isPending ? "Adding..." : "Add Tools"}
 							</Button>

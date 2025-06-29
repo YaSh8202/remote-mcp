@@ -71,17 +71,38 @@ export function NewConnectionDialog({
 	const redirectUrl = "https://one-mcp.vercel.app/redirect";
 	const authProperty = app.auth as OAuth2Property<OAuth2Props>;
 	const form = useForm<NewConnectionFormData>({
-		resolver: zodResolver(newConnectionSchema),
+		resolver: zodResolver(newConnectionSchema.refine(
+			(data) => {
+				// Check for duplicate connection names
+				const duplicateExists = existingConnections?.some(
+					(conn) => conn.displayName.toLowerCase() === data.displayName.toLowerCase()
+				);
+				return !duplicateExists;
+			},
+			{
+				message: "A connection with this name already exists",
+				path: ["displayName"],
+			}
+		)),
 		defaultValues: {
 			displayName: "",
 		},
+		mode: "onChange", // Enable real-time validation
 	});
 	const trpc = useTRPC();
+
+	// Fetch existing connections to check for duplicates
+	const { data: existingConnections } = useQuery(
+		trpc.appConnection.listConnections.queryOptions({
+			appName: app.name,
+		})
+	);
 
 	const { data: appToClientIdMap } = useQuery(
 		trpc.mcpApp.oauthAppsClientId.queryOptions(),
 	);
 	const [value, setValue] = useState<Record<string, string | undefined>>({});
+	const [isConnecting, setIsConnecting] = useState(false);
 
 	const addConnectionMutation = useMutation({
 		...trpc.appConnection.create.mutationOptions(),
@@ -91,7 +112,11 @@ export function NewConnectionDialog({
 				displayName: form.getValues("displayName"),
 			});
 			form.reset();
+			setValue({});
 			onOpenChange(false);
+		},
+		onError: (error) => {
+			console.error("Failed to create connection:", error);
 		},
 	});
 
@@ -104,10 +129,6 @@ export function NewConnectionDialog({
 		if (!value.code) {
 			return;
 		}
-		onSave(data);
-		form.reset();
-
-		onOpenChange(false);
 
 		addConnectionMutation.mutate({
 			appName: app.name,
@@ -126,17 +147,26 @@ export function NewConnectionDialog({
 
 	const handleClose = () => {
 		form.reset();
+		setValue({});
 		onOpenChange(false);
 	};
 
-	const handleConnect = () => {
-		// TODO: Implement OAuth connection logic
-		console.log("Connecting to", app?.name);
-		openPopup(redirectUrl, predefinedClientId ?? "", {});
+	const handleConnect = async () => {
+		setIsConnecting(true);
+		try {
+			await openPopup(redirectUrl, predefinedClientId ?? "", {});
+		} catch (error) {
+			console.error("Failed to connect:", error);
+		} finally {
+			setIsConnecting(false);
+		}
 	};
 
 	// Check if the form is valid for enabling the Save button
-	const isFormValid = form.formState.isValid && form.watch("displayName");
+	const isFormValid = form.formState.isValid && 
+		form.watch("displayName") && 
+		value.code && 
+		!addConnectionMutation.isPending;
 
 	async function openPopup(
 		redirectUrl: string,
@@ -231,27 +261,54 @@ export function NewConnectionDialog({
 												</div>
 											</div>
 										</div>
-										<Button
-											type="button"
-											variant="outline"
-											size="sm"
-											onClick={handleConnect}
-											className="flex items-center gap-2"
-										>
-											Connect
-											<ExternalLink className="h-3 w-3" />
-										</Button>
+										<div className="flex items-center gap-2">
+											{value.code ? (
+												<div className="flex items-center gap-2">
+													<div className="h-2 w-2 bg-green-500 rounded-full" />
+													<span className="text-xs text-green-600 font-medium">
+														Connected
+													</span>
+												</div>
+											) : (
+												<Button
+													type="button"
+													variant="outline"
+													size="sm"
+													onClick={handleConnect}
+													disabled={isConnecting}
+													className="flex items-center gap-2"
+												>
+													{isConnecting ? "Connecting..." : "Connect"}
+													{!isConnecting && <ExternalLink className="h-3 w-3" />}
+												</Button>
+											)}
+										</div>
 									</div>
+									{!value.code && (
+										<p className="text-xs text-destructive">
+											You must authenticate with {app.name} before saving
+										</p>
+									)}
 								</div>
 							)}
 						</div>
 
 						<DialogFooter>
+							{addConnectionMutation.error && (
+								<div className="w-full">
+									<p className="text-sm text-destructive mb-2">
+										{addConnectionMutation.error.message}
+									</p>
+								</div>
+							)}
 							<Button type="button" variant="outline" onClick={handleClose}>
 								Cancel
 							</Button>
-							<Button type="submit" disabled={!isFormValid}>
-								Save
+							<Button 
+								type="submit" 
+								disabled={!isFormValid}
+							>
+								{addConnectionMutation.isPending ? "Saving..." : "Save"}
 							</Button>
 						</DialogFooter>
 					</form>

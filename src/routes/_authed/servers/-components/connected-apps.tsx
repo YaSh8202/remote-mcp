@@ -1,5 +1,6 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
+import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -8,8 +9,12 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useTRPC } from "@/integrations/trpc/react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	Activity,
+	ChevronDown,
+	ChevronRight,
 	ExternalLink,
 	Plus,
 	Settings,
@@ -17,6 +22,7 @@ import {
 	Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { AddAppDialog } from "./add-app-dialog";
 
 interface ConnectedAppsProps {
@@ -37,6 +43,48 @@ export function ConnectedApps({
 	onAppInstalled,
 }: ConnectedAppsProps) {
 	const [addDialogOpen, setAddDialogOpen] = useState(false);
+	const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+	const [selectedAppToRemove, setSelectedAppToRemove] = useState<{
+		id: string;
+		appName: string;
+	} | null>(null);
+	const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set());
+
+	const trpc = useTRPC();
+	const queryClient = useQueryClient();
+
+	const removeAppMutation = useMutation({
+		...trpc.mcpApp.removeApp.mutationOptions(),
+		onSuccess: () => {
+			toast.success("App removed successfully!");
+			setRemoveDialogOpen(false);
+			setSelectedAppToRemove(null);
+			onAppInstalled?.(); // Refresh the data
+			queryClient.invalidateQueries({
+				queryKey: trpc.mcpApp.listServerApps.queryKey({ serverId }),
+			});
+		},
+		onError: (error) => {
+			toast.error(error.message || "Failed to remove app");
+		},
+	});
+
+	const handleRemoveApp = (app: { id: string; appName: string }) => {
+		setSelectedAppToRemove(app);
+		setRemoveDialogOpen(true);
+	};
+
+	const toggleToolsExpansion = (appId: string) => {
+		setExpandedTools(prev => {
+			const newSet = new Set(prev);
+			if (newSet.has(appId)) {
+				newSet.delete(appId);
+			} else {
+				newSet.add(appId);
+			}
+			return newSet;
+		});
+	};
 
 	return (
 		<>
@@ -98,20 +146,31 @@ export function ConnectedApps({
 
 											{/* Tools List */}
 											<div className="mt-4">
-												<h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+												<button
+													type="button"
+													onClick={() => toggleToolsExpansion(app.id)}
+													className="flex items-center gap-2 text-sm font-medium mb-2 hover:text-primary transition-colors"
+												>
 													<Zap className="h-4 w-4" />
-													Available Tools
-												</h4>
-												<div className="flex flex-wrap gap-2">
-													{app.tools.map((tool) => (
-														<span
-															key={`${app.id}-${tool}`}
-															className="px-2 py-1 bg-muted rounded-md text-xs font-mono"
-														>
-															{tool}
-														</span>
-													))}
-												</div>
+													Available Tools ({app.tools.length})
+													{expandedTools.has(app.id) ? (
+														<ChevronDown className="h-3 w-3" />
+													) : (
+														<ChevronRight className="h-3 w-3" />
+													)}
+												</button>
+												{expandedTools.has(app.id) && (
+													<div className="flex flex-wrap gap-2">
+														{app.tools.map((tool) => (
+															<span
+																key={`${app.id}-${tool}`}
+																className="px-2 py-1 bg-muted rounded-md text-xs font-mono"
+															>
+																{tool}
+															</span>
+														))}
+													</div>
+												)}
 											</div>
 
 											{/* Actions */}
@@ -128,6 +187,7 @@ export function ConnectedApps({
 													variant="destructive"
 													size="sm"
 													className="gap-2"
+													onClick={() => handleRemoveApp(app)}
 												>
 													<Trash2 className="h-3 w-3" />
 													Remove
@@ -163,6 +223,34 @@ export function ConnectedApps({
 				onOpenChange={setAddDialogOpen}
 				serverId={serverId}
 				onAppInstalled={onAppInstalled}
+			/>
+
+			<ConfirmationDeleteDialog
+				open={removeDialogOpen}
+				onOpenChange={setRemoveDialogOpen}
+				title="Remove App"
+				message={
+					selectedAppToRemove ? (
+						<>
+							Are you sure you want to remove{" "}
+							<strong>{selectedAppToRemove.appName}</strong> from this server?
+							This action cannot be undone.
+						</>
+					) : (
+						"Are you sure you want to remove this app?"
+					)
+				}
+				entityName={selectedAppToRemove?.appName || "app"}
+				mutationFn={async () => {
+					if (selectedAppToRemove) {
+						await removeAppMutation.mutateAsync({
+							appId: selectedAppToRemove.id,
+						});
+					}
+				}}
+				isDanger={true}
+				buttonText="Remove App"
+				showToast={false} // We handle toast in the mutation
 			/>
 		</>
 	);

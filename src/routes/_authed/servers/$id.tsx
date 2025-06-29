@@ -153,8 +153,6 @@ function RouteComponent() {
 							refetchServer();
 						}}
 					/>
-
-					{/* <AvailableApps appsMetadata={appsMetadata} serverApps={serverApps} /> */}
 				</div>
 
 				{/* Sidebar */}
