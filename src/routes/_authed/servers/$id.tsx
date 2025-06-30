@@ -9,7 +9,7 @@ import {
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Settings, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import {
 	ConnectedApps,
@@ -62,7 +62,6 @@ function RouteComponent() {
 	const updateServerMutation = useMutation({
 		...trpc.mcpServer.update.mutationOptions(),
 		onSuccess: () => {
-			refetchServer();
 			queryClient.invalidateQueries({
 				queryKey: trpc.mcpServer.list.queryKey(),
 			});
@@ -83,12 +82,23 @@ function RouteComponent() {
 
 	const handleServerNameUpdate = async (newName: string) => {
 		if (newName.trim() && newName !== server.name) {
+			// Optimistically update the UI
+			queryClient.setQueryData(
+				trpc.mcpServer.findOrThrow.queryKey({ id: serverId }),
+				(old) => (old ? { ...old, name: newName.trim() } : old),
+			);
+
 			try {
 				await updateServerMutation.mutateAsync({
 					id: serverId,
 					name: newName.trim(),
 				});
 			} catch (error) {
+				// Revert the optimistic update on error
+				queryClient.setQueryData(
+					trpc.mcpServer.findOrThrow.queryKey({ id: serverId }),
+					(old) => (old ? { ...old, name: server.name } : old),
+				);
 				console.error("Failed to update server name:", error);
 			}
 		}
@@ -115,16 +125,16 @@ function RouteComponent() {
 			/>
 		),
 		actions: [
-			{
-				id: "edit-server",
-				label: "Edit",
-				icon: <Settings className="h-4 w-4" />,
-				onClick: () => {
-					// Add edit functionality here
-					console.log("Edit server:", serverId);
-				},
-				variant: "outline" as const,
-			},
+			// {
+			// 	id: "edit-server",
+			// 	label: "Edit",
+			// 	icon: <Settings className="h-4 w-4" />,
+			// 	onClick: () => {
+			// 		// Add edit functionality here
+			// 		console.log("Edit server:", serverId);
+			// 	},
+			// 	variant: "outline" as const,
+			// },
 			{
 				id: "delete-server",
 				label: "Delete",

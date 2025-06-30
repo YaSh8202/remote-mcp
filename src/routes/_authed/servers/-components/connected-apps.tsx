@@ -15,7 +15,6 @@ import {
 	Activity,
 	ChevronDown,
 	ChevronRight,
-	ExternalLink,
 	Plus,
 	Settings,
 	Trash2,
@@ -75,7 +74,7 @@ export function ConnectedApps({
 	};
 
 	const toggleToolsExpansion = (appId: string) => {
-		setExpandedTools(prev => {
+		setExpandedTools((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(appId)) {
 				newSet.delete(appId);
@@ -178,10 +177,6 @@ export function ConnectedApps({
 												<Button variant="outline" size="sm" className="gap-2">
 													<Settings className="h-3 w-3" />
 													Configure
-												</Button>
-												<Button variant="outline" size="sm" className="gap-2">
-													<ExternalLink className="h-3 w-3" />
-													View Docs
 												</Button>
 												<Button
 													variant="destructive"

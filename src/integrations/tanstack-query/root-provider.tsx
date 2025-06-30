@@ -19,7 +19,12 @@ function getUrl() {
 
 const getRequestHeaders = createServerFn({ method: "GET" }).handler(
 	async () => {
-		const request = getWebRequest()!;
+		const request = getWebRequest();
+
+		if (!request) {
+			return {};
+		}
+
 		const headers = new Headers(request.headers);
 
 		return Object.fromEntries(headers);

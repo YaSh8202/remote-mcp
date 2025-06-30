@@ -82,8 +82,8 @@ export const resolveValueFromProps = (
 	if (!props) {
 		return resolvedScope;
 	}
-	Object.entries(props).forEach(([key, value]) => {
+	for (const [key, value] of Object.entries(props)) {
 		resolvedScope = resolvedScope.replace(`{${key}}`, String(value));
-	});
+	}
 	return resolvedScope;
 };

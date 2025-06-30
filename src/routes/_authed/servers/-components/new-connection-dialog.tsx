@@ -71,19 +71,22 @@ export function NewConnectionDialog({
 	const redirectUrl = "https://one-mcp.vercel.app/redirect";
 	const authProperty = app.auth as OAuth2Property<OAuth2Props>;
 	const form = useForm<NewConnectionFormData>({
-		resolver: zodResolver(newConnectionSchema.refine(
-			(data) => {
-				// Check for duplicate connection names
-				const duplicateExists = existingConnections?.some(
-					(conn) => conn.displayName.toLowerCase() === data.displayName.toLowerCase()
-				);
-				return !duplicateExists;
-			},
-			{
-				message: "A connection with this name already exists",
-				path: ["displayName"],
-			}
-		)),
+		resolver: zodResolver(
+			newConnectionSchema.refine(
+				(data) => {
+					// Check for duplicate connection names
+					const duplicateExists = existingConnections?.some(
+						(conn) =>
+							conn.displayName.toLowerCase() === data.displayName.toLowerCase(),
+					);
+					return !duplicateExists;
+				},
+				{
+					message: "A connection with this name already exists",
+					path: ["displayName"],
+				},
+			),
+		),
 		defaultValues: {
 			displayName: "",
 		},
@@ -95,7 +98,7 @@ export function NewConnectionDialog({
 	const { data: existingConnections } = useQuery(
 		trpc.appConnection.listConnections.queryOptions({
 			appName: app.name,
-		})
+		}),
 	);
 
 	const { data: appToClientIdMap } = useQuery(
@@ -163,9 +166,10 @@ export function NewConnectionDialog({
 	};
 
 	// Check if the form is valid for enabling the Save button
-	const isFormValid = form.formState.isValid && 
-		form.watch("displayName") && 
-		value.code && 
+	const isFormValid =
+		form.formState.isValid &&
+		form.watch("displayName") &&
+		value.code &&
 		!addConnectionMutation.isPending;
 
 	async function openPopup(
@@ -279,7 +283,9 @@ export function NewConnectionDialog({
 													className="flex items-center gap-2"
 												>
 													{isConnecting ? "Connecting..." : "Connect"}
-													{!isConnecting && <ExternalLink className="h-3 w-3" />}
+													{!isConnecting && (
+														<ExternalLink className="h-3 w-3" />
+													)}
 												</Button>
 											)}
 										</div>
@@ -304,10 +310,7 @@ export function NewConnectionDialog({
 							<Button type="button" variant="outline" onClick={handleClose}>
 								Cancel
 							</Button>
-							<Button 
-								type="submit" 
-								disabled={!isFormValid}
-							>
+							<Button type="submit" disabled={!isFormValid}>
 								{addConnectionMutation.isPending ? "Saving..." : "Save"}
 							</Button>
 						</DialogFooter>

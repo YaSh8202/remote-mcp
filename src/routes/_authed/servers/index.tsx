@@ -128,13 +128,6 @@ function ServerCard({ server, appsMetadata }: ServerCardProps) {
 							<p className="text-sm text-muted-foreground">No apps connected</p>
 						)}
 					</div>
-
-					{/* Server ID */}
-					<div className="pt-2 border-t">
-						<p className="text-xs text-muted-foreground font-mono">
-							ID: {server.id}
-						</p>
-					</div>
 				</div>
 			</CardContent>
 

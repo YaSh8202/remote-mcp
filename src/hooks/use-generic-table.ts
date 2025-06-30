@@ -33,6 +33,7 @@ export const createFilterSchema = (filterFields: z.ZodRawShape) => {
 };
 
 interface UseGenericTableOptions {
+	// biome-ignore lint/suspicious/noExplicitAny: searchSchema should be flexible
 	searchSchema: z.ZodType<any>;
 	defaultPageSize?: number;
 	debounceMs?: number;
@@ -99,6 +100,7 @@ export function useGenericTable({
 
 	// Update URL function
 	const updateSearchParams = React.useCallback(
+		// biome-ignore lint/suspicious/noExplicitAny: query params need to be flexible
 		(updates: Record<string, any>) => {
 			const currentSearch = searchParams;
 			const newSearchParams = { ...currentSearch, ...updates };
@@ -130,6 +132,7 @@ export function useGenericTable({
 			const newFilters =
 				typeof updater === "function" ? updater(columnFilters) : updater;
 
+			// biome-ignore lint/suspicious/noExplicitAny: Record<string, any> is needed for search params
 			const updates: Record<string, any> = {
 				page: 1, // Reset to first page when filtering
 			};
