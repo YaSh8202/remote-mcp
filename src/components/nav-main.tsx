@@ -5,13 +5,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import {
-	Activity,
-	BookOpen,
-	Bot,
-	Settings2,
-	SquareTerminal,
-} from "lucide-react";
+import { Activity, BookOpen, Settings2, SquareTerminal } from "lucide-react";
 
 const items = [
 	{
@@ -24,14 +18,10 @@ const items = [
 		url: "/runs",
 		icon: Activity,
 	},
-	{
-		title: "Apps",
-		url: "/",
-		icon: Bot,
-	},
+
 	{
 		title: "Connections",
-		url: "/",
+		url: "/connections",
 		icon: BookOpen,
 	},
 	{

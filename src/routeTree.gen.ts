@@ -17,6 +17,7 @@ import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthedIndexImport } from './routes/_authed/index'
 import { Route as AuthedRunsImport } from './routes/_authed/runs'
 import { Route as AuthedServersIndexImport } from './routes/_authed/servers/index'
+import { Route as AuthedConnectionsIndexImport } from './routes/_authed/connections/index'
 import { Route as AuthedServersIdImport } from './routes/_authed/servers/$id'
 
 // Create/Update Routes
@@ -53,6 +54,12 @@ const AuthedRunsRoute = AuthedRunsImport.update({
 const AuthedServersIndexRoute = AuthedServersIndexImport.update({
   id: '/servers/',
   path: '/servers/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+
+const AuthedConnectionsIndexRoute = AuthedConnectionsIndexImport.update({
+  id: '/connections/',
+  path: '/connections/',
   getParentRoute: () => AuthedRoute,
 } as any)
 
@@ -108,6 +115,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedServersIdImport
       parentRoute: typeof AuthedImport
     }
+    '/_authed/connections/': {
+      id: '/_authed/connections/'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof AuthedConnectionsIndexImport
+      parentRoute: typeof AuthedImport
+    }
     '/_authed/servers/': {
       id: '/_authed/servers/'
       path: '/servers'
@@ -124,6 +138,7 @@ interface AuthedRouteChildren {
   AuthedRunsRoute: typeof AuthedRunsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedServersIdRoute: typeof AuthedServersIdRoute
+  AuthedConnectionsIndexRoute: typeof AuthedConnectionsIndexRoute
   AuthedServersIndexRoute: typeof AuthedServersIndexRoute
 }
 
@@ -131,6 +146,7 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedRunsRoute: AuthedRunsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedServersIdRoute: AuthedServersIdRoute,
+  AuthedConnectionsIndexRoute: AuthedConnectionsIndexRoute,
   AuthedServersIndexRoute: AuthedServersIndexRoute,
 }
 
@@ -144,6 +160,7 @@ export interface FileRoutesByFullPath {
   '/runs': typeof AuthedRunsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
+  '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
 }
 
@@ -153,6 +170,7 @@ export interface FileRoutesByTo {
   '/runs': typeof AuthedRunsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
+  '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
 }
 
@@ -164,6 +182,7 @@ export interface FileRoutesById {
   '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
+  '/_authed/connections/': typeof AuthedConnectionsIndexRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
 }
 
@@ -176,9 +195,17 @@ export interface FileRouteTypes {
     | '/runs'
     | '/'
     | '/servers/$id'
+    | '/connections'
     | '/servers'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/redirect' | '/runs' | '/' | '/servers/$id' | '/servers'
+  to:
+    | '/login'
+    | '/redirect'
+    | '/runs'
+    | '/'
+    | '/servers/$id'
+    | '/connections'
+    | '/servers'
   id:
     | '__root__'
     | '/_authed'
@@ -187,6 +214,7 @@ export interface FileRouteTypes {
     | '/_authed/runs'
     | '/_authed/'
     | '/_authed/servers/$id'
+    | '/_authed/connections/'
     | '/_authed/servers/'
   fileRoutesById: FileRoutesById
 }
@@ -224,6 +252,7 @@ export const routeTree = rootRoute
         "/_authed/runs",
         "/_authed/",
         "/_authed/servers/$id",
+        "/_authed/connections/",
         "/_authed/servers/"
       ]
     },
@@ -243,6 +272,10 @@ export const routeTree = rootRoute
     },
     "/_authed/servers/$id": {
       "filePath": "_authed/servers/$id.tsx",
+      "parent": "/_authed"
+    },
+    "/_authed/connections/": {
+      "filePath": "_authed/connections/index.tsx",
       "parent": "/_authed"
     },
     "/_authed/servers/": {
