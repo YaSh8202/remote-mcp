@@ -1,6 +1,7 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Badge } from "@/components/ui/badge";
+import { JsonViewer } from "@/components/ui/json-viewer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -181,11 +182,7 @@ function RunDetailsContent({
 				{/* Input Section */}
 				<div className="space-y-3">
 					<h3 className="text-sm font-medium">Input Parameters</h3>
-					<div className="rounded-md border bg-muted/10 p-3">
-						<pre className="text-xs overflow-auto">
-							{JSON.stringify(run.input, null, 2)}
-						</pre>
-					</div>
+					<JsonViewer data={run.input} />
 				</div>
 
 				<Separator />
@@ -193,11 +190,7 @@ function RunDetailsContent({
 				{/* Output Section */}
 				<div className="space-y-3">
 					<h3 className="text-sm font-medium">Output Result</h3>
-					<div className="rounded-md border bg-muted/10 p-3">
-						<pre className="text-xs overflow-auto">
-							{JSON.stringify(run.output, null, 2)}
-						</pre>
-					</div>
+					<JsonViewer data={run.output} />
 				</div>
 
 				{/* Metadata Section */}
@@ -206,42 +199,10 @@ function RunDetailsContent({
 						<Separator />
 						<div className="space-y-3">
 							<h3 className="text-sm font-medium">Metadata</h3>
-							<div className="rounded-md border bg-muted/10 p-3">
-								<pre className="text-xs overflow-auto">
-									{JSON.stringify(run.metadata, null, 2)}
-								</pre>
-							</div>
+							<JsonViewer data={run.metadata} />
 						</div>
 					</>
 				)}
-
-				{/* Timestamps */}
-				<Separator />
-				<div className="space-y-3">
-					<h3 className="text-sm font-medium">Execution Details</h3>
-					<div className="grid grid-cols-1 gap-3 text-sm">
-						<div className="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-md">
-							<span className="text-muted-foreground">Started:</span>
-							<span className="font-mono text-xs">
-								{new Date(run.createdAt).toLocaleString()}
-							</span>
-						</div>
-						<div className="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-md">
-							<span className="text-muted-foreground">Completed:</span>
-							<span className="font-mono text-xs">
-								{new Date(run.updatedAt).toLocaleString()}
-							</span>
-						</div>
-						<div className="flex justify-between items-center py-2 px-3 bg-muted/30 rounded-md">
-							<span className="text-muted-foreground">Duration:</span>
-							<span className="font-mono text-xs">
-								{formatDistanceToNow(new Date(run.createdAt), {
-									includeSeconds: true,
-								})}
-							</span>
-						</div>
-					</div>
-				</div>
 			</div>
 		</ScrollArea>
 	);
