@@ -1,4 +1,5 @@
+import { fetchMcpApp } from "./fetch";
 import { githubMcpApp } from "./github";
 import { gitlabMcpApp } from "./gitlab";
 
-export const mcpApps = [githubMcpApp, gitlabMcpApp];
+export const mcpApps = [githubMcpApp, gitlabMcpApp, fetchMcpApp];
