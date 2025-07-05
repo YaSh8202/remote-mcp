@@ -1,5 +1,6 @@
 import { McpRunStatus } from "@/db/schema";
 import { mcpRunService } from "@/services/mcp-run-service";
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
@@ -39,14 +40,21 @@ export const mcpRunRouter = createTRPCRouter({
 				sortOrder: (sort[0]?.desc ? "desc" : "asc") as "asc" | "desc",
 			};
 
-			const runs = await mcpRunService.getRunsPaginated({
-				offset,
-				limit,
-				ownerId: ctx.user.id,
-				...filters,
-			});
-
-			return runs;
+			try {
+				const runs = await mcpRunService.getRunsPaginated({
+					offset,
+					limit,
+					ownerId: ctx.user.id,
+					...filters,
+				});
+				return runs;
+			} catch (error) {
+				console.error("Error fetching runs:", error);
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: "Failed to fetch runs",
+				});
+			}
 		}),
 
 	// Get runs with pagination and filtering (legacy method)

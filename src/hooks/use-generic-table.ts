@@ -175,7 +175,8 @@ export function useGenericTable({
 
 	// Sync debounced search with URL
 	React.useEffect(() => {
-		if (debouncedGlobalFilter !== searchParams.search) {
+		const currentSearch = searchParams.search || "";
+		if (debouncedGlobalFilter !== currentSearch) {
 			updateSearchParams({
 				search: debouncedGlobalFilter || undefined,
 				page: 1, // Reset to first page when searching
