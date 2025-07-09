@@ -2,6 +2,7 @@ import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { mcpApps as mcpAppsTable } from "@/db/schema";
 import { getOAuthAppSecrets } from "@/env";
+import { isNil } from "@/lib/utils";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
@@ -63,7 +64,7 @@ export const mcpAppRouter = {
 				serverId: z.string().min(1, "Server ID is required"),
 				appName: z.string().min(1, "App name is required"),
 				tools: z.array(z.string()).min(1, "At least one tool must be selected"),
-				connectionId: z.string(),
+				connectionId: z.string().nullable(),
 			}),
 		)
 		.mutation(async ({ ctx, input }) => {
@@ -83,29 +84,51 @@ export const mcpAppRouter = {
 					});
 				}
 
-				// validate connection exists
-				const connection = await db.query.appConnections.findFirst({
-					where: (appConnections, { eq, and }) =>
-						and(
-							eq(appConnections.id, input.connectionId),
-							eq(appConnections.ownerId, ctx.user.id),
-						),
-				});
+				const mcpApp = mcpApps.find(
+					(appDefinition) => appDefinition.name === input.appName,
+				);
 
-				if (!connection) {
+				if (!mcpApp) {
 					throw new TRPCError({
 						code: "NOT_FOUND",
-						message: "Connection not found or you do not own it",
+						message: "App definition not found",
 					});
 				}
 
+				const connectionId = input.connectionId;
+				if (mcpApp.auth) {
+					if (isNil(connectionId)) {
+						throw new TRPCError({
+							code: "BAD_REQUEST",
+							message: "Connection ID is required for authenticated apps",
+						});
+					}
+
+					// validate connection exists
+					const connection = await db.query.appConnections.findFirst({
+						where: (appConnections, { eq, and }) =>
+							and(
+								eq(appConnections.id, connectionId),
+								eq(appConnections.ownerId, ctx.user.id),
+							),
+					});
+
+					if (!connection) {
+						throw new TRPCError({
+							code: "NOT_FOUND",
+							message: "Connection not found or you do not own it",
+						});
+					}
+				}
 				// Check if app is already installed
 				const existingApp = await db.query.mcpApps.findFirst({
-					where: (mcpApps, { eq, and }) =>
+					where: (mcpApps, { eq, and, isNull }) =>
 						and(
 							eq(mcpApps.serverId, input.serverId),
 							eq(mcpApps.appName, input.appName),
-							eq(mcpApps.connectionId, input.connectionId),
+							connectionId === null
+								? isNull(mcpApps.connectionId)
+								: eq(mcpApps.connectionId, connectionId),
 						),
 				});
 

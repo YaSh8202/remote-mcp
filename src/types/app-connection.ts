@@ -1,6 +1,7 @@
-import type { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/property";
+import { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/property";
 import type { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
-import type { AppConnectionSchema, AppConnectionType } from "@/db/schema";
+import { type AppConnectionSchema, AppConnectionType } from "@/db/schema";
+import { z } from "zod";
 
 export type BaseOAuth2ConnectionValue = {
 	expires_in?: number;
@@ -27,9 +28,20 @@ export type NoAuthConnectionValue = {
 	type: AppConnectionType.NO_AUTH;
 };
 
+export type SecretTextConnectionValue = {
+	type: AppConnectionType.SECRET_TEXT;
+	secret_text: string;
+};
+
 export type AppConnectionValue<
 	T extends AppConnectionType = AppConnectionType,
-> = T extends AppConnectionType.OAUTH2 ? OAuth2ConnectionValueWithApp : never;
+> = T extends AppConnectionType.SECRET_TEXT
+	? SecretTextConnectionValue
+	: T extends AppConnectionType.OAUTH2
+		? OAuth2ConnectionValueWithApp
+		: T extends AppConnectionType.NO_AUTH
+			? NoAuthConnectionValue
+			: never;
 
 export type OAuth2Service<CONNECTION_VALUE extends BaseOAuth2ConnectionValue> =
 	{
@@ -68,3 +80,52 @@ export type AppConnection<Type extends AppConnectionType = AppConnectionType> =
 		type: Type;
 		value: AppConnectionValue<Type>;
 	};
+
+export const commonAuthProps = z.object({
+	displayName: z.string().min(1, "Display name is required"),
+	appName: z.string().min(1, "App name is required"),
+});
+
+export const UpsertNoAuthRequest = z.object({
+	...commonAuthProps.shape,
+	type: z.literal(AppConnectionType.NO_AUTH),
+	value: z.object({
+		type: z.literal(AppConnectionType.NO_AUTH),
+	}),
+});
+
+export const UpsertOAuth2Request = z.object({
+	...commonAuthProps.shape,
+	type: z.literal(AppConnectionType.OAUTH2),
+	value: z.object({
+		client_id: z.string().min(1, "Client ID is required"),
+		code: z.string().min(1, "Code is required"),
+		code_challenge: z.string().optional(),
+		authorization_method: z.nativeEnum(OAuth2AuthorizationMethod).optional(),
+		scope: z.string().min(1, "Scope is required").optional(),
+		props: z.record(z.string(), z.any()).optional(),
+		type: z.literal(AppConnectionType.OAUTH2),
+		redirect_url: z.string().min(1, "Redirect URL is required"),
+	}),
+});
+
+export type UpsertOAuth2Request = z.infer<typeof UpsertOAuth2Request>;
+
+export const UpsertSecretTextRequest = z.object({
+	...commonAuthProps.shape,
+	type: z.literal(AppConnectionType.SECRET_TEXT),
+	value: z.object({
+		type: z.literal(AppConnectionType.SECRET_TEXT),
+		secret_text: z.string().min(1, "Secret is required"),
+	}),
+});
+
+export const UpsertAppConnectionRequestBody = z.discriminatedUnion("type", [
+	UpsertSecretTextRequest,
+	UpsertOAuth2Request,
+	UpsertNoAuthRequest,
+]);
+
+export type UpsertAppConnectionRequestBody = z.infer<
+	typeof UpsertAppConnectionRequestBody
+>;

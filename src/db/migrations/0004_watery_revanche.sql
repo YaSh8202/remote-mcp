@@ -1,0 +1,1 @@
+ALTER TABLE "mcp_apps" ALTER COLUMN "connection_id" DROP NOT NULL;

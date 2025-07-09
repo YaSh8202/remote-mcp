@@ -72,17 +72,18 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 			const apps = mcpServer?.apps || [];
 
 			for (const app of apps) {
-				const connection = await appConnectionService.getOne({
-					id: app.connectionId,
-					ownerId: mcpServer.ownerId,
-				});
+				let connection: Awaited<
+					ReturnType<typeof appConnectionService.getOne>
+				> | null = null;
 
-				if (!connection) {
-					console.warn(`Connection for app ${app.appName} not found.`);
-					continue;
+				if (app.connectionId) {
+					connection = await appConnectionService.getOne({
+						id: app.connectionId,
+						ownerId: mcpServer.ownerId,
+					});
 				}
 
-				const authValue = connection.value;
+				const authValue = connection?.value;
 
 				const mcpApp = mcpApps.find((a) => a.name === app.appName);
 				if (!mcpApp) {
@@ -91,7 +92,8 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				}
 
 				// Register tools with logging context
-				await mcpApp.registerTools(server, authValue, {
+				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				await mcpApp.registerTools(server, authValue as any, {
 					serverId: mcpServer.id,
 					appId: app.id,
 					appName: app.appName,

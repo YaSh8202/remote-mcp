@@ -23,7 +23,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { NewConnectionDialog } from "./new-connection-dialog";
+import { NewConnectionDialog } from "../../../../components/app-connection/new-connection-dialog";
 
 interface AddAppDialogProps {
 	open: boolean;
@@ -42,7 +42,9 @@ export function AddAppDialog({
 }: AddAppDialogProps) {
 	const [step, setStep] = useState<Step>("select-app");
 	const [selectedApp, setSelectedApp] = useState<McpAppMetadata | null>(null);
-	const [selectedConnection, setSelectedConnection] = useState<string>("");
+	const [selectedConnection, setSelectedConnection] = useState<
+		string | undefined
+	>(undefined);
 	const [selectedTools, setSelectedTools] = useState<string[]>([]);
 	const [newConnectionDialogOpen, setNewConnectionDialogOpen] = useState(false);
 
@@ -70,8 +72,8 @@ export function AddAppDialog({
 	// Mutations using the correct tRPC pattern
 	const installApp = useMutation({
 		...trpc.mcpApp.installApp.mutationOptions(),
-		onSuccess: () => {
-			toast.success("App tools added successfully!");
+		onSuccess: (data) => {
+			toast.success(`${data.appName} tools added successfully!`);
 			onAppInstalled?.();
 			handleClose();
 			// Invalidate queries to refresh data
@@ -154,13 +156,18 @@ export function AddAppDialog({
 			serverId,
 			appName: selectedApp.name,
 			tools: selectedTools,
-			connectionId: selectedConnection,
+			connectionId: selectedConnection ?? null,
 		});
 	};
 
 	const isAllToolsSelected =
 		selectedApp?.tools.length === selectedTools.length &&
 		selectedTools.length > 0;
+
+	const isInstallDisabled =
+		!selectedApp ||
+		selectedTools.length === 0 ||
+		(!selectedConnection && !!selectedApp.auth);
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
@@ -249,59 +256,61 @@ export function AddAppDialog({
 
 						<div className="py-4 space-y-6">
 							{/* Connection Selection */}
-							<div className="space-y-3">
-								<p className="text-base font-bold">Connection</p>
-								{loadingConnections ? (
-									<div className="flex items-center justify-center p-4 border rounded-lg">
-										<div className="text-sm text-muted-foreground">
-											Loading connections...
+							{selectedApp.auth && (
+								<div className="space-y-3">
+									<p className="text-base font-bold">Connection</p>
+									{loadingConnections ? (
+										<div className="flex items-center justify-center p-4 border rounded-lg">
+											<div className="text-sm text-muted-foreground">
+												Loading connections...
+											</div>
 										</div>
-									</div>
-								) : connections && connections.length > 0 ? (
-									<Select
-										value={selectedConnection}
-										onValueChange={handleConnectionChange}
-									>
-										<SelectTrigger>
-											<SelectValue placeholder="Select or add a connection" />
-										</SelectTrigger>
-										<SelectContent>
-											{connections.map((connection: AppConnectionSchema) => (
-												<SelectItem key={connection.id} value={connection.id}>
-													{connection.displayName}
+									) : connections && connections.length > 0 ? (
+										<Select
+											value={selectedConnection}
+											onValueChange={handleConnectionChange}
+										>
+											<SelectTrigger>
+												<SelectValue placeholder="Select or add a connection" />
+											</SelectTrigger>
+											<SelectContent>
+												{connections.map((connection: AppConnectionSchema) => (
+													<SelectItem key={connection.id} value={connection.id}>
+														{connection.displayName}
+													</SelectItem>
+												))}
+												<SelectItem value="add-new">
+													<div className="flex items-center gap-2">
+														<Plus className="h-3 w-3" />
+														Add new connection
+													</div>
 												</SelectItem>
-											))}
-											<SelectItem value="add-new">
-												<div className="flex items-center gap-2">
-													<Plus className="h-3 w-3" />
-													Add new connection
-												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								) : (
-									<div className="space-y-3">
-										<div className="p-4 border rounded-lg text-center">
-											<p className="text-sm text-muted-foreground mb-3">
-												No connections available for {selectedApp.displayName}
-											</p>
-											<Button
-												variant="outline"
-												className="gap-2"
-												onClick={() => setNewConnectionDialogOpen(true)}
-											>
-												<Plus className="h-4 w-4" />
-												Connect to {selectedApp.displayName}
-											</Button>
+											</SelectContent>
+										</Select>
+									) : (
+										<div className="space-y-3">
+											<div className="p-4 border rounded-lg text-center">
+												<p className="text-sm text-muted-foreground mb-3">
+													No connections available for {selectedApp.displayName}
+												</p>
+												<Button
+													variant="outline"
+													className="gap-2"
+													onClick={() => setNewConnectionDialogOpen(true)}
+												>
+													<Plus className="h-4 w-4" />
+													Connect to {selectedApp.displayName}
+												</Button>
+											</div>
 										</div>
-									</div>
-								)}
-								{!selectedConnection && !loadingConnections && (
-									<p className="text-xs text-destructive">
-										A connection must be selected to add tools
-									</p>
-								)}
-							</div>
+									)}
+									{!selectedConnection && !loadingConnections && (
+										<p className="text-xs text-destructive">
+											A connection must be selected to add tools
+										</p>
+									)}
+								</div>
+							)}
 
 							{/* Tools Selection */}
 							<div className="space-y-3">
@@ -366,21 +375,14 @@ export function AddAppDialog({
 							<Button variant="outline" onClick={handleBack}>
 								Back
 							</Button>
-							<Button
-								onClick={handleInstall}
-								disabled={
-									selectedTools.length === 0 ||
-									!selectedConnection ||
-									installApp.isPending
-								}
-							>
+							<Button onClick={handleInstall} disabled={isInstallDisabled}>
 								{installApp.isPending ? "Adding..." : "Add Tools"}
 							</Button>
 						</DialogFooter>
 					</>
 				)}
 			</DialogContent>
-			{selectedApp && (
+			{selectedApp?.auth && (
 				<NewConnectionDialog
 					open={newConnectionDialogOpen}
 					onOpenChange={setNewConnectionDialogOpen}

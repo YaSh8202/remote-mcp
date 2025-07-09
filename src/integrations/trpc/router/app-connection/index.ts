@@ -1,7 +1,7 @@
-import { MCPAppAuthType } from "@/app/mcp/mcp-app/auth";
 import { db } from "@/db";
-import { AppConnectionType, appConnections, mcpApps } from "@/db/schema";
+import { appConnections, mcpApps } from "@/db/schema";
 import { appConnectionService } from "@/services/app-connection-service";
+import { UpsertAppConnectionRequestBody } from "@/types/app-connection";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { sql } from "drizzle-orm";
@@ -65,7 +65,10 @@ export const appConnectionRouter = {
 						usageCount: sql<number>`COUNT(${mcpApps.id})::int`,
 					})
 					.from(appConnections)
-					.leftJoin(mcpApps, sql`${appConnections.id} = ${mcpApps.connectionId}`)
+					.leftJoin(
+						mcpApps,
+						sql`${appConnections.id} = ${mcpApps.connectionId}`,
+					)
 					.where(sql`${appConnections.ownerId} = ${ctx.user.id}`)
 					.groupBy(
 						appConnections.id,
@@ -74,7 +77,7 @@ export const appConnectionRouter = {
 						appConnections.type,
 						appConnections.status,
 						appConnections.createdAt,
-						appConnections.updatedAt
+						appConnections.updatedAt,
 					)
 					.orderBy(sql`${appConnections.createdAt} DESC`);
 
@@ -82,25 +85,8 @@ export const appConnectionRouter = {
 			},
 		);
 	}),
-	create: protectedProcedure
-		.input(
-			z.object({
-				appName: z.string().min(1, "App name is required"),
-				displayName: z.string().min(1, "Display name is required"),
-				type: z.nativeEnum(AppConnectionType),
-				value: z.object({
-					code: z.string().min(1, "Code is required"),
-					code_challenge: z
-						.string()
-						.min(1, "Code challenge is required")
-						.optional(),
-					scope: z.string().min(1, "Scope is required").optional(),
-					props: z.record(z.string(), z.any()).optional(),
-					type: z.literal(MCPAppAuthType.enum.OAUTH2),
-					redirect_url: z.string().min(1, "Redirect URL is required"),
-				}),
-			}),
-		)
+	upsert: protectedProcedure
+		.input(UpsertAppConnectionRequestBody)
 		.mutation(async ({ ctx, input }) => {
 			const type = input.type;
 
@@ -127,7 +113,7 @@ export const appConnectionRouter = {
 				});
 			}
 		}),
-	
+
 	update: protectedProcedure
 		.input(
 			z.object({
@@ -159,7 +145,7 @@ export const appConnectionRouter = {
 						updatedAt: new Date(),
 					})
 					.where(
-						sql`${appConnections.id} = ${input.id} AND ${appConnections.ownerId} = ${ctx.user.id}`
+						sql`${appConnections.id} = ${input.id} AND ${appConnections.ownerId} = ${ctx.user.id}`,
 					)
 					.returning();
 
@@ -200,11 +186,11 @@ export const appConnectionRouter = {
 						message: "Connection not found",
 					});
 				}
-					
+
 				const deletedConnection = await db
 					.delete(appConnections)
 					.where(
-						sql`${appConnections.id} = ${input.id} AND ${appConnections.ownerId} = ${ctx.user.id}`
+						sql`${appConnections.id} = ${input.id} AND ${appConnections.ownerId} = ${ctx.user.id}`,
 					)
 					.returning();
 

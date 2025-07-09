@@ -81,6 +81,7 @@ export enum AppConnectionStatus {
 export enum AppConnectionType {
 	OAUTH2 = "OAUTH2",
 	NO_AUTH = "NO_AUTH",
+	SECRET_TEXT = "SECRET_TEXT",
 }
 
 export const appConnections = pgTable("app_connections", {
@@ -133,9 +134,9 @@ export const mcpApps = pgTable("mcp_apps", {
 		.notNull()
 		.defaultNow(),
 	appName: text("app_name").notNull(),
-	connectionId: text("connection_id")
-		.notNull()
-		.references(() => appConnections.id, { onDelete: "cascade" }),
+	connectionId: text("connection_id").references(() => appConnections.id, {
+		onDelete: "cascade",
+	}),
 	serverId: text("server_id")
 		.notNull()
 		.references(() => mcpServer.id, { onDelete: "cascade" }),

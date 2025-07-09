@@ -1,4 +1,5 @@
 import { mcpApps } from "@/app/mcp/apps";
+import { PropertyType } from "@/app/mcp/mcp-app/property";
 import { db } from "@/db";
 import {
 	type AppConnectionSchema,
@@ -8,13 +9,11 @@ import {
 	appConnections,
 } from "@/db/schema";
 import { getOAuthAppSecrets } from "@/env";
-import type { appConnectionRouter } from "@/integrations/trpc/router/app-connection";
 import { oauth2Util } from "@/integrations/trpc/router/app-connection/oauth2-util";
 import { decryptObject, encryptObject } from "@/lib/encryption";
 import { isNil } from "@/lib/utils";
 import { credentialsOauth2Service } from "@/services/credentials-oauth2-service";
-import type { AppConnection, AppConnectionValue } from "@/types/app-connection";
-import type { inferProcedureInput } from "@trpc/server";
+import type { AppConnection, AppConnectionValue, UpsertAppConnectionRequestBody } from "@/types/app-connection";
 import { eq } from "drizzle-orm";
 
 const appConnectionHandler = {
@@ -41,39 +40,11 @@ const appConnectionHandler = {
 
 export const appConnectionService = {
 	async upsert(params: UpsertParams) {
-		const type = params.type;
-		const secrets = getOAuthAppSecrets();
-		const secret = secrets[params.appName];
-		if (!secret) {
-			throw new Error(`No secrets found for app: ${params.appName}`);
-		}
-
-		const client_id = secret.clientId;
-		const client_secret = secret.clientSecret;
-
-		const mcpApp = await mcpApps.find((app) => app.name === params.appName);
-		if (!mcpApp) {
-			throw new Error(`MCP app not found: ${params.appName}`);
-		}
-
-		const tokenUrl = mcpApp.auth?.tokenUrl;
-		if (!tokenUrl) {
-			throw new Error(`Token URL not found for app: ${params.appName}`);
-		}
 		try {
-			const validatedConnectionValue = await credentialsOauth2Service.claim({
+			const validatedConnectionValue = await validateConnectionValue({
+				value: params.value,
 				appName: params.appName,
-				request: {
-					code: params.value.code,
-					codeVerifier: params.value.code_challenge,
-					clientId: client_id,
-					clientSecret: client_secret,
-					tokenUrl,
-					scope: params.value.scope,
-					authorizationMethod: mcpApp.auth?.authorizationMethod,
-					props: params.value.props,
-					redirectUrl: params.value.redirect_url,
-				},
+				ownerId: params.ownerId,
 			});
 
 			const encryptedConnectionValue = encryptObject({
@@ -89,7 +60,7 @@ export const appConnectionService = {
 					ownerId: params.ownerId,
 					displayName: params.displayName,
 					value: encryptedConnectionValue,
-					type: type,
+					type: params.type,
 					status: AppConnectionStatus.ACTIVE,
 				} as NewAppConnection)
 				.returning();
@@ -133,7 +104,11 @@ export const appConnectionService = {
 		const appConnection = appConnectionHandler.decryptConnection(
 			encryptedAppConnection,
 		);
-		if (!appConnectionHandler.needRefresh(appConnection)) {
+
+		if (
+			appConnection.value.type !== AppConnectionType.OAUTH2 ||
+			!appConnectionHandler.needRefresh(appConnection)
+		) {
 			return oauth2Util.removeRefreshTokenAndClientSecret(appConnection);
 		}
 
@@ -157,10 +132,73 @@ export const appConnectionService = {
 	},
 };
 
+const validateConnectionValue = async (
+	params: ValidateConnectionValueParams,
+): Promise<AppConnectionValue> => {
+	const { value, appName } = params;
+
+	switch (value.type) {
+		case AppConnectionType.OAUTH2: {
+			const secrets = getOAuthAppSecrets();
+			const secret = secrets[appName];
+			if (!secret) {
+				throw new Error(`No secrets found for app: ${params.appName}`);
+			}
+
+			const client_id = secret.clientId;
+			const client_secret = secret.clientSecret;
+
+			const mcpApp = mcpApps.find((app) => app.name === params.appName);
+			if (!mcpApp) {
+				throw new Error(`MCP app not found: ${params.appName}`);
+			}
+
+			if (mcpApp.auth?.type !== PropertyType.OAUTH2) {
+				throw new Error(
+					`Unsupported app connection type: ${mcpApp.auth?.type}`,
+				);
+			}
+
+			const tokenUrl = mcpApp.auth?.tokenUrl;
+			if (!tokenUrl) {
+				throw new Error(`Token URL not found for app: ${params.appName}`);
+			}
+
+			return await credentialsOauth2Service.claim({
+				appName: appName,
+				request: {
+					code: value.code,
+					codeVerifier: value.code_challenge,
+					clientId: client_id,
+					clientSecret: client_secret,
+					tokenUrl,
+					scope: value.scope,
+					authorizationMethod: mcpApp.auth?.authorizationMethod,
+					props: value.props,
+					redirectUrl: value.redirect_url,
+				},
+			});
+		}
+		case AppConnectionType.SECRET_TEXT: {
+			return value;
+		}
+
+		case AppConnectionType.NO_AUTH: {
+			return value;
+		}
+	}
+};
+
 type UpsertParams = {
 	appName: string;
 	displayName: string;
 	ownerId: string;
-	value: inferProcedureInput<(typeof appConnectionRouter)["create"]>["value"];
+	value: UpsertAppConnectionRequestBody["value"];
 	type: AppConnectionType;
+};
+
+type ValidateConnectionValueParams = {
+	value: UpsertAppConnectionRequestBody["value"];
+	appName: string;
+	ownerId: string;
 };

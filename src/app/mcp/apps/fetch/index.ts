@@ -9,8 +9,8 @@ export const fetchMcpApp = createMcpApp({
 	description:
 		"Fetch web content in various formats (HTML, JSON, plain text, and Markdown)",
 	logo: {
-		type: "url",
-		url: "https://api.iconify.design/carbon:fetch-upload-cloud.svg",
+		type: "icon",
+		icon: "fetch",
 	},
 	auth: McpAppAuth.None(),
 	tools: fetchTools,

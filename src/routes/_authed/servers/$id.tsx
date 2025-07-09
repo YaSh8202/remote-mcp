@@ -125,16 +125,6 @@ function RouteComponent() {
 			/>
 		),
 		actions: [
-			// {
-			// 	id: "edit-server",
-			// 	label: "Edit",
-			// 	icon: <Settings className="h-4 w-4" />,
-			// 	onClick: () => {
-			// 		// Add edit functionality here
-			// 		console.log("Edit server:", serverId);
-			// 	},
-			// 	variant: "outline" as const,
-			// },
 			{
 				id: "delete-server",
 				label: "Delete",
