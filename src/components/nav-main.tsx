@@ -5,13 +5,13 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { Activity, BookOpen, Settings2, SquareTerminal } from "lucide-react";
+import { Activity, Link2, Server, Settings2 } from "lucide-react";
 
 const items = [
 	{
 		title: "Servers",
 		url: "/servers",
-		icon: SquareTerminal,
+		icon: Server,
 	},
 	{
 		title: "Runs",
@@ -22,7 +22,7 @@ const items = [
 	{
 		title: "Connections",
 		url: "/connections",
-		icon: BookOpen,
+		icon: Link2,
 	},
 	{
 		title: "Settings",

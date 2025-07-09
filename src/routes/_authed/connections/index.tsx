@@ -1,3 +1,4 @@
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { NewConnectionDialog } from "@/components/app-connection/new-connection-dialog";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,20 @@ import {
 	ConnectionsTable,
 } from "./-components/connections-table";
 import { EditConnectionDialog } from "./-components/edit-connection-dialog";
+import { SelectAppDialog } from "./-components/select-app-dialog";
 
 export const Route = createFileRoute("/_authed/connections/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
+	const [selectAppDialogOpen, setSelectAppDialogOpen] = useState(false);
 	const [createDialogOpen, setCreateDialogOpen] = useState(false);
 	const [editDialogOpen, setEditDialogOpen] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 	const [selectedConnection, setSelectedConnection] =
 		useState<ConnectionWithUsage | null>(null);
+	const [selectedApp, setSelectedApp] = useState<McpAppMetadata | null>(null);
 
 	const trpc = useTRPC();
 
@@ -35,11 +39,6 @@ function RouteComponent() {
 		isLoading,
 		refetch,
 	} = useQuery(trpc.appConnection.getAllConnectionsWithUsage.queryOptions());
-
-	// Fetch available apps for the new connection dialog
-	const { data: availableApps } = useQuery(
-		trpc.mcpApp.getAvailableApps.queryOptions(),
-	);
 
 	// Delete connection mutation
 	const deleteConnectionMutation = useMutation({
@@ -63,18 +62,24 @@ function RouteComponent() {
 				id: "new-connection",
 				label: "New Connection",
 				icon: <Plus className="h-4 w-4" />,
-				onClick: () => setCreateDialogOpen(true),
+				onClick: () => setSelectAppDialogOpen(true),
 			},
 		],
 	});
 
 	const handleCreateConnection = () => {
+		setSelectAppDialogOpen(true);
+	};
+
+	const handleAppSelect = (app: McpAppMetadata) => {
+		setSelectedApp(app);
 		setCreateDialogOpen(true);
 	};
 
 	const handleCreateSuccess = () => {
 		refetch();
 		toast.success("Connection created successfully!");
+		setSelectedApp(null);
 	};
 
 	const handleEdit = (connection: ConnectionWithUsage) => {
@@ -132,7 +137,6 @@ function RouteComponent() {
 	}
 
 	const connectionsData = connections || [];
-	const firstApp = availableApps?.[0];
 
 	return (
 		<div className="container mx-auto p-6 space-y-8">
@@ -178,11 +182,17 @@ function RouteComponent() {
 			)}
 
 			{/* Dialogs */}
-			{firstApp?.auth && (
+			<SelectAppDialog
+				open={selectAppDialogOpen}
+				onOpenChange={setSelectAppDialogOpen}
+				onAppSelect={handleAppSelect}
+			/>
+
+			{selectedApp && (
 				<NewConnectionDialog
 					open={createDialogOpen}
 					onOpenChange={setCreateDialogOpen}
-					app={firstApp}
+					app={selectedApp}
 					onSave={handleCreateSuccess}
 				/>
 			)}
