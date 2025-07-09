@@ -13,7 +13,11 @@ import { oauth2Util } from "@/integrations/trpc/router/app-connection/oauth2-uti
 import { decryptObject, encryptObject } from "@/lib/encryption";
 import { isNil } from "@/lib/utils";
 import { credentialsOauth2Service } from "@/services/credentials-oauth2-service";
-import type { AppConnection, AppConnectionValue, UpsertAppConnectionRequestBody } from "@/types/app-connection";
+import type {
+	AppConnection,
+	AppConnectionValue,
+	UpsertAppConnectionRequestBody,
+} from "@/types/app-connection";
 import { eq } from "drizzle-orm";
 
 const appConnectionHandler = {

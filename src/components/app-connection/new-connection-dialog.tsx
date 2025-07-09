@@ -3,6 +3,7 @@ import {
 	type OAuth2Property,
 	type OAuth2Props,
 	PropertyType,
+	type SecretTextProperty,
 } from "@/app/mcp/mcp-app/property";
 import { OAuth2ConnectionSettings } from "@/components/app-connection/oauth2-connection-settings";
 import { Button } from "@/components/ui/button";
@@ -36,6 +37,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { SecretTextConnectionSettings } from "./secret-text-connection-settings";
 
 const newConnectionSchema = z.object({
 	displayName: z.string().min(1, "Connection name is required"),
@@ -222,6 +224,13 @@ export const NewConnectionDialog = React.memo(
 										<OAuth2ConnectionSettings
 											authProperty={app.auth as OAuth2Property<OAuth2Props>}
 											app={app}
+										/>
+									</div>
+								)}
+								{app.auth?.type === PropertyType.SECRET_TEXT && (
+									<div className="mt-3.5">
+										<SecretTextConnectionSettings
+											authProperty={app.auth as SecretTextProperty<boolean>}
 										/>
 									</div>
 								)}
