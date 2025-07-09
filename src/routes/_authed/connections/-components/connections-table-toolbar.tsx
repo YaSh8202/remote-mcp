@@ -20,18 +20,19 @@ export function ConnectionsTableToolbar({
 	const isFiltered = table.getState().columnFilters.length > 0;
 
 	const trpc = useTRPC();
-	
+
 	// Fetch available apps from the server
 	const { data: availableApps } = useQuery(
-		trpc.mcpApp.getAvailableApps.queryOptions()
+		trpc.mcpApp.getAvailableApps.queryOptions(),
 	);
 
 	// Get unique app options for filtering
-	const appOptions = availableApps?.map((app) => ({
-		label: app.displayName,
-		value: app.name,
-		icon: undefined, // We could add an icon component here if needed
-	})) || [];
+	const appOptions =
+		availableApps?.map((app) => ({
+			label: app.displayName,
+			value: app.name,
+			icon: undefined, // We could add an icon component here if needed
+		})) || [];
 
 	const statusOptions = [
 		{
@@ -39,7 +40,7 @@ export function ConnectionsTableToolbar({
 			value: "ACTIVE",
 		},
 		{
-			label: "Error", 
+			label: "Error",
 			value: "ERROR",
 		},
 		{
@@ -55,14 +56,16 @@ export function ConnectionsTableToolbar({
 					<Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
 					<Input
 						placeholder="Search connections..."
-						value={(table.getColumn("displayName")?.getFilterValue() as string) ?? ""}
+						value={
+							(table.getColumn("displayName")?.getFilterValue() as string) ?? ""
+						}
 						onChange={(event) =>
 							table.getColumn("displayName")?.setFilterValue(event.target.value)
 						}
 						className="pl-8 max-w-sm"
 					/>
 				</div>
-				
+
 				{table.getColumn("appName") && (
 					<DataTableFacetedFilter
 						column={table.getColumn("appName")}
@@ -70,7 +73,7 @@ export function ConnectionsTableToolbar({
 						options={appOptions}
 					/>
 				)}
-				
+
 				{table.getColumn("status") && (
 					<DataTableFacetedFilter
 						column={table.getColumn("status")}
@@ -90,7 +93,7 @@ export function ConnectionsTableToolbar({
 					</Button>
 				)}
 			</div>
-			
+
 			<div className="flex items-center space-x-2">
 				<DataTableViewOptions table={table} />
 				<Button onClick={onCreateConnection} className="gap-2">

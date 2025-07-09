@@ -129,3 +129,9 @@ export const UpsertAppConnectionRequestBody = z.discriminatedUnion("type", [
 export type UpsertAppConnectionRequestBody = z.infer<
 	typeof UpsertAppConnectionRequestBody
 >;
+
+export type ConnectionValue =
+	| OAuth2ConnectionValueWithApp
+	| Record<string, unknown>
+	| string
+	| undefined;

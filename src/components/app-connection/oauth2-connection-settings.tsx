@@ -31,6 +31,7 @@ const OAuth2ConnectionSettingsForm = ({
 	const redirectUrl = "https://one-mcp.vercel.app/redirect";
 
 	const hasCode = form.getValues().request.value.code;
+	// biome-ignore lint/correctness/useExhaustiveDependencies: form cannot be a dependency here
 	useEffect(() => {
 		form.setValue(
 			"request.value.redirect_url",

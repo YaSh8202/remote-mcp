@@ -1,11 +1,23 @@
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
+import { AppConnectionType } from "@/db/schema";
 import { appConnectionService } from "@/services/app-connection-service";
+import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
 import { createAPIFileRoute } from "@tanstack/react-start/api";
 import { getEvent } from "vinxi/http";
+
+const getConnectionValue = (connection: AppConnection): ConnectionValue => {
+	switch (connection.value.type) {
+		case AppConnectionType.SECRET_TEXT:
+			return connection.value.secret_text;
+
+		default:
+			return connection.value;
+	}
+};
 
 export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 	GET: async () => {
@@ -83,7 +95,9 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 					});
 				}
 
-				const authValue = connection?.value;
+				const authValue = connection
+					? getConnectionValue(connection)
+					: undefined;
 
 				const mcpApp = mcpApps.find((a) => a.name === app.appName);
 				if (!mcpApp) {

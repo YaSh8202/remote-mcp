@@ -120,15 +120,23 @@ export function EditConnectionDialog({
 							{/* Connection Info (Read-only) */}
 							<div className="space-y-2">
 								<div className="text-sm">
-									<span className="font-medium text-muted-foreground">App:</span>{" "}
+									<span className="font-medium text-muted-foreground">
+										App:
+									</span>{" "}
 									{connection.appName}
 								</div>
 								<div className="text-sm">
-									<span className="font-medium text-muted-foreground">Status:</span>{" "}
-									<span className="capitalize">{connection.status.toLowerCase()}</span>
+									<span className="font-medium text-muted-foreground">
+										Status:
+									</span>{" "}
+									<span className="capitalize">
+										{connection.status.toLowerCase()}
+									</span>
 								</div>
 								<div className="text-sm">
-									<span className="font-medium text-muted-foreground">Usage:</span>{" "}
+									<span className="font-medium text-muted-foreground">
+										Usage:
+									</span>{" "}
 									{connection.usageCount} MCP server(s)
 								</div>
 							</div>
@@ -151,7 +159,9 @@ export function EditConnectionDialog({
 									!form.formState.isValid || updateConnectionMutation.isPending
 								}
 							>
-								{updateConnectionMutation.isPending ? "Saving..." : "Save Changes"}
+								{updateConnectionMutation.isPending
+									? "Saving..."
+									: "Save Changes"}
 							</Button>
 						</DialogFooter>
 					</form>
