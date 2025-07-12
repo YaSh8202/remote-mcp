@@ -7,6 +7,7 @@ export type McpAppLogo = z.infer<typeof McpAppLogo>;
 export enum McpAppCategory {
 	DEVELOPER_TOOLS = "DEVELOPER_TOOLS",
 	PRODUCTIVITY = "PRODUCTIVITY",
+	COMMUNICATION = "COMMUNICATION",
 }
 
 export const McpAppLogo = z.union([
