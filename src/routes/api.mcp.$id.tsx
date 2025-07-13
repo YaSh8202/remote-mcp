@@ -107,7 +107,7 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 
 				// Register tools with logging context
 				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-				await mcpApp.registerTools(server, authValue as any, {
+				await mcpApp.registerTools(server, authValue as any, app.tools, {
 					serverId: mcpServer.id,
 					appId: app.id,
 					appName: app.appName,

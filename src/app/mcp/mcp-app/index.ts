@@ -29,7 +29,8 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 	async registerTools(
 		server: McpServer,
 		auth: AppPropValueSchema<McpAppAuth>,
-		loggingContext?: {
+		selectedTools: string[],
+		loggingContext: {
 			serverId: string;
 			appId: string;
 			appName: string;
@@ -38,6 +39,14 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 	): Promise<RegisteredTool[]> {
 		const registeredTools: RegisteredTool[] = [];
 		for (const toolConfig of this.tools) {
+			if (
+				Array.isArray(selectedTools) &&
+				selectedTools.length > 0 &&
+				!selectedTools.includes(toolConfig.name)
+			) {
+				continue; // Skip tools not selected
+			}
+
 			const registeredTool = await registerTool(
 				server,
 				{ ...toolConfig, name: `${this.name}-${toolConfig.name}` },
