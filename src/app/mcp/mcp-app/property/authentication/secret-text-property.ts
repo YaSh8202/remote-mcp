@@ -13,5 +13,6 @@ export const SecretTextProperty = z.object({
 	).shape,
 });
 
-export type SecretTextProperty<R extends boolean> = BaseMcpAppAuthSchema &
-	TPropertyValue<string, PropertyType.SECRET_TEXT, R>;
+export type SecretTextProperty<R extends boolean> =
+	BaseMcpAppAuthSchema<string> &
+		TPropertyValue<string, PropertyType.SECRET_TEXT, R>;

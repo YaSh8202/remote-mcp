@@ -23,7 +23,7 @@ export const BasicAuthProperty = z.object({
 	...TPropertyValue(BasicAuthPropertyValue, PropertyType.BASIC_AUTH).shape,
 });
 
-export type BasicAuthProperty = BaseMcpAppAuthSchema & {
+export type BasicAuthProperty = BaseMcpAppAuthSchema<BasicAuthPropertyValue> & {
 	username: {
 		displayName: string;
 		description?: string;

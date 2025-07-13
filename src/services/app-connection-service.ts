@@ -1,4 +1,5 @@
 import { mcpApps } from "@/app/mcp/apps";
+import type { McpApp } from "@/app/mcp/mcp-app";
 import { PropertyType } from "@/app/mcp/mcp-app/property";
 import { db } from "@/db";
 import {
@@ -16,6 +17,8 @@ import { credentialsOauth2Service } from "@/services/credentials-oauth2-service"
 import type {
 	AppConnection,
 	AppConnectionValue,
+	OAuth2ConnectionValueWithApp,
+	SecretTextConnectionValue,
 	UpsertAppConnectionRequestBody,
 } from "@/types/app-connection";
 import { eq } from "drizzle-orm";
@@ -140,7 +143,10 @@ const validateConnectionValue = async (
 	params: ValidateConnectionValueParams,
 ): Promise<AppConnectionValue> => {
 	const { value, appName } = params;
-
+	const mcpApp = mcpApps.find((app) => app.name === params.appName);
+	if (!mcpApp) {
+		throw new Error(`MCP app not found: ${params.appName}`);
+	}
 	switch (value.type) {
 		case AppConnectionType.OAUTH2: {
 			const secrets = getOAuthAppSecrets();
@@ -151,11 +157,6 @@ const validateConnectionValue = async (
 
 			const client_id = secret.clientId;
 			const client_secret = secret.clientSecret;
-
-			const mcpApp = mcpApps.find((app) => app.name === params.appName);
-			if (!mcpApp) {
-				throw new Error(`MCP app not found: ${params.appName}`);
-			}
 
 			if (mcpApp.auth?.type !== PropertyType.OAUTH2) {
 				throw new Error(
@@ -168,7 +169,7 @@ const validateConnectionValue = async (
 				throw new Error(`Token URL not found for app: ${params.appName}`);
 			}
 
-			return await credentialsOauth2Service.claim({
+			const auth = await credentialsOauth2Service.claim({
 				appName: appName,
 				request: {
 					code: value.code,
@@ -182,16 +183,67 @@ const validateConnectionValue = async (
 					redirectUrl: value.redirect_url,
 				},
 			});
+
+			const result = await validateAuth({
+				mcpApp: mcpApp,
+				auth: auth as AppConnectionValue,
+			});
+
+			if (result.valid === false) {
+				throw new Error(`Validation failed: ${result.error}`);
+			}
+
+			return auth;
 		}
 		case AppConnectionType.SECRET_TEXT: {
-			return value;
+			const result = await validateAuth({
+				mcpApp: mcpApp,
+				auth: value as AppConnectionValue,
+			});
+			if (result.valid === false) {
+				throw new Error(`Validation failed: ${result.error}`);
+			}
+			break;
 		}
 
-		case AppConnectionType.NO_AUTH: {
-			return value;
+		case AppConnectionType.NO_AUTH:
+			break;
+	}
+
+	return value;
+};
+
+async function validateAuth(params: {
+	mcpApp: McpApp;
+	auth: AppConnectionValue;
+}): Promise<{ valid: true } | { valid: false; error?: string }> {
+	const { mcpApp: app } = params;
+
+	if (app.auth?.validate === undefined) {
+		return {
+			valid: true,
+		};
+	}
+
+	switch (app.auth.type) {
+		case PropertyType.SECRET_TEXT: {
+			const con = params.auth as SecretTextConnectionValue;
+			return app.auth.validate({
+				auth: con.secret_text,
+			});
+		}
+
+		case PropertyType.OAUTH2: {
+			const con = params.auth as OAuth2ConnectionValueWithApp;
+			return app.auth.validate({
+				auth: con,
+			});
+		}
+		default: {
+			throw new Error("Invalid auth type");
 		}
 	}
-};
+}
 
 type UpsertParams = {
 	appName: string;

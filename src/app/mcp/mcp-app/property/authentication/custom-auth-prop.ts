@@ -37,6 +37,6 @@ export const CustomAuthProperty = z.object({
 });
 
 export type CustomAuthProperty<T extends CustomAuthProps> =
-	BaseMcpAppAuthSchema & {
+	BaseMcpAppAuthSchema<StaticPropsValue<T>> & {
 		props: T;
 	} & TPropertyValue<StaticPropsValue<T>, PropertyType.CUSTOM_AUTH, true>;

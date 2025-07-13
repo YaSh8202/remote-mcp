@@ -6,15 +6,14 @@ export const BaseMcpAppAuthSchema = z.object({
 	description: z.string().optional(),
 });
 
-export type BaseMcpAppAuthSchema = {
+export type BaseMcpAppAuthSchema<AuthValueSchema> = {
 	displayName: string;
 	description?: string;
-	// TODO: Re-enable when ServerContext is available
-	// validate?: (params: { auth: AuthValueSchema; server: Omit<ServerContext, 'token'> }) => Promise<
-	//   | { valid: true }
-	//   | {
-	//   valid: false;
-	//   error: string;
-	// }
-	// >;
+	validate?: (params: { auth: AuthValueSchema }) => Promise<
+		| { valid: true }
+		| {
+				valid: false;
+				error: string;
+		  }
+	>;
 };
