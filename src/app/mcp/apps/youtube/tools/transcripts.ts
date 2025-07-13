@@ -63,7 +63,7 @@ export const getTranscriptTextTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Get the transcript of a YouTube video as plain text",
 	paramsSchema: getTranscriptTextSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -119,7 +119,7 @@ export const searchTranscriptTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Search for specific text within a YouTube video transcript",
 	paramsSchema: searchTranscriptSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -178,7 +178,7 @@ export const getTranscriptSummaryTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Get a summary of a YouTube video transcript",
 	paramsSchema: getTranscriptSummarySchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -229,7 +229,7 @@ export const getTranscriptLanguagesTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Get available transcript languages for a YouTube video",
 	paramsSchema: getTranscriptLanguagesSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			// Note: youtube-transcript doesn't have a direct method to get available languages
 			// We'll try common languages and see which ones work

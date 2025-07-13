@@ -18,7 +18,7 @@ export const analyzeVideoSentimentTool = createParameterizedTool({
 	description:
 		"Analyze the sentiment of a YouTube video based on its transcript",
 	paramsSchema: analyzeVideoSentimentSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -132,7 +132,7 @@ export const generateVideoSummaryTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Generate a summary of a YouTube video based on its transcript",
 	paramsSchema: generateVideoSummarySchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -232,7 +232,7 @@ export const extractKeyTopicsTool = createParameterizedTool({
 	description:
 		"Extract key topics from a YouTube video based on its transcript",
 	paramsSchema: extractKeyTopicsSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
@@ -414,7 +414,7 @@ export const generateTimestampsTool = createParameterizedTool({
 	auth: youtubeAuth,
 	description: "Generate timestamps for key moments in a YouTube video",
 	paramsSchema: generateTimestampsSchema,
-	callback: async (args, extra) => {
+	callback: async (args) => {
 		try {
 			const transcript = await YoutubeTranscript.fetchTranscript(args.videoId, {
 				lang: args.language || "en",
