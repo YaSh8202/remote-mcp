@@ -21,7 +21,7 @@ import type {
 	SecretTextConnectionValue,
 	UpsertAppConnectionRequestBody,
 } from "@/types/app-connection";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 
 const appConnectionHandler = {
 	decryptConnection(encryptedConnection: AppConnectionSchema): AppConnection {
@@ -136,6 +136,14 @@ export const appConnectionService = {
 			.where(eq(appConnections.id, appConnection.id));
 
 		return appConnection;
+	},
+
+	async count(ownerId: string): Promise<number> {
+		const countResult = await db
+			.select({ count: count() })
+			.from(appConnections)
+			.where(eq(appConnections.ownerId, ownerId));
+		return countResult[0]?.count || 0;
 	},
 };
 

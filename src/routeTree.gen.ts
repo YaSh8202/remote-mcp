@@ -15,6 +15,7 @@ import { Route as RedirectImport } from './routes/redirect'
 import { Route as LoginImport } from './routes/login'
 import { Route as AuthedImport } from './routes/_authed'
 import { Route as AuthedIndexImport } from './routes/_authed/index'
+import { Route as AuthedSettingsImport } from './routes/_authed/settings'
 import { Route as AuthedRunsImport } from './routes/_authed/runs'
 import { Route as AuthedServersIndexImport } from './routes/_authed/servers/index'
 import { Route as AuthedConnectionsIndexImport } from './routes/_authed/connections/index'
@@ -42,6 +43,12 @@ const AuthedRoute = AuthedImport.update({
 const AuthedIndexRoute = AuthedIndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AuthedRoute,
+} as any)
+
+const AuthedSettingsRoute = AuthedSettingsImport.update({
+  id: '/settings',
+  path: '/settings',
   getParentRoute: () => AuthedRoute,
 } as any)
 
@@ -101,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRunsImport
       parentRoute: typeof AuthedImport
     }
+    '/_authed/settings': {
+      id: '/_authed/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthedSettingsImport
+      parentRoute: typeof AuthedImport
+    }
     '/_authed/': {
       id: '/_authed/'
       path: '/'
@@ -136,6 +150,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthedRouteChildren {
   AuthedRunsRoute: typeof AuthedRunsRoute
+  AuthedSettingsRoute: typeof AuthedSettingsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
   AuthedServersIdRoute: typeof AuthedServersIdRoute
   AuthedConnectionsIndexRoute: typeof AuthedConnectionsIndexRoute
@@ -144,6 +159,7 @@ interface AuthedRouteChildren {
 
 const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedRunsRoute: AuthedRunsRoute,
+  AuthedSettingsRoute: AuthedSettingsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
   AuthedServersIdRoute: AuthedServersIdRoute,
   AuthedConnectionsIndexRoute: AuthedConnectionsIndexRoute,
@@ -158,6 +174,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/runs': typeof AuthedRunsRoute
+  '/settings': typeof AuthedSettingsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/connections': typeof AuthedConnectionsIndexRoute
@@ -168,6 +185,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/runs': typeof AuthedRunsRoute
+  '/settings': typeof AuthedSettingsRoute
   '/': typeof AuthedIndexRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/connections': typeof AuthedConnectionsIndexRoute
@@ -180,6 +198,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/_authed/runs': typeof AuthedRunsRoute
+  '/_authed/settings': typeof AuthedSettingsRoute
   '/_authed/': typeof AuthedIndexRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
   '/_authed/connections/': typeof AuthedConnectionsIndexRoute
@@ -193,6 +212,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/runs'
+    | '/settings'
     | '/'
     | '/servers/$id'
     | '/connections'
@@ -202,6 +222,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/runs'
+    | '/settings'
     | '/'
     | '/servers/$id'
     | '/connections'
@@ -212,6 +233,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/_authed/runs'
+    | '/_authed/settings'
     | '/_authed/'
     | '/_authed/servers/$id'
     | '/_authed/connections/'
@@ -250,6 +272,7 @@ export const routeTree = rootRoute
       "filePath": "_authed.tsx",
       "children": [
         "/_authed/runs",
+        "/_authed/settings",
         "/_authed/",
         "/_authed/servers/$id",
         "/_authed/connections/",
@@ -264,6 +287,10 @@ export const routeTree = rootRoute
     },
     "/_authed/runs": {
       "filePath": "_authed/runs.tsx",
+      "parent": "/_authed"
+    },
+    "/_authed/settings": {
+      "filePath": "_authed/settings.tsx",
       "parent": "/_authed"
     },
     "/_authed/": {

@@ -2,7 +2,7 @@ import { db } from "@/db";
 import { mcpServer } from "@/db/schema";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -129,4 +129,13 @@ export const mcpServerRouter = {
 
 			return { success: true };
 		}),
+
+	count: protectedProcedure.query(async ({ ctx }) => {
+		const serverCount = await db
+			.select({ count: count() })
+			.from(mcpServer)
+			.where(eq(mcpServer.ownerId, ctx.user.id));
+
+		return serverCount[0]?.count || 0;
+	}),
 } satisfies TRPCRouterRecord;

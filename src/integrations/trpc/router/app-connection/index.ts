@@ -208,4 +208,8 @@ export const appConnectionRouter = {
 				});
 			}
 		}),
+
+	count: protectedProcedure.query(async ({ ctx }) => {
+		return appConnectionService.count(ctx.user.id);
+	}),
 } satisfies TRPCRouterRecord;
