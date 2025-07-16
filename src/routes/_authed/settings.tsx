@@ -36,6 +36,7 @@ import {
 	User,
 } from "lucide-react";
 import { useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
 
 export const Route = createFileRoute("/_authed/settings")({
 	component: RouteComponent,
@@ -45,16 +46,13 @@ function RouteComponent() {
 	const { user } = useUserSession();
 	const { theme, setTheme } = useTheme();
 	const [settings, setSettings] = useState({
-		general: {
-			language: "en",
-			timezone: "UTC",
-		},
 		mcp: {
 			enableLogging: true,
 			autoRetry: true,
-			// retryAttempts: 3,s
+			// retryAttempts: 3,
 		},
 	});
+	const [language, setLanguage] = useLocalStorage("language", "en");
 
 	const [hasChanges, setHasChanges] = useState(false);
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -186,10 +184,8 @@ function RouteComponent() {
 									Language
 								</Label>
 								<Select
-									value={settings.general.language}
-									onValueChange={(value) =>
-										updateSetting("general", "language", value)
-									}
+									value={language}
+									onValueChange={(value) => setLanguage(value)}
 								>
 									<SelectTrigger className="w-full">
 										<SelectValue placeholder="Select language" />
@@ -253,11 +249,9 @@ function RouteComponent() {
 						</div>
 						<div className="flex items-center justify-between">
 							<div className="space-y-1">
-								<Label className="text-base">
-									Auto Retry Failed Connections
-								</Label>
+								<Label className="text-base">Auto Retry Failed Tool Runs</Label>
 								<p className="text-sm text-muted-foreground">
-									Automatically retry failed connection attempts
+									Automatically retry failed tool runs
 								</p>
 							</div>
 							<Switch

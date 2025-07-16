@@ -83,7 +83,9 @@ export function NavUser() {
 						<DropdownMenuSeparator />
 
 						<DropdownMenuGroup>
-							<DropdownMenuItem>
+							<DropdownMenuItem
+								onClick={() => router.navigate({ to: "/settings" })}
+							>
 								<BadgeCheck />
 								Account
 							</DropdownMenuItem>
