@@ -140,19 +140,36 @@ export function HowToConnect({
 									{claudeConfig}
 								</code>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full gap-2"
-								onClick={() => copyToClipboard(claudeConfig, "claude-config")}
-							>
-								{copied === "claude-config" ? (
-									<CheckCircle className="h-3 w-3 text-green-500" />
-								) : (
-									<Copy className="h-3 w-3" />
-								)}
-								Copy Configuration
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									className="flex-1 gap-2"
+									onClick={() => copyToClipboard(claudeConfig, "claude-config")}
+								>
+									{copied === "claude-config" ? (
+										<CheckCircle className="h-3 w-3 text-green-500" />
+									) : (
+										<Copy className="h-3 w-3" />
+									)}
+									Copy Configuration
+								</Button>
+								<Button
+									variant="default"
+									size="sm"
+									className="flex-1 gap-2"
+									asChild
+								>
+									<a
+										href="https://www.anthropic.com/engineering/desktop-extensions"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<ExternalLink className="h-3 w-3" />
+										Learn About Extensions
+									</a>
+								</Button>
+							</div>
 						</div>
 					</AnimatedTabsContent>
 
@@ -170,19 +187,43 @@ export function HowToConnect({
 									{cursorConfig}
 								</code>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full gap-2"
-								onClick={() => copyToClipboard(cursorConfig, "cursor-config")}
-							>
-								{copied === "cursor-config" ? (
-									<CheckCircle className="h-3 w-3 text-green-500" />
-								) : (
-									<Copy className="h-3 w-3" />
-								)}
-								Copy Configuration
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									className="flex-1 gap-2"
+									onClick={() => copyToClipboard(cursorConfig, "cursor-config")}
+								>
+									{copied === "cursor-config" ? (
+										<CheckCircle className="h-3 w-3 text-green-500" />
+									) : (
+										<Copy className="h-3 w-3" />
+									)}
+									Copy Configuration
+								</Button>
+								<Button
+									variant="default"
+									size="sm"
+									className="flex-1 gap-2"
+									asChild
+								>
+									<a
+										href={`cursor://anysphere.cursor-deeplink/mcp/install?name=${encodeURIComponent(
+											serverName,
+										)}&config=${encodeURIComponent(
+											btoa(
+												JSON.stringify({
+													url: serverUrl,
+													type: "http",
+												}),
+											),
+										)}`}
+									>
+										<ExternalLink className="h-3 w-3" />
+										Add to Cursor
+									</a>
+								</Button>
+							</div>
 						</div>
 					</AnimatedTabsContent>
 
@@ -200,19 +241,39 @@ export function HowToConnect({
 									{vscodeConfig}
 								</code>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full gap-2"
-								onClick={() => copyToClipboard(vscodeConfig, "vscode-config")}
-							>
-								{copied === "vscode-config" ? (
-									<CheckCircle className="h-3 w-3 text-green-500" />
-								) : (
-									<Copy className="h-3 w-3" />
-								)}
-								Copy Configuration
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									className="flex-1 gap-2"
+									onClick={() => copyToClipboard(vscodeConfig, "vscode-config")}
+								>
+									{copied === "vscode-config" ? (
+										<CheckCircle className="h-3 w-3 text-green-500" />
+									) : (
+										<Copy className="h-3 w-3" />
+									)}
+									Copy Configuration
+								</Button>
+								<Button
+									variant="default"
+									size="sm"
+									className="flex-1 gap-2"
+									asChild
+								>
+									<a
+										href={`vscode:mcp/install?${encodeURIComponent(
+											JSON.stringify({
+												name: serverName,
+												url: serverUrl,
+											}),
+										)}`}
+									>
+										<ExternalLink className="h-3 w-3" />
+										Add to VS Code
+									</a>
+								</Button>
+							</div>
 						</div>
 					</AnimatedTabsContent>
 
@@ -230,21 +291,38 @@ export function HowToConnect({
 									{windsurfConfig}
 								</code>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								className="w-full gap-2"
-								onClick={() =>
-									copyToClipboard(windsurfConfig, "windsurf-config")
-								}
-							>
-								{copied === "windsurf-config" ? (
-									<CheckCircle className="h-3 w-3 text-green-500" />
-								) : (
-									<Copy className="h-3 w-3" />
-								)}
-								Copy Configuration
-							</Button>
+							<div className="flex gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									className="flex-1 gap-2"
+									onClick={() =>
+										copyToClipboard(windsurfConfig, "windsurf-config")
+									}
+								>
+									{copied === "windsurf-config" ? (
+										<CheckCircle className="h-3 w-3 text-green-500" />
+									) : (
+										<Copy className="h-3 w-3" />
+									)}
+									Copy Configuration
+								</Button>
+								<Button
+									variant="default"
+									size="sm"
+									className="flex-1 gap-2"
+									asChild
+								>
+									<a
+										href="https://docs.codeium.com/windsurf/mcp"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										<ExternalLink className="h-3 w-3" />
+										Setup Guide
+									</a>
+								</Button>
+							</div>
 						</div>
 					</AnimatedTabsContent>
 
