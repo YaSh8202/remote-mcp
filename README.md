@@ -1,4 +1,4 @@
-# MCP One - TanStack Start with Authentication
+# Remote MCP - TanStack Start with Authentication
 
 This is a TanStack Start project with Drizzle ORM and Better Auth integration, featuring Google OAuth authentication.
 

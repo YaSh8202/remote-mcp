@@ -5,24 +5,31 @@ import {
 	SidebarContent,
 	SidebarFooter,
 	SidebarHeader,
+	SidebarMenu,
+	SidebarMenuButton,
+	SidebarMenuItem,
 	SidebarRail,
 } from "@/components/ui/sidebar";
+import { Link } from "@tanstack/react-router";
 import { MCPIcon } from "./icons";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
-		<Sidebar collapsible="icon" {...props}>
+		<Sidebar collapsible="offcanvas" {...props}>
 			<SidebarHeader>
-				<div className="flex items-center gap-3 px-2 py-1">
-					<div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 via-purple-500 to-indigo-600 shadow-lg">
-						<MCPIcon className="h-5 w-5 text-white" />
-					</div>
-					<div className="flex flex-col">
-						<h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
-							MCP One
-						</h1>
-					</div>
-				</div>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							asChild
+							className="data-[slot=sidebar-menu-button]:!p-1.5"
+						>
+							<Link to="/">
+								<MCPIcon className="!size-5" />
+								<span className="text-base font-semibold">Remote Mcp</span>
+							</Link>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain />

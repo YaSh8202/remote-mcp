@@ -122,7 +122,7 @@ function RouteComponent() {
 						<h2 className="text-xl font-semibold">General</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						Customize how MCP One looks and behaves.
+						Customize how Remote Mcp looks and behaves.
 					</p>
 				</div>
 
