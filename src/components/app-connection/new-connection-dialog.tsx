@@ -74,7 +74,7 @@ function createDefaultValues(
 					client_id: "",
 					props: {},
 					code: "",
-					redirect_url: "https://one-mcp.vercel.app/redirect",
+					redirect_url: "https://remotemcp.vercel.app/redirect",
 					code_challenge: "",
 				},
 			};

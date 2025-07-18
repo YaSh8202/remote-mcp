@@ -28,7 +28,7 @@ const OAuth2ConnectionSettingsForm = ({
 	const form = useFormContext<{
 		request: UpsertOAuth2Request;
 	}>();
-	const redirectUrl = "https://one-mcp.vercel.app/redirect";
+	const redirectUrl = "https://remotemcp.vercel.app/redirect";
 
 	const hasCode = form.getValues().request.value.code;
 	// biome-ignore lint/correctness/useExhaustiveDependencies: form cannot be a dependency here
