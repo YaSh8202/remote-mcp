@@ -194,6 +194,95 @@ export const mcpAppRouter = {
 		);
 	}),
 
+	updateApp: protectedProcedure
+		.input(
+			z.object({
+				appId: z.string().min(1, "App ID is required"),
+				connectionId: z.string().nullable(),
+				tools: z.array(z.string()).min(1, "At least one tool must be selected"),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			return Sentry.startSpan({ name: "Updating MCP app" }, async () => {
+				// First check if the app exists and belongs to a server owned by the user
+				const existingApp = await db.query.mcpApps.findFirst({
+					where: (mcpApps, { eq }) => eq(mcpApps.id, input.appId),
+					with: {
+						server: true,
+					},
+				});
+
+				if (!existingApp) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "App not found",
+					});
+				}
+
+				// Check if the user owns the server that this app belongs to
+				if (existingApp.server.ownerId !== ctx.user.id) {
+					throw new TRPCError({
+						code: "FORBIDDEN",
+						message: "You do not have permission to update this app",
+					});
+				}
+
+				// Get app definition to validate tools
+				const appDefinition = mcpApps.find((app) => app.name === existingApp.appName);
+				if (!appDefinition) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "App definition not found",
+					});
+				}
+
+				// Validate tools exist in app
+				const availableTools = appDefinition.tools.map((tool) => tool.name);
+				const invalidTools = input.tools.filter(
+					(tool) => !availableTools.includes(tool),
+				);
+				if (invalidTools.length > 0) {
+					throw new TRPCError({
+						code: "BAD_REQUEST",
+						message: `Invalid tools: ${invalidTools.join(", ")}`,
+					});
+				}
+
+				// If connectionId is provided, validate it exists and belongs to the user
+				if (input.connectionId !== null) {
+					const connectionId = input.connectionId;
+					const connection = await db.query.appConnections.findFirst({
+						where: (appConnections, { eq, and }) =>
+							and(
+								eq(appConnections.id, connectionId),
+								eq(appConnections.ownerId, ctx.user.id),
+								eq(appConnections.appName, existingApp.appName),
+							),
+					});
+
+					if (!connection) {
+						throw new TRPCError({
+							code: "NOT_FOUND",
+							message: "Connection not found or you do not own it",
+						});
+					}
+				}
+
+				// Update the app
+				const [updatedApp] = await db
+					.update(mcpAppsTable)
+					.set({
+						connectionId: input.connectionId,
+						tools: input.tools,
+						updatedAt: new Date(),
+					})
+					.where(eq(mcpAppsTable.id, input.appId))
+					.returning();
+
+				return updatedApp;
+			});
+		}),
+
 	removeApp: protectedProcedure
 		.input(
 			z.object({

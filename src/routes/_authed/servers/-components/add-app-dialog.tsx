@@ -270,7 +270,7 @@ export function AddAppDialog({
 											value={selectedConnection}
 											onValueChange={handleConnectionChange}
 										>
-											<SelectTrigger>
+											<SelectTrigger className="w-full">
 												<SelectValue placeholder="Select or add a connection" />
 											</SelectTrigger>
 											<SelectContent>

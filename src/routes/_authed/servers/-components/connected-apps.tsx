@@ -23,12 +23,14 @@ import {
 import { useState } from "react";
 import { toast } from "sonner";
 import { AddAppDialog } from "./add-app-dialog";
+import { ConfigureAppDialog } from "./configure-app-dialog";
 
 interface ConnectedAppsProps {
 	serverApps: Array<{
 		id: string;
 		appName: string;
 		tools: string[];
+		connectionId: string | null;
 	}>;
 	getAppMetadata: (appName: string) => McpAppMetadata | undefined;
 	serverId: string;
@@ -43,9 +45,16 @@ export function ConnectedApps({
 }: ConnectedAppsProps) {
 	const [addDialogOpen, setAddDialogOpen] = useState(false);
 	const [removeDialogOpen, setRemoveDialogOpen] = useState(false);
+	const [configureDialogOpen, setConfigureDialogOpen] = useState(false);
 	const [selectedAppToRemove, setSelectedAppToRemove] = useState<{
 		id: string;
 		appName: string;
+	} | null>(null);
+	const [selectedAppToConfigure, setSelectedAppToConfigure] = useState<{
+		id: string;
+		appName: string;
+		tools: string[];
+		connectionId: string | null;
 	} | null>(null);
 	const [expandedTools, setExpandedTools] = useState<Set<string>>(new Set());
 
@@ -71,6 +80,16 @@ export function ConnectedApps({
 	const handleRemoveApp = (app: { id: string; appName: string }) => {
 		setSelectedAppToRemove(app);
 		setRemoveDialogOpen(true);
+	};
+
+	const handleConfigureApp = (app: {
+		id: string;
+		appName: string;
+		tools: string[];
+		connectionId: string | null;
+	}) => {
+		setSelectedAppToConfigure(app);
+		setConfigureDialogOpen(true);
 	};
 
 	const toggleToolsExpansion = (appId: string) => {
@@ -174,7 +193,12 @@ export function ConnectedApps({
 
 											{/* Actions */}
 											<div className="mt-4 flex gap-2">
-												<Button variant="outline" size="sm" className="gap-2">
+												<Button 
+													variant="outline" 
+													size="sm" 
+													className="gap-2"
+													onClick={() => handleConfigureApp(app)}
+												>
 													<Settings className="h-3 w-3" />
 													Configure
 												</Button>
@@ -219,6 +243,21 @@ export function ConnectedApps({
 				serverId={serverId}
 				onAppInstalled={onAppInstalled}
 			/>
+
+			{selectedAppToConfigure && (
+				<ConfigureAppDialog
+					open={configureDialogOpen}
+					onOpenChange={setConfigureDialogOpen}
+					app={selectedAppToConfigure}
+					getAppMetadata={getAppMetadata}
+					serverId={serverId}
+					onAppUpdated={() => {
+						onAppInstalled?.(); // Refresh the data
+						setConfigureDialogOpen(false);
+						setSelectedAppToConfigure(null);
+					}}
+				/>
+			)}
 
 			<ConfirmationDeleteDialog
 				open={removeDialogOpen}
