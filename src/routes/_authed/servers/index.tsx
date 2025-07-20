@@ -347,7 +347,7 @@ function RouteComponent() {
 			)}
 
 			{/* Available Apps Section */}
-			{!isLoading && appsMetadata.length > 0 && (
+			{/* {!isLoading && appsMetadata.length > 0 && (
 				<div className="space-y-4">
 					<div className="flex items-center gap-2">
 						<Globe className="h-5 w-5 text-muted-foreground" />
@@ -377,7 +377,7 @@ function RouteComponent() {
 						))}
 					</div>
 				</div>
-			)}
+			)} */}
 		</div>
 	);
 }
