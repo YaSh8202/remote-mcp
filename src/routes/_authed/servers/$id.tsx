@@ -20,13 +20,6 @@ import {
 
 export const Route = createFileRoute("/_authed/servers/$id")({
 	component: RouteComponent,
-	loader: async ({ params, context }) => {
-		await context.queryClient.ensureQueryData(
-			context.trpc.mcpServer.findOrThrow.queryOptions({
-				id: params.id,
-			}),
-		);
-	},
 });
 
 function RouteComponent() {
