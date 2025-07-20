@@ -1,395 +1,137 @@
-# Remote MCP - TanStack Start with Authentication
+# Remote MCP 🚀
 
-This is a TanStack Start project with Drizzle ORM and Better Auth integration, featuring Google OAuth authentication.
+**Create and connect MCP servers to your favorite AI clients - no complex setup required!**
 
-## Features
+[🌐 Try Remote MCP](https://remotemcp.vercel.app) | [📖 What is MCP?](#what-is-mcp) | [🚀 Getting Started](#getting-started)
 
-- **TanStack Start** - Full-stack React framework
-- **Drizzle ORM** - Type-safe database ORM with PostgreSQL
-- **Better Auth** - Modern authentication library
-- **Google OAuth** - Social authentication with Google
-- **Tailwind CSS** - Utility-first CSS framework
-- **TypeScript** - Full type safety
+---
 
-# Getting Started
+## What is Remote MCP?
 
-## Prerequisites
+Remote MCP is a cloud-based platform that lets you easily create and manage **Model Context Protocol (MCP) servers** and connect them to your favorite AI clients like Claude Desktop, Cursor, or any MCP-compatible application.
 
-- Node.js 18+ and pnpm
-- PostgreSQL database (can use Neon, Supabase, or local)
-- Google OAuth credentials
+Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more!
 
-## Setup
+![Remote MCP Dashboard](assets/screenshot-servers.png)
 
-1. **Install dependencies:**
-   ```bash
-   pnpm install
-   ```
+## What is MCP?
 
-2. **Set up environment variables:**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Fill in your environment variables:
-   - `DATABASE_URL` - Your PostgreSQL connection string
-   - `GOOGLE_CLIENT_ID` - Your Google OAuth client ID
-   - `GOOGLE_CLIENT_SECRET` - Your Google OAuth client secret
-   - `BETTER_AUTH_SECRET` - A random secret key (min 32 characters)
+The **Model Context Protocol (MCP)** is an open standard that enables AI assistants to securely connect to external data sources and tools. Instead of just chatting, your AI can now:
 
-3. **Set up Google OAuth:**
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing
-   - Enable Google+ API
-   - Create OAuth 2.0 credentials
-   - Add `http://localhost:3000/api/auth/callback/google` to authorized redirect URIs
+- 📝 Create GitHub issues and pull requests
+- 💬 Send Slack messages
+- 🗄️ Query databases
+- 🔍 Search the web
+- 📺 Manage YouTube content
+- And much more!
 
-4. **Set up the database:**
-   ```bash
-   # Generate migration files
-   pnpm run db:generate
-   
-   # Run migrations to your database
-   # Example: npx drizzle-kit push (for schema push)
-   ```
+### How MCP Works
 
-5. **Start the development server:**
-   ```bash
-   pnpm run dev
-   ```
-
-# Building For Production
-
-To build this application for production:
-
-```bash
-pnpm build
+```
+┌─────────────┐    ┌─────────────┐    ┌─────────────┐
+│ AI Client   │────│ MCP Server  │────│   Your App  │
+│ (Claude)    │    │ (Remote MCP)│    │ (GitHub)    │
+└─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-## Testing
+1. **AI Client**: Your favorite AI assistant (Claude Desktop, Cursor, etc.)
+2. **MCP Server**: Acts as a bridge (that's what Remote MCP provides!)
+3. **Your App**: The service you want to connect (GitHub, Slack, etc.)
 
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## Why Remote MCP?
 
-```bash
-pnpm test
-```
+### 🎯 **Simple Setup**
 
-## Styling
+No need to run local servers or manage complex configurations. Just create, configure, and connect!
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
+### 🔒 **Secure & Reliable**
 
+Your credentials are encrypted and managed securely. We handle authentication, API limits, and security.
 
-## Linting & Formatting
+### 🌍 **Always Available**
 
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
+Cloud-hosted servers that work 24/7, accessible from any MCP client.
 
+### 📊 **Visual Management**
 
-```bash
-pnpm lint
-pnpm format
-pnpm check
-```
+Easy-to-use dashboard to manage your servers, connections, and monitor usage.
 
 
-## Setting up Neon
+## Available Apps
 
-- Set the `DATABASE_URL` in your `.env`.
+Remote MCP supports integration with popular apps including:
 
+- **🐙 GitHub** - Manage repositories, issues, and pull requests (32 tools)
+- **💬 Slack** - Send messages and manage channels (5 tools)
+- **📺 YouTube** - Manage videos and playlists (27 tools)
+- **🦊 GitLab** - Repository management (10 tools)
+- **🐘 PostgreSQL** - Database queries and management (8 tools)
+- **🔍 Brave Search** - Web search capabilities (5 tools)
+- **📥 Fetch** - HTTP requests and data fetching (4 tools)
 
-## Setting up Netlify
+_And more apps are being added regularly!_
 
-First install the Netlify CLI with:
+## Getting Started
 
-```bash
-npm install -g netlify-cli`
-```
+### 1. Create Your MCP Server
 
-```bash
-netlify init
-```
+1. Visit [remotemcp.vercel.app](https://remotemcp.vercel.app)
+2. Sign up with Google or GitHub
+3. Click "Add Server" to create your first MCP server
+4. Choose the apps you want to connect (GitHub, Slack, etc.)
 
+### 2. Configure App Connections
 
-## Shadcn
+1. Go to the "Connections" tab
+2. Click "New Connection"
+3. Select your app and authenticate
+4. Your credentials are securely stored and encrypted
 
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+### 3. Connect to Your AI Client
 
-```bash
-pnpx shadcn@latest add button
-```
+Add your Remote MCP server to your AI client:
 
+**For VS Code & Cursor:**
+Simply click the **"Add to VS Code"** or **"Add to Cursor"** button in your server dashboard - it automatically configures everything for you!
 
-## T3Env
+**For Claude Desktop:**
+Add to your `claude_desktop_config.json`:
 
-- You can use T3Env to add type safety to your environment variables.
-- Add Environment variables to the `src/env.mjs` file.
-- Use the environment variables in your code.
-
-### Usage
-
-```ts
-import { env } from "@/env";
-
-console.log(env.VITE_APP_TITLE);
-```
-
-
-
-
-
-
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
-
-### Adding A Route
-
-To add a new route to your application just add another a new file in the `./src/routes` directory.
-
-TanStack will automatically generate the content of the route file for you.
-
-Now that you have two routes you can use a `Link` component to navigate between them.
-
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-pnpm add @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
+```json
+{
+  "mcpServers": {
+    "remote-mcp": {
+      "command": "npx",
+      "args": [
+        "@modelcontextprotocol/server-everything",
+        "https://remotemcp.vercel.app/api/mcp/YOUR_SERVER_ID"
+      ]
+    }
+  }
 }
 ```
 
-You can also add TanStack Query Devtools to the root route (optional).
+**For Other Clients:**
+Use the MCP endpoint URL: `https://remotemcp.vercel.app/api/mcp/YOUR_SERVER_ID`
 
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+### 4. Start Using!
 
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
+Your AI assistant can now interact with your connected apps. Try asking:
 
-Now you can use `useQuery` to fetch your data.
+- "Create a GitHub issue for the bug I found"
+- "Send a message to the #general Slack channel"
+- "Search for recent videos about AI on YouTube"
 
-```tsx
-import { useQuery } from "@tanstack/react-query";
+<!-- ## Contributing
 
-import "./App.css";
+We welcome contributions! Check out our [contributing guidelines](CONTRIBUTING.md) to get started. -->
 
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
+## License
 
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
+This project is licensed under the MIT License - see the [MIT](LICENSE) file for details.
 
-export default App;
-```
+---
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+**Made with ❤️ for the AI community**
 
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-pnpm add @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+[Get Started](https://remotemcp.vercel.app)
