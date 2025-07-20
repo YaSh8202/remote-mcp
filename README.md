@@ -56,7 +56,6 @@ Cloud-hosted servers that work 24/7, accessible from any MCP client.
 
 Easy-to-use dashboard to manage your servers, connections, and monitor usage.
 
-![Remote MCP Connections](assets/screenshot-connections.png)
 
 ## Available Apps
 
