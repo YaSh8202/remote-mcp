@@ -214,7 +214,7 @@ async function createSimpleLoggingWrapper<
 			if (runId && extra.loggingContext) {
 				await mcpRunService.updateRunResult(runId, {
 					output: result,
-					status: McpRunStatus.SUCCESS,
+					status: result.isError ? McpRunStatus.FAILED : McpRunStatus.SUCCESS,
 				});
 			}
 
