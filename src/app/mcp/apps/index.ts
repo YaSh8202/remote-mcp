@@ -3,6 +3,7 @@ import { braveMcpApp } from "./brave";
 import { fetchMcpApp } from "./fetch";
 import { githubMcpApp } from "./github";
 import { gitlabMcpApp } from "./gitlab";
+import { notionMcpApp } from "./notion";
 import { postgresMcpApp } from "./postgres";
 import { slackMcpApp } from "./slack";
 import { youtubeMcpApp } from "./youtube";
@@ -15,4 +16,5 @@ export const mcpApps = [
 	slackMcpApp,
 	braveMcpApp,
 	postgresMcpApp,
+	notionMcpApp,
 ] as McpApp[];

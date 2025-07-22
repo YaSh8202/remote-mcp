@@ -102,7 +102,7 @@ export const UpsertOAuth2Request = z.object({
 		code: z.string().min(1, "Code is required"),
 		code_challenge: z.string().optional(),
 		authorization_method: z.nativeEnum(OAuth2AuthorizationMethod).optional(),
-		scope: z.string().min(1, "Scope is required").optional(),
+		scope: z.string().optional(),
 		props: z.record(z.string(), z.any()).optional(),
 		type: z.literal(AppConnectionType.OAUTH2),
 		redirect_url: z.string().min(1, "Redirect URL is required"),
