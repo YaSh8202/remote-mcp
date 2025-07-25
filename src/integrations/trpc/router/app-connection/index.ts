@@ -212,4 +212,30 @@ export const appConnectionRouter = {
 	count: protectedProcedure.query(async ({ ctx }) => {
 		return appConnectionService.count(ctx.user.id);
 	}),
+
+	// Get connection counts grouped by app name
+	getConnectionCountsByApp: protectedProcedure.query(async ({ ctx }) => {
+		return Sentry.startSpan(
+			{ name: "Getting connection counts by app" },
+			async () => {
+				const connectionCounts = await db
+					.select({
+						appName: appConnections.appName,
+						connectionCount: sql<number>`COUNT(*)::int`,
+					})
+					.from(appConnections)
+					.where(sql`${appConnections.ownerId} = ${ctx.user.id}`)
+					.groupBy(appConnections.appName);
+
+				// Convert to a map for easy lookup
+				return connectionCounts.reduce(
+					(acc, item) => {
+						acc[item.appName] = item.connectionCount;
+						return acc;
+					},
+					{} as Record<string, number>,
+				);
+			},
+		);
+	}),
 } satisfies TRPCRouterRecord;
