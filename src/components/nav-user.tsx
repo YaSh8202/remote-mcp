@@ -23,6 +23,7 @@ import { signOut } from "@/lib/auth-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "@tanstack/react-router";
 import { ThemeToggle } from "./theme-toggle";
+import { Button } from "./ui/button";
 
 export function NavUser() {
 	const { isMobile } = useSidebar();
@@ -79,7 +80,22 @@ export function NavUser() {
 							</div>
 						</DropdownMenuLabel>
 						<DropdownMenuSeparator />
-						<ThemeToggle />
+						<DropdownMenuItem
+							className="p-0"
+							onSelect={(e) => e.preventDefault()}
+						>
+							<Button
+								asChild
+								variant="ghost"
+								size="sm"
+								className="gap-x-2 w-full justify-between px-2"
+							>
+								<div>
+									<div className="flex items-center gap-2">Theme</div>
+									<ThemeToggle />
+								</div>
+							</Button>
+						</DropdownMenuItem>
 						<DropdownMenuSeparator />
 
 						<DropdownMenuGroup>

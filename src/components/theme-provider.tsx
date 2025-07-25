@@ -22,6 +22,8 @@ export interface UseThemeProps {
 	theme?: string | undefined;
 	/** If enableSystem is true, returns the System theme preference ("dark" or "light"), regardless what the active theme is */
 	systemTheme?: "dark" | "light" | undefined;
+	/** Current resolved mode - either "light" or "dark", resolving "system" to actual system preference */
+	currentMode?: "light" | "dark" | undefined;
 }
 
 export type Attribute = `data-${string}` | "class";
@@ -82,6 +84,9 @@ const Theme = ({
 }: ThemeProviderProps) => {
 	const [theme, setThemeState] = React.useState(() =>
 		getTheme(storageKey, defaultTheme),
+	);
+	const [systemTheme, setSystemTheme] = React.useState<"light" | "dark" | undefined>(
+		() => !isServer ? getSystemTheme() : undefined
 	);
 	const attrs = !value ? themes : Object.values(value);
 
@@ -149,7 +154,8 @@ const Theme = ({
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	const handleMediaQuery = React.useCallback(
 		(e: MediaQueryListEvent | MediaQueryList) => {
-			getSystemTheme(e);
+			const newSystemTheme = getSystemTheme(e);
+			setSystemTheme(newSystemTheme);
 
 			if (theme === "system" && enableSystem && !forcedTheme) {
 				applyTheme("system");
@@ -192,14 +198,44 @@ const Theme = ({
 		applyTheme(forcedTheme ?? theme);
 	}, [forcedTheme, theme]);
 
+	// Calculate current resolved mode
+	const currentMode = React.useMemo((): "light" | "dark" | undefined => {
+		const activeTheme = forcedTheme ?? theme;
+		
+		if (!activeTheme) return undefined;
+		
+		// If theme is "system", resolve to system preference
+		if (activeTheme === "system" && enableSystem) {
+			return systemTheme;
+		}
+		
+		// If theme is explicitly "light" or "dark", return it
+		if (activeTheme === "light" || activeTheme === "dark") {
+			return activeTheme;
+		}
+		
+		// For custom themes, check if they map to light/dark via value prop
+		if (value?.[activeTheme]) {
+			const mappedValue = value[activeTheme];
+			if (mappedValue === "light" || mappedValue === "dark") {
+				return mappedValue;
+			}
+		}
+		
+		// Fallback: assume custom themes are light mode unless they contain "dark"
+		return activeTheme.includes("dark") ? "dark" : "light";
+	}, [forcedTheme, theme, enableSystem, systemTheme, value]);
+
 	const providerValue = React.useMemo(
 		() => ({
 			theme,
 			setTheme,
 			forcedTheme,
 			themes: enableSystem ? [...themes, "system"] : themes,
+			systemTheme,
+			currentMode,
 		}),
-		[theme, setTheme, forcedTheme, enableSystem, themes],
+		[theme, setTheme, forcedTheme, enableSystem, themes, systemTheme, currentMode],
 	);
 
 	return (
