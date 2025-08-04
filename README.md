@@ -2,7 +2,7 @@
 
 **Create and connect MCP servers to your favorite AI clients - no complex setup required!**
 
-[🌐 Try Remote MCP](https://remotemcp.vercel.app) | [📖 What is MCP?](#what-is-mcp) | [🚀 Getting Started](#getting-started)
+[🌐 Try Remote MCP](https://remotemcp.tech) | [📖 What is MCP?](#what-is-mcp) | [🚀 Getting Started](#getting-started)
 
 ---
 
@@ -75,7 +75,7 @@ _And more apps are being added regularly!_
 
 ### 1. Create Your MCP Server
 
-1. Visit [remotemcp.vercel.app](https://remotemcp.vercel.app)
+1. Visit [remotemcp.tech](https://remotemcp.tech)
 2. Sign up with Google or GitHub
 3. Click "Add Server" to create your first MCP server
 4. Choose the apps you want to connect (GitHub, Slack, etc.)
@@ -104,7 +104,7 @@ Add to your `claude_desktop_config.json`:
       "command": "npx",
       "args": [
         "@modelcontextprotocol/server-everything",
-        "https://remotemcp.vercel.app/api/mcp/YOUR_SERVER_ID"
+        "https://remotemcp.tech/api/mcp/YOUR_SERVER_ID"
       ]
     }
   }
@@ -112,7 +112,7 @@ Add to your `claude_desktop_config.json`:
 ```
 
 **For Other Clients:**
-Use the MCP endpoint URL: `https://remotemcp.vercel.app/api/mcp/YOUR_SERVER_ID`
+Use the MCP endpoint URL: `https://remotemcp.tech/api/mcp/YOUR_SERVER_ID`
 
 ### 4. Start Using!
 
@@ -134,4 +134,4 @@ This project is licensed under the MIT License - see the [MIT](LICENSE) file for
 
 **Made with ❤️ for the AI community**
 
-[Get Started](https://remotemcp.vercel.app)
+[Get Started](https://remotemcp.tech)

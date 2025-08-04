@@ -133,6 +133,14 @@ export function AddAppDialog({
 		});
 	};
 
+	const handleNewConnectionDialogClose = (open: boolean) => {
+		setNewConnectionDialogOpen(open);
+		// If dialog is being closed and no connection was created, reset the selection
+		if (!open) {
+			setSelectedConnection(undefined);
+		}
+	};
+
 	const handleToolToggle = (toolName: string, checked: boolean) => {
 		if (checked) {
 			setSelectedTools((prev) => [...prev, toolName]);
@@ -385,7 +393,7 @@ export function AddAppDialog({
 			{selectedApp?.auth && (
 				<NewConnectionDialog
 					open={newConnectionDialogOpen}
-					onOpenChange={setNewConnectionDialogOpen}
+					onOpenChange={handleNewConnectionDialogClose}
 					app={selectedApp}
 					onSave={handleNewConnectionSave}
 				/>
