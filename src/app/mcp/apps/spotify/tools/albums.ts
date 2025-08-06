@@ -1,6 +1,11 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
-import { formatDuration, formatError, makeSpotifyRequest, spotifyAuth } from "../common";
+import {
+	formatDuration,
+	formatError,
+	makeSpotifyRequest,
+	spotifyAuth,
+} from "../common";
 
 // Get albums tool
 const getAlbumsSchema = {
@@ -12,7 +17,8 @@ const getAlbumsSchema = {
 export const getAlbumsTool = createParameterizedTool({
 	name: "getAlbums",
 	auth: spotifyAuth,
-	description: "Get detailed information about one or more albums by their Spotify IDs",
+	description:
+		"Get detailed information about one or more albums by their Spotify IDs",
 	paramsSchema: getAlbumsSchema,
 	callback: async (args, extra) => {
 		try {
@@ -38,7 +44,7 @@ export const getAlbumsTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/albums?ids=${ids.join(",")}`,
-				accessToken
+				accessToken,
 			);
 
 			const albumsData = await response.json();
@@ -57,7 +63,9 @@ export const getAlbumsTool = createParameterizedTool({
 
 			if (albums.length === 1) {
 				const album = albums[0];
-				const artists = album.artists.map((a: Record<string, unknown>) => a.name).join(", ");
+				const artists = album.artists
+					.map((a: Record<string, unknown>) => a.name)
+					.join(", ");
 				const releaseDate = album.release_date;
 				const totalTracks = album.total_tracks;
 				const albumType = album.album_type;
@@ -75,7 +83,9 @@ export const getAlbumsTool = createParameterizedTool({
 			// Multiple albums - show summary list
 			const formattedAlbums = albums
 				.map((album: Record<string, unknown>, i: number) => {
-					const artists = (album.artists as Array<Record<string, unknown>>).map((a) => a.name).join(", ");
+					const artists = (album.artists as Array<Record<string, unknown>>)
+						.map((a) => a.name)
+						.join(", ");
 					return `${i + 1}. "${album.name}" by ${artists} (${album.release_date}) - ID: ${album.id}`;
 				})
 				.join("\n");
@@ -135,7 +145,7 @@ export const getAlbumTracksTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/albums/${albumId}/tracks?limit=${limit}&offset=${offset}`,
-				accessToken
+				accessToken,
 			);
 
 			const tracks = await response.json();
@@ -155,7 +165,9 @@ export const getAlbumTracksTool = createParameterizedTool({
 				.map((track: Record<string, unknown>, i: number) => {
 					if (!track) return `${i + 1}. [Track not found]`;
 
-					const artists = (track.artists as Array<Record<string, unknown>>).map((a) => a.name).join(", ");
+					const artists = (track.artists as Array<Record<string, unknown>>)
+						.map((a) => a.name)
+						.join(", ");
 					const duration = formatDuration(track.duration_ms as number);
 					return `${offset + i + 1}. "${track.name}" by ${artists} (${duration}) - ID: ${track.id}`;
 				})
@@ -240,7 +252,10 @@ export const saveOrRemoveAlbumsTool = createParameterizedTool({
 				],
 			};
 		} catch (error) {
-			console.error(`Error ${args.action === "save" ? "saving" : "removing"} albums:`, error);
+			console.error(
+				`Error ${args.action === "save" ? "saving" : "removing"} albums:`,
+				error,
+			);
 			return {
 				content: [
 					{
@@ -289,7 +304,7 @@ export const checkSavedAlbumsTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/me/albums/contains?ids=${albumIds.join(",")}`,
-				accessToken
+				accessToken,
 			);
 
 			const savedStatus = await response.json();

@@ -4,13 +4,19 @@ import { PostgreSQLClient, validateConnectionString } from "../client";
 import { formatPostgresError, postgresAuth } from "../common";
 
 const analyzeDbHealthSchema = {
-	health_type: z.string().default("all").describe("Health check types to perform: 'basic', 'tables', 'indexes', 'connections', 'all'"),
+	health_type: z
+		.string()
+		.default("all")
+		.describe(
+			"Health check types to perform: 'basic', 'tables', 'indexes', 'connections', 'all'",
+		),
 };
 
 export const analyzeDbHealthTool = createParameterizedTool({
 	name: "analyze_db_health",
 	auth: postgresAuth,
-	description: "Performs basic database health checks including table sizes, connection info, and simple index analysis",
+	description:
+		"Performs basic database health checks including table sizes, connection info, and simple index analysis",
 	paramsSchema: analyzeDbHealthSchema,
 	callback: async (args, extra) => {
 		try {
@@ -26,7 +32,9 @@ export const analyzeDbHealthTool = createParameterizedTool({
 			const client = new PostgreSQLClient(connectionString);
 			let output = "PostgreSQL Database Health Analysis:\n\n";
 
-			const healthTypes = args.health_type.split(",").map(t => t.trim().toLowerCase());
+			const healthTypes = args.health_type
+				.split(",")
+				.map((t) => t.trim().toLowerCase());
 			const runAll = healthTypes.includes("all");
 
 			// Test connection and get basic info
@@ -37,7 +45,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 						current_user as current_user,
 						version() as version
 				`);
-				
+
 				output += "=== DATABASE CONNECTION INFO ===\n";
 				output += client.formatResultAsText(basicInfo);
 				output += "\n\n";
@@ -47,7 +55,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 					content: [
 						{
 							type: "text" as const,
-							text: `Error connecting to database: ${error instanceof Error ? error.message : 'Unknown error'}`,
+							text: `Error connecting to database: ${error instanceof Error ? error.message : "Unknown error"}`,
 						},
 					],
 				};
@@ -64,12 +72,12 @@ export const analyzeDbHealthTool = createParameterizedTool({
 						FROM pg_settings 
 						WHERE name = 'max_connections'
 					`);
-					
+
 					output += "Connection Settings:\n";
 					output += client.formatResultAsText(connInfo);
 					output += "\n";
 				} catch (error) {
-					output += `Error checking connection health: ${error instanceof Error ? error.message : 'Unknown error'}\n\n`;
+					output += `Error checking connection health: ${error instanceof Error ? error.message : "Unknown error"}\n\n`;
 				}
 			}
 
@@ -88,7 +96,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 						ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC
 						LIMIT 10
 					`);
-					
+
 					if (tableSizes.rows.length > 0) {
 						output += "Largest Tables:\n";
 						output += client.formatResultAsText(tableSizes);
@@ -97,7 +105,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 					}
 					output += "\n";
 				} catch (error) {
-					output += `Error checking table sizes: ${error instanceof Error ? error.message : 'Unknown error'}\n\n`;
+					output += `Error checking table sizes: ${error instanceof Error ? error.message : "Unknown error"}\n\n`;
 				}
 			}
 
@@ -116,7 +124,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 						ORDER BY pg_relation_size(indexrelid) DESC
 						LIMIT 10
 					`);
-					
+
 					if (indexInfo.rows.length > 0) {
 						output += "Largest Indexes:\n";
 						output += client.formatResultAsText(indexInfo);
@@ -125,7 +133,7 @@ export const analyzeDbHealthTool = createParameterizedTool({
 					}
 					output += "\n";
 				} catch (error) {
-					output += `Error checking indexes: ${error instanceof Error ? error.message : 'Unknown error'}\n\n`;
+					output += `Error checking indexes: ${error instanceof Error ? error.message : "Unknown error"}\n\n`;
 				}
 			}
 
@@ -139,12 +147,12 @@ export const analyzeDbHealthTool = createParameterizedTool({
 							(SELECT count(*) FROM information_schema.views WHERE table_schema NOT IN ('information_schema', 'pg_catalog')) as user_views,
 							(SELECT count(*) FROM pg_stat_user_indexes) as user_indexes
 					`);
-					
+
 					output += "Database Object Counts:\n";
 					output += client.formatResultAsText(stats);
 					output += "\n";
 				} catch (error) {
-					output += `Error checking basic statistics: ${error instanceof Error ? error.message : 'Unknown error'}\n\n`;
+					output += `Error checking basic statistics: ${error instanceof Error ? error.message : "Unknown error"}\n\n`;
 				}
 			}
 

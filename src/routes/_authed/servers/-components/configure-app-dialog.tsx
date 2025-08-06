@@ -298,7 +298,11 @@ export function ConfigureAppDialog({
 						</Button>
 						<Button
 							onClick={handleSubmit}
-							disabled={!hasChanges || selectedTools.length === 0 || updateAppMutation.isPending}
+							disabled={
+								!hasChanges ||
+								selectedTools.length === 0 ||
+								updateAppMutation.isPending
+							}
 						>
 							{updateAppMutation.isPending ? "Updating..." : "Update"}
 						</Button>

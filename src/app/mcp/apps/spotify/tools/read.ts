@@ -1,6 +1,12 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
-import { formatDuration, formatError, isTrack, makeSpotifyRequest, spotifyAuth } from "../common";
+import {
+	formatDuration,
+	formatError,
+	isTrack,
+	makeSpotifyRequest,
+	spotifyAuth,
+} from "../common";
 
 // Search Spotify tool
 const searchSpotifySchema = {
@@ -32,7 +38,7 @@ export const searchSpotifyTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/search?q=${encodeURIComponent(query)}&type=${type}&limit=${limit}`,
-				accessToken
+				accessToken,
 			);
 
 			const results = await response.json();
@@ -41,7 +47,9 @@ export const searchSpotifyTool = createParameterizedTool({
 			if (type === "track" && results.tracks) {
 				formattedResults = results.tracks.items
 					.map((track: Record<string, unknown>, i: number) => {
-						const artists = (track.artists as Array<Record<string, unknown>>).map((a) => a.name).join(", ");
+						const artists = (track.artists as Array<Record<string, unknown>>)
+							.map((a) => a.name)
+							.join(", ");
 						const duration = formatDuration(track.duration_ms as number);
 						return `${i + 1}. "${track.name}" by ${artists} (${duration}) - ID: ${track.id}`;
 					})
@@ -49,7 +57,9 @@ export const searchSpotifyTool = createParameterizedTool({
 			} else if (type === "album" && results.albums) {
 				formattedResults = results.albums.items
 					.map((album: Record<string, unknown>, i: number) => {
-						const artists = (album.artists as Array<Record<string, unknown>>).map((a) => a.name).join(", ");
+						const artists = (album.artists as Array<Record<string, unknown>>)
+							.map((a) => a.name)
+							.join(", ");
 						return `${i + 1}. "${album.name}" by ${artists} - ID: ${album.id}`;
 					})
 					.join("\n");
@@ -71,9 +81,10 @@ export const searchSpotifyTool = createParameterizedTool({
 				content: [
 					{
 						type: "text" as const,
-						text: formattedResults.length > 0
-							? `# Search results for "${query}" (type: ${type})\n\n${formattedResults}`
-							: `No ${type} results found for "${query}"`,
+						text:
+							formattedResults.length > 0
+								? `# Search results for "${query}" (type: ${type})\n\n${formattedResults}`
+								: `No ${type} results found for "${query}"`,
 					},
 				],
 			};
@@ -106,8 +117,11 @@ export const getNowPlayingTool = createParameterizedTool({
 				throw new Error("No access token available");
 			}
 
-			const response = await makeSpotifyRequest("/me/player/currently-playing", accessToken);
-			
+			const response = await makeSpotifyRequest(
+				"/me/player/currently-playing",
+				accessToken,
+			);
+
 			if (response.status === 204) {
 				return {
 					content: [
@@ -203,7 +217,7 @@ export const getMyPlaylistsTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/me/playlists?limit=${limit}&offset=${offset}`,
-				accessToken
+				accessToken,
 			);
 
 			const playlists = await response.json();
@@ -221,8 +235,12 @@ export const getMyPlaylistsTool = createParameterizedTool({
 
 			const formattedPlaylists = playlists.items
 				.map((playlist: Record<string, unknown>, i: number) => {
-					const tracksTotal = playlist.tracks && typeof playlist.tracks === 'object' && 
-						'total' in playlist.tracks ? (playlist.tracks as Record<string, unknown>).total : 0;
+					const tracksTotal =
+						playlist.tracks &&
+						typeof playlist.tracks === "object" &&
+						"total" in playlist.tracks
+							? (playlist.tracks as Record<string, unknown>).total
+							: 0;
 					return `${offset + i + 1}. "${playlist.name}" (${tracksTotal} tracks) - ID: ${playlist.id}`;
 				})
 				.join("\n");
@@ -282,7 +300,7 @@ export const getPlaylistTracksTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/playlists/${playlistId}/tracks?limit=${limit}&offset=${offset}`,
-				accessToken
+				accessToken,
 			);
 
 			const playlistTracks = await response.json();
@@ -362,7 +380,7 @@ export const getRecentlyPlayedTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/me/player/recently-played?limit=${limit}`,
-				accessToken
+				accessToken,
 			);
 
 			const history = await response.json();
@@ -434,7 +452,8 @@ const getUsersSavedTracksSchema = {
 export const getUsersSavedTracksTool = createParameterizedTool({
 	name: "getUsersSavedTracks",
 	auth: spotifyAuth,
-	description: 'Get a list of tracks saved in the user\'s "Liked Songs" library',
+	description:
+		'Get a list of tracks saved in the user\'s "Liked Songs" library',
 	paramsSchema: getUsersSavedTracksSchema,
 	callback: async (args, extra) => {
 		try {
@@ -447,7 +466,7 @@ export const getUsersSavedTracksTool = createParameterizedTool({
 
 			const response = await makeSpotifyRequest(
 				`/me/tracks?limit=${limit}&offset=${offset}`,
-				accessToken
+				accessToken,
 			);
 
 			const savedTracks = await response.json();
@@ -471,7 +490,9 @@ export const getUsersSavedTracksTool = createParameterizedTool({
 					if (isTrack(track)) {
 						const artists = track.artists.map((a) => a.name).join(", ");
 						const duration = formatDuration(track.duration_ms);
-						const addedDate = new Date(item.added_at as string).toLocaleDateString();
+						const addedDate = new Date(
+							item.added_at as string,
+						).toLocaleDateString();
 						return `${offset + i + 1}. "${track.name}" by ${artists} (${duration}) - ID: ${track.id} - Added: ${addedDate}`;
 					}
 

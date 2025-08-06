@@ -57,13 +57,15 @@ export const conversationsHistoryTool = createParameterizedTool({
 			// Filter out activity messages if needed
 			let messages = result.messages || [];
 			if (!params.include_activity_messages) {
-				messages = messages.filter(
-					(msg) => {
-						// Check if subtype exists and filter out join/leave messages
-						const subtype = "subtype" in msg ? msg.subtype as string : undefined;
-						return !subtype || (!subtype.includes("_join") && !subtype.includes("_leave"));
-					}
-				);
+				messages = messages.filter((msg) => {
+					// Check if subtype exists and filter out join/leave messages
+					const subtype =
+						"subtype" in msg ? (msg.subtype as string) : undefined;
+					return (
+						!subtype ||
+						(!subtype.includes("_join") && !subtype.includes("_leave"))
+					);
+				});
 			}
 
 			return {

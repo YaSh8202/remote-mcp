@@ -5,14 +5,25 @@ import { formatPostgresError, postgresAuth } from "../common";
 
 // Get top queries from pg_stat_statements
 const getTopQueriesSchema = {
-	sort_by: z.enum(["total_time", "mean_time", "calls", "resources"]).default("total_time").describe("Sort criteria: 'total_time', 'mean_time', 'calls', or 'resources'"),
-	limit: z.number().min(1).max(100).default(10).describe("Number of queries to return"),
+	sort_by: z
+		.enum(["total_time", "mean_time", "calls", "resources"])
+		.default("total_time")
+		.describe(
+			"Sort criteria: 'total_time', 'mean_time', 'calls', or 'resources'",
+		),
+	limit: z
+		.number()
+		.min(1)
+		.max(100)
+		.default(10)
+		.describe("Number of queries to return"),
 };
 
 export const getTopQueriesTool = createParameterizedTool({
 	name: "get_top_queries",
 	auth: postgresAuth,
-	description: "Reports the slowest SQL queries based on total execution time using pg_stat_statements data. Requires the pg_stat_statements extension to be installed.",
+	description:
+		"Reports the slowest SQL queries based on total execution time using pg_stat_statements data. Requires the pg_stat_statements extension to be installed.",
 	paramsSchema: getTopQueriesSchema,
 	callback: async (args, extra) => {
 		try {
@@ -26,12 +37,12 @@ export const getTopQueriesTool = createParameterizedTool({
 			}
 
 			const client = new PostgreSQLClient(connectionString);
-			
+
 			// Check if pg_stat_statements extension is available
 			const extensionCheck = await client.query(`
 				SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'
 			`);
-			
+
 			if (extensionCheck.rows.length === 0) {
 				await client.close();
 				return {
@@ -69,7 +80,8 @@ export const getTopQueriesTool = createParameterizedTool({
 					description = "queries by total execution time";
 			}
 
-			const result = await client.query(`
+			const result = await client.query(
+				`
 				SELECT 
 					query,
 					calls,
@@ -87,7 +99,9 @@ export const getTopQueriesTool = createParameterizedTool({
 				FROM pg_stat_statements 
 				ORDER BY ${orderBy}
 				LIMIT $1
-			`, [args.limit]);
+			`,
+				[args.limit],
+			);
 
 			await client.close();
 
@@ -108,14 +122,23 @@ export const getTopQueriesTool = createParameterizedTool({
 
 // Analyze workload for index recommendations
 const analyzeWorkloadIndexesSchema = {
-	max_index_size_mb: z.number().min(1).default(10000).describe("Maximum index size in MB"),
-	min_calls: z.number().min(1).default(100).describe("Minimum number of query calls to consider"),
+	max_index_size_mb: z
+		.number()
+		.min(1)
+		.default(10000)
+		.describe("Maximum index size in MB"),
+	min_calls: z
+		.number()
+		.min(1)
+		.default(100)
+		.describe("Minimum number of query calls to consider"),
 };
 
 export const analyzeWorkloadIndexesTool = createParameterizedTool({
 	name: "analyze_workload_indexes",
 	auth: postgresAuth,
-	description: "Analyzes the database workload to identify resource-intensive queries and suggests potential indexes. Requires pg_stat_statements extension.",
+	description:
+		"Analyzes the database workload to identify resource-intensive queries and suggests potential indexes. Requires pg_stat_statements extension.",
 	paramsSchema: analyzeWorkloadIndexesSchema,
 	callback: async (args, extra) => {
 		try {
@@ -129,12 +152,12 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 			}
 
 			const client = new PostgreSQLClient(connectionString);
-			
+
 			// Check if pg_stat_statements extension is available
 			const extensionCheck = await client.query(`
 				SELECT 1 FROM pg_extension WHERE extname = 'pg_stat_statements'
 			`);
-			
+
 			if (extensionCheck.rows.length === 0) {
 				await client.close();
 				return {
@@ -147,10 +170,12 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 				};
 			}
 
-			let output = "PostgreSQL Workload Analysis for Index Recommendations:\n\n";
+			let output =
+				"PostgreSQL Workload Analysis for Index Recommendations:\n\n";
 
 			// Get resource-intensive queries
-			const resourceQueries = await client.query(`
+			const resourceQueries = await client.query(
+				`
 				SELECT 
 					query,
 					calls,
@@ -162,7 +187,9 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 				WHERE calls >= $1
 				ORDER BY total_exec_time * calls DESC
 				LIMIT 20
-			`, [args.min_calls]);
+			`,
+				[args.min_calls],
+			);
 
 			output += "=== TOP RESOURCE-INTENSIVE QUERIES ===\n";
 			output += "(Queries with high total execution time × call count)\n\n";
@@ -170,7 +197,8 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 			output += "\n\n";
 
 			// Get slow queries
-			const slowQueries = await client.query(`
+			const slowQueries = await client.query(
+				`
 				SELECT 
 					query,
 					calls,
@@ -181,7 +209,9 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 				WHERE calls >= $1 AND mean_exec_time > 100
 				ORDER BY mean_exec_time DESC
 				LIMIT 10
-			`, [args.min_calls]);
+			`,
+				[args.min_calls],
+			);
 
 			if (slowQueries.rows.length > 0) {
 				output += "=== SLOW QUERIES ===\n";
@@ -240,14 +270,18 @@ export const analyzeWorkloadIndexesTool = createParameterizedTool({
 
 			output += "=== INDEX RECOMMENDATIONS ===\n";
 			output += "Based on the workload analysis above:\n\n";
-			output += "1. Review queries with high resource consumption and slow execution times\n";
-			output += "2. For tables with high sequential scan ratios, consider adding indexes on:\n";
+			output +=
+				"1. Review queries with high resource consumption and slow execution times\n";
+			output +=
+				"2. For tables with high sequential scan ratios, consider adding indexes on:\n";
 			output += "   - Columns used in WHERE clauses\n";
 			output += "   - Columns used in JOIN conditions\n";
 			output += "   - Columns used in ORDER BY clauses\n";
-			output += "3. Monitor query plans using EXPLAIN ANALYZE before and after adding indexes\n";
+			output +=
+				"3. Monitor query plans using EXPLAIN ANALYZE before and after adding indexes\n";
 			output += `4. Keep indexes under ${args.max_index_size_mb}MB when possible\n`;
-			output += "5. Consider composite indexes for queries with multiple filter conditions\n";
+			output +=
+				"5. Consider composite indexes for queries with multiple filter conditions\n";
 
 			await client.close();
 

@@ -12,21 +12,20 @@ const searchSchema = {
 	filter: z
 		.object({
 			property: z.string(),
-			value: z.string()
+			value: z.string(),
 		})
 		.optional()
-		.describe("Criteria to limit results to either only pages or only databases"),
+		.describe(
+			"Criteria to limit results to either only pages or only databases",
+		),
 	sort: z
 		.object({
 			direction: z.enum(["ascending", "descending"]),
-			timestamp: z.literal("last_edited_time")
+			timestamp: z.literal("last_edited_time"),
 		})
 		.optional()
 		.describe("Criteria to sort the results"),
-	start_cursor: z
-		.string()
-		.optional()
-		.describe("Pagination start cursor."),
+	start_cursor: z.string().optional().describe("Pagination start cursor."),
 	page_size: z
 		.number()
 		.optional()
@@ -45,21 +44,20 @@ export const searchTool = createParameterizedTool({
 	paramsSchema: searchSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.search(
 				args.query,
 				args.filter,
 				args.sort,
 				args.start_cursor,
-				args.page_size
+				args.page_size,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

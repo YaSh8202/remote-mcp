@@ -216,7 +216,8 @@ export function ConnectAppDialog({
 										<div className="text-center">
 											<h3 className="font-semibold mb-2">No servers found</h3>
 											<p className="text-sm text-muted-foreground mb-4">
-												You need to create a server first before connecting apps.
+												You need to create a server first before connecting
+												apps.
 											</p>
 											<Button
 												onClick={() => {
@@ -258,7 +259,7 @@ export function ConnectAppDialog({
 												))}
 											</div>
 										</div>
-										
+
 										{/* Create new server button */}
 										<div className="border-t pt-4">
 											<Button
@@ -268,7 +269,9 @@ export function ConnectAppDialog({
 												disabled={creatingServer}
 											>
 												<Plus className="h-4 w-4" />
-												{creatingServer ? "Creating Server..." : "Create New Server"}
+												{creatingServer
+													? "Creating Server..."
+													: "Create New Server"}
 											</Button>
 										</div>
 									</div>
@@ -322,11 +325,16 @@ export function ConnectAppDialog({
 													<SelectValue placeholder="Select or add a connection" />
 												</SelectTrigger>
 												<SelectContent>
-													{connections.map((connection: AppConnectionSchema) => (
-														<SelectItem key={connection.id} value={connection.id}>
-															{connection.displayName}
-														</SelectItem>
-													))}
+													{connections.map(
+														(connection: AppConnectionSchema) => (
+															<SelectItem
+																key={connection.id}
+																value={connection.id}
+															>
+																{connection.displayName}
+															</SelectItem>
+														),
+													)}
 													<SelectItem value="add-new">
 														<div className="flex items-center gap-2">
 															<Plus className="h-3 w-3" />

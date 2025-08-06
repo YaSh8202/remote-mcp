@@ -14,14 +14,7 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import {
-	ArrowLeft,
-	Code,
-	Plus,
-	Settings,
-	Shield,
-	Zap,
-} from "lucide-react";
+import { ArrowLeft, Code, Plus, Settings, Shield, Zap } from "lucide-react";
 import { useState } from "react";
 import { ConnectAppDialog } from "./-components/connect-app-dialog";
 

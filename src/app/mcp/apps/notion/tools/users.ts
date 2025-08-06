@@ -1,7 +1,12 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
 import { NotionClientWrapper } from "../client";
-import { commonIdDescription, formatError, formatParameter, notionAuth } from "../common";
+import {
+	commonIdDescription,
+	formatError,
+	formatParameter,
+	notionAuth,
+} from "../common";
 
 // List all users tool
 const listAllUsersSchema = {
@@ -23,22 +28,22 @@ const listAllUsersSchema = {
 export const listAllUsersTool = createParameterizedTool({
 	name: "list_all_users",
 	auth: notionAuth,
-	description: "List all users in the Notion workspace. **Note:** This function requires upgrading to the Notion Enterprise plan and using an Organization API key to avoid permission errors.",
+	description:
+		"List all users in the Notion workspace. **Note:** This function requires upgrading to the Notion Enterprise plan and using an Organization API key to avoid permission errors.",
 	paramsSchema: listAllUsersSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.listAllUsers(
 				args.start_cursor,
-				args.page_size
+				args.page_size,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -78,19 +83,19 @@ const retrieveUserSchema = {
 export const retrieveUserTool = createParameterizedTool({
 	name: "retrieve_user",
 	auth: notionAuth,
-	description: "Retrieve a specific user by user_id in Notion. **Note:** This function requires upgrading to the Notion Enterprise plan and using an Organization API key to avoid permission errors.",
+	description:
+		"Retrieve a specific user by user_id in Notion. **Note:** This function requires upgrading to the Notion Enterprise plan and using an Organization API key to avoid permission errors.",
 	paramsSchema: retrieveUserSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveUser(args.user_id);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -131,19 +136,19 @@ const retrieveBotUserSchema = {
 export const retrieveBotUserTool = createParameterizedTool({
 	name: "retrieve_bot_user",
 	auth: notionAuth,
-	description: "Retrieve the bot user associated with the current token in Notion",
+	description:
+		"Retrieve the bot user associated with the current token in Notion",
 	paramsSchema: retrieveBotUserSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveBotUser();
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

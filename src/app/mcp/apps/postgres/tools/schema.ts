@@ -9,7 +9,8 @@ const listSchemasSchema = {};
 export const listSchemasTool = createParameterizedTool({
 	name: "list_schemas",
 	auth: postgresAuth,
-	description: "Lists all database schemas available in the PostgreSQL instance.",
+	description:
+		"Lists all database schemas available in the PostgreSQL instance.",
 	paramsSchema: listSchemasSchema,
 	callback: async (_args, extra) => {
 		try {
@@ -23,7 +24,7 @@ export const listSchemasTool = createParameterizedTool({
 			}
 
 			const client = new PostgreSQLClient(connectionString);
-			
+
 			const result = await client.query(`
 				SELECT
 					schema_name,
@@ -57,13 +58,17 @@ export const listSchemasTool = createParameterizedTool({
 // List objects in a schema
 const listObjectsSchema = {
 	schema_name: z.string().describe("Schema name"),
-	object_type: z.enum(["table", "view", "sequence", "extension"]).default("table").describe("Object type: 'table', 'view', 'sequence', or 'extension'"),
+	object_type: z
+		.enum(["table", "view", "sequence", "extension"])
+		.default("table")
+		.describe("Object type: 'table', 'view', 'sequence', or 'extension'"),
 };
 
 export const listObjectsTool = createParameterizedTool({
 	name: "list_objects",
 	auth: postgresAuth,
-	description: "Lists database objects (tables, views, sequences, extensions) within a specified schema.",
+	description:
+		"Lists database objects (tables, views, sequences, extensions) within a specified schema.",
 	paramsSchema: listObjectsSchema,
 	callback: async (args, extra) => {
 		try {
@@ -131,13 +136,17 @@ export const listObjectsTool = createParameterizedTool({
 const getObjectDetailsSchema = {
 	schema_name: z.string().describe("Schema name"),
 	object_name: z.string().describe("Object name"),
-	object_type: z.enum(["table", "view", "sequence", "extension"]).default("table").describe("Object type: 'table', 'view', 'sequence', or 'extension'"),
+	object_type: z
+		.enum(["table", "view", "sequence", "extension"])
+		.default("table")
+		.describe("Object type: 'table', 'view', 'sequence', or 'extension'"),
 };
 
 export const getObjectDetailsTool = createParameterizedTool({
 	name: "get_object_details",
 	auth: postgresAuth,
-	description: "Provides detailed information about a specific database object, for example, a table's columns, constraints, and indexes.",
+	description:
+		"Provides detailed information about a specific database object, for example, a table's columns, constraints, and indexes.",
 	paramsSchema: getObjectDetailsSchema,
 	callback: async (args, extra) => {
 		try {
@@ -155,19 +164,23 @@ export const getObjectDetailsTool = createParameterizedTool({
 
 			if (args.object_type === "table" || args.object_type === "view") {
 				// Get columns
-				const columnsResult = await client.query(`
+				const columnsResult = await client.query(
+					`
 					SELECT column_name, data_type, is_nullable, column_default
 					FROM information_schema.columns
 					WHERE table_schema = $1 AND table_name = $2
 					ORDER BY ordinal_position
-				`, [args.schema_name, args.object_name]);
+				`,
+					[args.schema_name, args.object_name],
+				);
 
 				output += "COLUMNS:\n";
 				output += client.formatResultAsText(columnsResult);
 				output += "\n\n";
 
 				// Get constraints
-				const constraintsResult = await client.query(`
+				const constraintsResult = await client.query(
+					`
 					SELECT tc.constraint_name, tc.constraint_type, kcu.column_name
 					FROM information_schema.table_constraints AS tc
 					LEFT JOIN information_schema.key_column_usage AS kcu
@@ -175,7 +188,9 @@ export const getObjectDetailsTool = createParameterizedTool({
 					 AND tc.table_schema = kcu.table_schema
 					WHERE tc.table_schema = $1 AND tc.table_name = $2
 					ORDER BY tc.constraint_name, kcu.ordinal_position
-				`, [args.schema_name, args.object_name]);
+				`,
+					[args.schema_name, args.object_name],
+				);
 
 				if (constraintsResult.rows.length > 0) {
 					output += "CONSTRAINTS:\n";
@@ -184,32 +199,39 @@ export const getObjectDetailsTool = createParameterizedTool({
 				}
 
 				// Get indexes
-				const indexesResult = await client.query(`
+				const indexesResult = await client.query(
+					`
 					SELECT indexname, indexdef
 					FROM pg_indexes
 					WHERE schemaname = $1 AND tablename = $2
-				`, [args.schema_name, args.object_name]);
+				`,
+					[args.schema_name, args.object_name],
+				);
 
 				if (indexesResult.rows.length > 0) {
 					output += "INDEXES:\n";
 					output += client.formatResultAsText(indexesResult);
 				}
-
 			} else if (args.object_type === "sequence") {
-				const result = await client.query(`
+				const result = await client.query(
+					`
 					SELECT sequence_schema, sequence_name, data_type, start_value, increment
 					FROM information_schema.sequences
 					WHERE sequence_schema = $1 AND sequence_name = $2
-				`, [args.schema_name, args.object_name]);
+				`,
+					[args.schema_name, args.object_name],
+				);
 
 				output += client.formatResultAsText(result);
-
 			} else if (args.object_type === "extension") {
-				const result = await client.query(`
+				const result = await client.query(
+					`
 					SELECT extname, extversion, extrelocatable
 					FROM pg_extension
 					WHERE extname = $1
-				`, [args.object_name]);
+				`,
+					[args.object_name],
+				);
 
 				output += client.formatResultAsText(result);
 			}

@@ -5,7 +5,12 @@ import { formatPostgresError, postgresAuth } from "../common";
 
 // Database health analysis
 const analyzeDbHealthSchema = {
-	health_type: z.string().default("all").describe("Health check types to perform: 'index', 'connection', 'vacuum', 'sequence', 'replication', 'buffer', 'constraint', 'all'"),
+	health_type: z
+		.string()
+		.default("all")
+		.describe(
+			"Health check types to perform: 'index', 'connection', 'vacuum', 'sequence', 'replication', 'buffer', 'constraint', 'all'",
+		),
 };
 
 export const analyzeDbHealthTool = createParameterizedTool({
@@ -36,13 +41,15 @@ Available health checks:
 			const client = new PostgreSQLClient(connectionString);
 			let output = "PostgreSQL Database Health Analysis:\n\n";
 
-			const healthTypes = args.health_type.split(",").map(t => t.trim().toLowerCase());
+			const healthTypes = args.health_type
+				.split(",")
+				.map((t) => t.trim().toLowerCase());
 			const runAll = healthTypes.includes("all");
 
 			// Index Health Check
 			if (runAll || healthTypes.includes("index")) {
 				output += "=== INDEX HEALTH ===\n";
-				
+
 				// Check for unused indexes
 				try {
 					const unusedIndexes = await client.query(`
@@ -58,7 +65,7 @@ Available health checks:
 						ORDER BY schemaname, relname, indexrelname
 						LIMIT 10
 					`);
-					
+
 					if (unusedIndexes.rows.length > 0) {
 						output += "Unused indexes found:\n";
 						output += client.formatResultAsText(unusedIndexes);
@@ -66,9 +73,9 @@ Available health checks:
 						output += "✓ No unused indexes found\n";
 					}
 				} catch (error) {
-					output += `Error checking unused indexes: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking unused indexes: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				// Check for duplicate indexes (simplified)
 				try {
 					const duplicateIndexes = await client.query(`
@@ -83,7 +90,7 @@ Available health checks:
 						ORDER BY index_count DESC
 						LIMIT 10
 					`);
-					
+
 					if (duplicateIndexes.rows.length > 0) {
 						output += "\nTables with many indexes (potential duplicates):\n";
 						output += client.formatResultAsText(duplicateIndexes);
@@ -91,16 +98,16 @@ Available health checks:
 						output += "\n✓ No tables with excessive indexes found\n";
 					}
 				} catch (error) {
-					output += `\nError checking for duplicate indexes: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `\nError checking for duplicate indexes: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Connection Health Check
 			if (runAll || healthTypes.includes("connection")) {
 				output += "=== CONNECTION HEALTH ===\n";
-				
+
 				try {
 					const connectionStats = await client.query(`
 						SELECT 
@@ -112,20 +119,29 @@ Available health checks:
 						GROUP BY state
 						ORDER BY connection_count DESC
 					`);
-					
+
 					output += "Connection statistics:\n";
 					output += client.formatResultAsText(connectionStats);
-					
-					const maxConnections = await client.query(`SELECT setting::int as max_connections FROM pg_settings WHERE name = 'max_connections'`);
-					const currentConnections = await client.query("SELECT COUNT(*) as current_connections FROM pg_stat_activity");
-					
-					if (maxConnections.rows.length > 0 && currentConnections.rows.length > 0) {
+
+					const maxConnections = await client.query(
+						`SELECT setting::int as max_connections FROM pg_settings WHERE name = 'max_connections'`,
+					);
+					const currentConnections = await client.query(
+						"SELECT COUNT(*) as current_connections FROM pg_stat_activity",
+					);
+
+					if (
+						maxConnections.rows.length > 0 &&
+						currentConnections.rows.length > 0
+					) {
 						const max = Number(maxConnections.rows[0].max_connections);
-						const current = Number(currentConnections.rows[0].current_connections);
+						const current = Number(
+							currentConnections.rows[0].current_connections,
+						);
 						const usage = Math.round((current / max) * 100);
-						
+
 						output += `\nConnection usage: ${current}/${max} (${usage}%)\n`;
-						
+
 						if (usage > 80) {
 							output += "⚠️  Warning: High connection usage\n";
 						} else {
@@ -133,16 +149,16 @@ Available health checks:
 						}
 					}
 				} catch (error) {
-					output += `Error checking connection health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking connection health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Buffer Cache Health Check
 			if (runAll || healthTypes.includes("buffer")) {
 				output += "=== BUFFER CACHE HEALTH ===\n";
-				
+
 				try {
 					const bufferStats = await client.query(`
 						SELECT 
@@ -150,14 +166,18 @@ Available health checks:
 							ROUND(100.0 * sum(idx_blks_hit) / (sum(idx_blks_hit) + sum(idx_blks_read)), 2) as index_cache_hit_rate
 						FROM pg_statio_user_tables
 					`);
-					
+
 					if (bufferStats.rows.length > 0) {
 						output += "Buffer cache hit rates:\n";
 						output += client.formatResultAsText(bufferStats);
-						
-						const tableRate = Number.parseFloat(String(bufferStats.rows[0].table_cache_hit_rate || "0"));
-						const indexRate = Number.parseFloat(String(bufferStats.rows[0].index_cache_hit_rate || "0"));
-						
+
+						const tableRate = Number.parseFloat(
+							String(bufferStats.rows[0].table_cache_hit_rate || "0"),
+						);
+						const indexRate = Number.parseFloat(
+							String(bufferStats.rows[0].index_cache_hit_rate || "0"),
+						);
+
 						if (tableRate < 95 || indexRate < 95) {
 							output += "\n⚠️  Warning: Low cache hit rates (should be >95%)\n";
 						} else {
@@ -165,16 +185,16 @@ Available health checks:
 						}
 					}
 				} catch (error) {
-					output += `Error checking buffer cache health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking buffer cache health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Vacuum Health Check
 			if (runAll || healthTypes.includes("vacuum")) {
 				output += "=== VACUUM HEALTH ===\n";
-				
+
 				try {
 					const vacuumStats = await client.query(`
 						SELECT 
@@ -195,7 +215,7 @@ Available health checks:
 						ORDER BY dead_tuple_percentage DESC, n_dead_tup DESC
 						LIMIT 10
 					`);
-					
+
 					if (vacuumStats.rows.length > 0) {
 						output += "Tables with high dead tuple counts:\n";
 						output += client.formatResultAsText(vacuumStats);
@@ -203,16 +223,16 @@ Available health checks:
 						output += "✓ No tables with excessive dead tuples found\n";
 					}
 				} catch (error) {
-					output += `Error checking vacuum health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking vacuum health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Sequence Health Check
 			if (runAll || healthTypes.includes("sequence")) {
 				output += "=== SEQUENCE HEALTH ===\n";
-				
+
 				try {
 					const sequenceStats = await client.query(`
 						SELECT 
@@ -225,7 +245,7 @@ Available health checks:
 						WHERE last_value > max_value * 0.8
 						ORDER BY usage_percentage DESC
 					`);
-					
+
 					if (sequenceStats.rows.length > 0) {
 						output += "Sequences approaching their maximum value:\n";
 						output += client.formatResultAsText(sequenceStats);
@@ -233,16 +253,16 @@ Available health checks:
 						output += "✓ No sequences near their maximum value\n";
 					}
 				} catch (error) {
-					output += `Error checking sequence health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking sequence health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Constraint Health Check
 			if (runAll || healthTypes.includes("constraint")) {
 				output += "=== CONSTRAINT HEALTH ===\n";
-				
+
 				try {
 					const invalidConstraints = await client.query(`
 						SELECT 
@@ -252,7 +272,7 @@ Available health checks:
 						FROM pg_constraint 
 						WHERE NOT convalidated
 					`);
-					
+
 					if (invalidConstraints.rows.length > 0) {
 						output += "Invalid constraints found:\n";
 						output += client.formatResultAsText(invalidConstraints);
@@ -260,16 +280,16 @@ Available health checks:
 						output += "✓ No invalid constraints found\n";
 					}
 				} catch (error) {
-					output += `Error checking constraint health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking constraint health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
-				
+
 				output += "\n";
 			}
 
 			// Replication Health Check
 			if (runAll || healthTypes.includes("replication")) {
 				output += "=== REPLICATION HEALTH ===\n";
-				
+
 				try {
 					const replicationStats = await client.query(`
 						SELECT 
@@ -284,15 +304,16 @@ Available health checks:
 							replay_lag
 						FROM pg_stat_replication
 					`);
-					
+
 					if (replicationStats.rows.length > 0) {
 						output += "Replication status:\n";
 						output += client.formatResultAsText(replicationStats);
 					} else {
-						output += "No replication slots active (this may be normal for standalone instances)\n";
+						output +=
+							"No replication slots active (this may be normal for standalone instances)\n";
 					}
 				} catch (error) {
-					output += `Error checking replication health: ${error instanceof Error ? error.message : 'Unknown error'}\n`;
+					output += `Error checking replication health: ${error instanceof Error ? error.message : "Unknown error"}\n`;
 				}
 			}
 

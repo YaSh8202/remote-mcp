@@ -5,9 +5,9 @@ import { conversationsRepliesTools } from "./conversations-replies";
 import { conversationsSearchMessagesTool } from "./conversations-search-messages";
 
 export const slackTools = [
-  conversationsHistoryTool,
-  conversationsRepliesTools,
-  conversationsAddMessageTool,
-  conversationsSearchMessagesTool,
-  channelsListTool,
+	conversationsHistoryTool,
+	conversationsRepliesTools,
+	conversationsAddMessageTool,
+	conversationsSearchMessagesTool,
+	channelsListTool,
 ];

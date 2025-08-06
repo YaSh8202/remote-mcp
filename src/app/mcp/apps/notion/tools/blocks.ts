@@ -1,7 +1,12 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
 import { NotionClientWrapper } from "../client";
-import { commonIdDescription, formatError, formatParameter, notionAuth } from "../common";
+import {
+	commonIdDescription,
+	formatError,
+	formatParameter,
+	notionAuth,
+} from "../common";
 
 // Append block children tool
 const appendBlockChildrenSchema = {
@@ -10,11 +15,15 @@ const appendBlockChildrenSchema = {
 		.describe(`The ID of the parent block.${commonIdDescription}`),
 	children: z
 		.array(z.record(z.unknown()))
-		.describe("Array of block objects to append. Each block must follow the Notion block schema."),
+		.describe(
+			"Array of block objects to append. Each block must follow the Notion block schema.",
+		),
 	after: z
 		.string()
 		.optional()
-		.describe(`The ID of the existing block that the new block should be appended after.${commonIdDescription}`),
+		.describe(
+			`The ID of the existing block that the new block should be appended after.${commonIdDescription}`,
+		),
 	format: z
 		.enum(["json", "markdown"])
 		.optional()
@@ -25,22 +34,22 @@ const appendBlockChildrenSchema = {
 export const appendBlockChildrenTool = createParameterizedTool({
 	name: "append_block_children",
 	auth: notionAuth,
-	description: "Append new children blocks to a specified parent block in Notion. Requires insert content capabilities.",
+	description:
+		"Append new children blocks to a specified parent block in Notion. Requires insert content capabilities.",
 	paramsSchema: appendBlockChildrenSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.appendBlockChildren(
 				args.block_id,
-				args.children
+				args.children,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -84,15 +93,14 @@ export const retrieveBlockTool = createParameterizedTool({
 	paramsSchema: retrieveBlockSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveBlock(args.block_id);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -119,9 +127,7 @@ export const retrieveBlockTool = createParameterizedTool({
 
 // Retrieve block children tool
 const retrieveBlockChildrenSchema = {
-	block_id: z
-		.string()
-		.describe(`The ID of the block.${commonIdDescription}`),
+	block_id: z.string().describe(`The ID of the block.${commonIdDescription}`),
 	start_cursor: z
 		.string()
 		.optional()
@@ -144,19 +150,18 @@ export const retrieveBlockChildrenTool = createParameterizedTool({
 	paramsSchema: retrieveBlockChildrenSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveBlockChildren(
 				args.block_id,
 				args.start_cursor,
-				args.page_size
+				args.page_size,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -200,15 +205,14 @@ export const deleteBlockTool = createParameterizedTool({
 	paramsSchema: deleteBlockSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.deleteBlock(args.block_id);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -240,7 +244,9 @@ const updateBlockSchema = {
 		.describe(`The ID of the block to update.${commonIdDescription}`),
 	block: z
 		.record(z.unknown())
-		.describe("The updated content for the block. Must match the block's type schema."),
+		.describe(
+			"The updated content for the block. Must match the block's type schema.",
+		),
 	format: z
 		.enum(["json", "markdown"])
 		.optional()
@@ -251,19 +257,19 @@ const updateBlockSchema = {
 export const updateBlockTool = createParameterizedTool({
 	name: "update_block",
 	auth: notionAuth,
-	description: "Update the content of a block in Notion based on its type. The update replaces the entire value for a given field.",
+	description:
+		"Update the content of a block in Notion based on its type. The update replaces the entire value for a given field.",
 	paramsSchema: updateBlockSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.updateBlock(args.block_id, args.block);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

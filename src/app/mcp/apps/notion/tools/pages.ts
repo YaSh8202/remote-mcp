@@ -1,7 +1,12 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
 import { NotionClientWrapper } from "../client";
-import { commonIdDescription, formatError, formatParameter, notionAuth } from "../common";
+import {
+	commonIdDescription,
+	formatError,
+	formatParameter,
+	notionAuth,
+} from "../common";
 
 // Retrieve page tool
 const retrievePageSchema = {
@@ -22,15 +27,14 @@ export const retrievePageTool = createParameterizedTool({
 	paramsSchema: retrievePageSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrievePage(args.page_id);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -59,10 +63,14 @@ export const retrievePageTool = createParameterizedTool({
 const updatePagePropertiesSchema = {
 	page_id: z
 		.string()
-		.describe(`The ID of the page or database item to update.${commonIdDescription}`),
+		.describe(
+			`The ID of the page or database item to update.${commonIdDescription}`,
+		),
 	properties: z
 		.record(z.unknown())
-		.describe("Properties to update. These correspond to the columns or fields in the database."),
+		.describe(
+			"Properties to update. These correspond to the columns or fields in the database.",
+		),
 	format: z
 		.enum(["json", "markdown"])
 		.optional()
@@ -77,18 +85,17 @@ export const updatePagePropertiesTool = createParameterizedTool({
 	paramsSchema: updatePagePropertiesSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.updatePageProperties(
 				args.page_id,
-				args.properties
+				args.properties,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

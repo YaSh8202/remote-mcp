@@ -5,13 +5,16 @@ import { formatPostgresError, postgresAuth } from "../common";
 
 // Execute SQL statements
 const executeSqlSchema = {
-	sql: z.string().describe("SQL statement to execute against the PostgreSQL database"),
+	sql: z
+		.string()
+		.describe("SQL statement to execute against the PostgreSQL database"),
 };
 
 export const executeSqlTool = createParameterizedTool({
 	name: "execute_sql",
 	auth: postgresAuth,
-	description: "Executes SQL statements on the PostgreSQL database. Use with caution as this can modify data.",
+	description:
+		"Executes SQL statements on the PostgreSQL database. Use with caution as this can modify data.",
 	paramsSchema: executeSqlSchema,
 	callback: async (args, extra) => {
 		try {
@@ -25,29 +28,33 @@ export const executeSqlTool = createParameterizedTool({
 			}
 
 			const client = new PostgreSQLClient(connectionString);
-			
+
 			// Basic SQL injection protection - reject obvious dangerous patterns
 			const sql = args.sql.trim();
 			const upperSql = sql.toUpperCase();
-			
+
 			// Warning for potentially dangerous operations
 			const dangerousPatterns = [
-				'DROP TABLE',
-				'DROP DATABASE',
-				'DROP SCHEMA',
-				'TRUNCATE',
-				'DELETE FROM',
-				'UPDATE ',
-				'ALTER TABLE',
-				'CREATE USER',
-				'DROP USER',
-				'GRANT ',
-				'REVOKE ',
+				"DROP TABLE",
+				"DROP DATABASE",
+				"DROP SCHEMA",
+				"TRUNCATE",
+				"DELETE FROM",
+				"UPDATE ",
+				"ALTER TABLE",
+				"CREATE USER",
+				"DROP USER",
+				"GRANT ",
+				"REVOKE ",
 			];
-			
-			const foundDangerous = dangerousPatterns.find(pattern => upperSql.includes(pattern));
+
+			const foundDangerous = dangerousPatterns.find((pattern) =>
+				upperSql.includes(pattern),
+			);
 			if (foundDangerous) {
-				console.warn(`Executing potentially dangerous SQL operation: ${foundDangerous}`);
+				console.warn(
+					`Executing potentially dangerous SQL operation: ${foundDangerous}`,
+				);
 			}
 
 			const result = await client.query(sql);
@@ -71,14 +78,23 @@ export const executeSqlTool = createParameterizedTool({
 // Execute query with explain plan
 const explainQuerySchema = {
 	sql: z.string().describe("SQL query to explain"),
-	analyze: z.boolean().default(false).describe("When true, actually runs the query to show real execution statistics instead of estimates. Takes longer but provides more accurate information."),
-	format: z.enum(["text", "json", "xml", "yaml"]).default("text").describe("Output format for the explain plan"),
+	analyze: z
+		.boolean()
+		.default(false)
+		.describe(
+			"When true, actually runs the query to show real execution statistics instead of estimates. Takes longer but provides more accurate information.",
+		),
+	format: z
+		.enum(["text", "json", "xml", "yaml"])
+		.default("text")
+		.describe("Output format for the explain plan"),
 };
 
 export const explainQueryTool = createParameterizedTool({
 	name: "explain_query",
 	auth: postgresAuth,
-	description: "Gets the execution plan for a SQL query describing how PostgreSQL will process it and exposing the query planner's cost model.",
+	description:
+		"Gets the execution plan for a SQL query describing how PostgreSQL will process it and exposing the query planner's cost model.",
 	paramsSchema: explainQuerySchema,
 	callback: async (args, extra) => {
 		try {
@@ -92,13 +108,16 @@ export const explainQueryTool = createParameterizedTool({
 			}
 
 			const client = new PostgreSQLClient(connectionString);
-			
+
 			let explainSql = "EXPLAIN";
 			if (args.format !== "text") {
 				explainSql += ` (FORMAT ${args.format.toUpperCase()})`;
 			}
 			if (args.analyze) {
-				explainSql += args.format === "text" ? " ANALYZE" : ` (ANALYZE TRUE, FORMAT ${args.format.toUpperCase()})`;
+				explainSql +=
+					args.format === "text"
+						? " ANALYZE"
+						: ` (ANALYZE TRUE, FORMAT ${args.format.toUpperCase()})`;
 			}
 			explainSql += ` ${args.sql}`;
 
