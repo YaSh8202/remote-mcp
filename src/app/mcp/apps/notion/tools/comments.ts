@@ -1,21 +1,32 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
 import { NotionClientWrapper } from "../client";
-import { commonIdDescription, formatError, formatParameter, notionAuth } from "../common";
+import {
+	commonIdDescription,
+	formatError,
+	formatParameter,
+	notionAuth,
+} from "../common";
 import type { RichTextItemResponse } from "../types";
 
 // Create comment tool
 const createCommentSchema = {
 	parent: z
 		.object({
-			page_id: z.string().describe(`The ID of the page to comment on.${commonIdDescription}`)
+			page_id: z
+				.string()
+				.describe(`The ID of the page to comment on.${commonIdDescription}`),
 		})
 		.optional()
-		.describe("Parent object that specifies the page to comment on. Must include a page_id if used."),
+		.describe(
+			"Parent object that specifies the page to comment on. Must include a page_id if used.",
+		),
 	discussion_id: z
 		.string()
 		.optional()
-		.describe(`The ID of an existing discussion thread to add a comment to.${commonIdDescription}`),
+		.describe(
+			`The ID of an existing discussion thread to add a comment to.${commonIdDescription}`,
+		),
 	rich_text: z
 		.array(z.record(z.unknown()))
 		.describe("Array of rich text objects representing the comment content."),
@@ -29,27 +40,29 @@ const createCommentSchema = {
 export const createCommentTool = createParameterizedTool({
 	name: "create_comment",
 	auth: notionAuth,
-	description: "Create a comment in Notion. This requires the integration to have 'insert comment' capabilities. You can either specify a page parent or a discussion_id, but not both.",
+	description:
+		"Create a comment in Notion. This requires the integration to have 'insert comment' capabilities. You can either specify a page parent or a discussion_id, but not both.",
 	paramsSchema: createCommentSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			if (!args.parent && !args.discussion_id) {
-				throw new Error("Either parent.page_id or discussion_id must be provided");
+				throw new Error(
+					"Either parent.page_id or discussion_id must be provided",
+				);
 			}
 
 			const response = await client.createComment(
 				args.parent,
 				args.discussion_id,
-				args.rich_text as unknown as RichTextItemResponse[]
+				args.rich_text as unknown as RichTextItemResponse[],
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -78,11 +91,15 @@ export const createCommentTool = createParameterizedTool({
 const retrieveCommentsSchema = {
 	block_id: z
 		.string()
-		.describe(`The ID of the block or page whose comments you want to retrieve.${commonIdDescription}`),
+		.describe(
+			`The ID of the block or page whose comments you want to retrieve.${commonIdDescription}`,
+		),
 	start_cursor: z
 		.string()
 		.optional()
-		.describe("If supplied, returns a page of results starting after the cursor."),
+		.describe(
+			"If supplied, returns a page of results starting after the cursor.",
+		),
 	page_size: z
 		.number()
 		.optional()
@@ -97,23 +114,23 @@ const retrieveCommentsSchema = {
 export const retrieveCommentsTool = createParameterizedTool({
 	name: "retrieve_comments",
 	auth: notionAuth,
-	description: "Retrieve a list of unresolved comments from a Notion page or block. Requires the integration to have 'read comment' capabilities.",
+	description:
+		"Retrieve a list of unresolved comments from a Notion page or block. Requires the integration to have 'read comment' capabilities.",
 	paramsSchema: retrieveCommentsSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveComments(
 				args.block_id,
 				args.start_cursor,
-				args.page_size
+				args.page_size,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

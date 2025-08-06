@@ -12,7 +12,7 @@ export function formatError(error: unknown): string {
 export function formatDuration(ms: number): string {
 	const minutes = Math.floor(ms / 60000);
 	const seconds = ((ms % 60000) / 1000).toFixed(0);
-	return `${minutes}:${seconds.padStart(2, '0')}`;
+	return `${minutes}:${seconds.padStart(2, "0")}`;
 }
 
 // Spotify OAuth2 configuration
@@ -45,22 +45,26 @@ export const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 export async function makeSpotifyRequest(
 	endpoint: string,
 	accessToken: string,
-	options: RequestInit = {}
+	options: RequestInit = {},
 ): Promise<Response> {
-	const url = endpoint.startsWith('http') ? endpoint : `${SPOTIFY_API_BASE}${endpoint}`;
-	
+	const url = endpoint.startsWith("http")
+		? endpoint
+		: `${SPOTIFY_API_BASE}${endpoint}`;
+
 	const response = await fetch(url, {
 		...options,
 		headers: {
-			'Authorization': `Bearer ${accessToken}`,
-			'Content-Type': 'application/json',
+			Authorization: `Bearer ${accessToken}`,
+			"Content-Type": "application/json",
 			...options.headers,
 		},
 	});
 
 	if (!response.ok) {
 		const errorData = await response.text();
-		throw new Error(`Spotify API error: ${response.status} ${response.statusText} - ${errorData}`);
+		throw new Error(
+			`Spotify API error: ${response.status} ${response.statusText} - ${errorData}`,
+		);
 	}
 
 	return response;
@@ -68,18 +72,18 @@ export async function makeSpotifyRequest(
 
 // Helper function to check if track object is valid
 export function isTrack(item: unknown): item is SpotifyTrack {
-	if (!item || typeof item !== 'object' || item === null) {
+	if (!item || typeof item !== "object" || item === null) {
 		return false;
 	}
-	
+
 	const obj = item as Record<string, unknown>;
-	
+
 	return (
-		obj.type === 'track' &&
+		obj.type === "track" &&
 		Array.isArray(obj.artists) &&
-		typeof obj.album === 'object' &&
+		typeof obj.album === "object" &&
 		obj.album !== null &&
-		typeof (obj.album as Record<string, unknown>).name === 'string'
+		typeof (obj.album as Record<string, unknown>).name === "string"
 	);
 }
 

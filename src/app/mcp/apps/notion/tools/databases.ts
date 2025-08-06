@@ -1,7 +1,12 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
 import { NotionClientWrapper } from "../client";
-import { commonIdDescription, formatError, formatParameter, notionAuth } from "../common";
+import {
+	commonIdDescription,
+	formatError,
+	formatParameter,
+	notionAuth,
+} from "../common";
 import type { RichTextItemResponse } from "../types";
 
 // Create database tool
@@ -9,11 +14,11 @@ const createDatabaseSchema = {
 	parent: z
 		.union([
 			z.object({
-				page_id: z.string().describe(`Parent page ID.${commonIdDescription}`)
+				page_id: z.string().describe(`Parent page ID.${commonIdDescription}`),
 			}),
 			z.object({
-				workspace: z.boolean().describe("Set to true to create in workspace")
-			})
+				workspace: z.boolean().describe("Set to true to create in workspace"),
+			}),
 		])
 		.describe("Parent object of the database."),
 	properties: z
@@ -37,19 +42,18 @@ export const createDatabaseTool = createParameterizedTool({
 	paramsSchema: createDatabaseSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.createDatabase(
 				args.parent,
 				args.properties,
-				args.title as RichTextItemResponse[] | undefined
+				args.title as RichTextItemResponse[] | undefined,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -79,16 +83,15 @@ const queryDatabaseSchema = {
 	database_id: z
 		.string()
 		.describe(`The ID of the database to query.${commonIdDescription}`),
-	filter: z
-		.record(z.unknown())
-		.optional()
-		.describe("Filter conditions."),
+	filter: z.record(z.unknown()).optional().describe("Filter conditions."),
 	sorts: z
-		.array(z.object({
-			property: z.string().optional(),
-			timestamp: z.string().optional(),
-			direction: z.enum(["ascending", "descending"])
-		}))
+		.array(
+			z.object({
+				property: z.string().optional(),
+				timestamp: z.string().optional(),
+				direction: z.enum(["ascending", "descending"]),
+			}),
+		)
 		.optional()
 		.describe("Sorting conditions."),
 	start_cursor: z
@@ -113,21 +116,20 @@ export const queryDatabaseTool = createParameterizedTool({
 	paramsSchema: queryDatabaseSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.queryDatabase(
 				args.database_id,
 				args.filter,
 				args.sorts,
 				args.start_cursor,
-				args.page_size
+				args.page_size,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -171,15 +173,14 @@ export const retrieveDatabaseTool = createParameterizedTool({
 	paramsSchema: retrieveDatabaseSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.retrieveDatabase(args.database_id);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -235,20 +236,19 @@ export const updateDatabaseTool = createParameterizedTool({
 	paramsSchema: updateDatabaseSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.updateDatabase(
 				args.database_id,
 				args.title as RichTextItemResponse[] | undefined,
 				args.description as RichTextItemResponse[] | undefined,
-				args.properties
+				args.properties,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [
@@ -277,10 +277,14 @@ export const updateDatabaseTool = createParameterizedTool({
 const createDatabaseItemSchema = {
 	database_id: z
 		.string()
-		.describe(`The ID of the database to add the item to.${commonIdDescription}`),
+		.describe(
+			`The ID of the database to add the item to.${commonIdDescription}`,
+		),
 	properties: z
 		.record(z.unknown())
-		.describe("The properties of the new item. These should match the database schema."),
+		.describe(
+			"The properties of the new item. These should match the database schema.",
+		),
 	format: z
 		.enum(["json", "markdown"])
 		.optional()
@@ -295,18 +299,17 @@ export const createDatabaseItemTool = createParameterizedTool({
 	paramsSchema: createDatabaseItemSchema,
 	callback: async (args, extra) => {
 		try {
-			const client = new NotionClientWrapper(
-				extra?.auth?.access_token || ""
-			);
+			const client = new NotionClientWrapper(extra?.auth?.access_token || "");
 
 			const response = await client.createDatabaseItem(
 				args.database_id,
-				args.properties
+				args.properties,
 			);
 
-			const result = args.format === "json" 
-				? JSON.stringify(response, null, 2)
-				: await client.toMarkdown(response);
+			const result =
+				args.format === "json"
+					? JSON.stringify(response, null, 2)
+					: await client.toMarkdown(response);
 
 			return {
 				content: [

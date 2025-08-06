@@ -39,7 +39,9 @@ export class PostgreSQLClient {
 				connectionTimeoutMillis: 30000,
 				statement_timeout: 60000,
 				query_timeout: 60000,
-				ssl: this.connectionString.includes('sslmode=require') ? { rejectUnauthorized: false } : false,
+				ssl: this.connectionString.includes("sslmode=require")
+					? { rejectUnauthorized: false }
+					: false,
 			});
 		}
 		return this.pool;
@@ -49,27 +51,28 @@ export class PostgreSQLClient {
 		const pool = await this.getPool();
 		let client: PoolClient | null = null;
 		let retries = 3;
-		
+
 		while (retries > 0) {
 			try {
 				client = await pool.connect();
-				
+
 				// Set a statement timeout for this specific query
-				await client.query('SET statement_timeout = 60000');
-				
+				await client.query("SET statement_timeout = 60000");
+
 				const result: QueryResult = await client.query(sql, params);
-				
+
 				return {
 					rows: result.rows,
 					rowCount: result.rowCount,
 					command: result.command,
-					fields: result.fields?.map(field => ({
-						name: field.name,
-						dataTypeID: field.dataTypeID,
-						dataTypeSize: field.dataTypeSize,
-						dataTypeModifier: field.dataTypeModifier,
-						format: field.format,
-					})) || [],
+					fields:
+						result.fields?.map((field) => ({
+							name: field.name,
+							dataTypeID: field.dataTypeID,
+							dataTypeSize: field.dataTypeSize,
+							dataTypeModifier: field.dataTypeModifier,
+							format: field.format,
+						})) || [],
 				};
 			} catch (error: unknown) {
 				retries--;
@@ -77,21 +80,23 @@ export class PostgreSQLClient {
 					client.release();
 					client = null;
 				}
-				
+
 				// Check if it's a connection timeout or connection issue
-				const isConnectionError = isPostgreSQLError(error) && (
-					error.code === 'ETIMEDOUT' || 
-					error.code === 'ECONNRESET' || 
-					error.message?.includes('timeout') ||
-					error.message?.includes('Connection terminated')
-				);
-				
+				const isConnectionError =
+					isPostgreSQLError(error) &&
+					(error.code === "ETIMEDOUT" ||
+						error.code === "ECONNRESET" ||
+						error.message?.includes("timeout") ||
+						error.message?.includes("Connection terminated"));
+
 				if (isConnectionError && retries > 0) {
-					console.log(`Connection error, retrying... (${retries} attempts left)`);
-					await new Promise(resolve => setTimeout(resolve, 1000));
+					console.log(
+						`Connection error, retrying... (${retries} attempts left)`,
+					);
+					await new Promise((resolve) => setTimeout(resolve, 1000));
 					continue;
 				}
-				
+
 				throw error;
 			} finally {
 				if (client) {
@@ -99,8 +104,8 @@ export class PostgreSQLClient {
 				}
 			}
 		}
-		
-		throw new Error('Failed to execute query after multiple retries');
+
+		throw new Error("Failed to execute query after multiple retries");
 	}
 
 	async testConnection(): Promise<boolean> {
@@ -131,29 +136,32 @@ export class PostgreSQLClient {
 
 		// Format as table
 		const headers = Object.keys(result.rows[0]);
-		const maxWidths = headers.reduce((acc, header) => {
-			acc[header] = Math.max(
-				header.length,
-				...result.rows.map(row => String(row[header] || "").length)
-			);
-			return acc;
-		}, {} as Record<string, number>);
+		const maxWidths = headers.reduce(
+			(acc, header) => {
+				acc[header] = Math.max(
+					header.length,
+					...result.rows.map((row) => String(row[header] || "").length),
+				);
+				return acc;
+			},
+			{} as Record<string, number>,
+		);
 
 		let output = "";
-		
+
 		// Header row
-		output += `| ${headers.map(h => h.padEnd(maxWidths[h])).join(" | ")} |\n`;
-		
+		output += `| ${headers.map((h) => h.padEnd(maxWidths[h])).join(" | ")} |\n`;
+
 		// Separator row
-		output += `| ${headers.map(h => "-".repeat(maxWidths[h])).join(" | ")} |\n`;
-		
+		output += `| ${headers.map((h) => "-".repeat(maxWidths[h])).join(" | ")} |\n`;
+
 		// Data rows
 		for (const row of result.rows) {
-			output += `| ${headers.map(h => String(row[h] || "").padEnd(maxWidths[h])).join(" | ")} |\n`;
+			output += `| ${headers.map((h) => String(row[h] || "").padEnd(maxWidths[h])).join(" | ")} |\n`;
 		}
-		
+
 		output += `\n(${result.rowCount} row${result.rowCount === 1 ? "" : "s"})`;
-		
+
 		return output;
 	}
 }

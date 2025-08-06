@@ -35,7 +35,9 @@ interface LocalDescriptionResponse {
 }
 
 const localSearchSchema = {
-	query: z.string().describe("Local search query (e.g. 'pizza near Central Park')"),
+	query: z
+		.string()
+		.describe("Local search query (e.g. 'pizza near Central Park')"),
 	count: z
 		.number()
 		.min(1)
@@ -102,12 +104,14 @@ export const braveLocalSearchTool = createParameterizedTool({
 			}
 
 			// Extract location IDs for detailed POI and description data
-			const locationIds = webResult.locations.results.map((location) => location.id);
+			const locationIds = webResult.locations.results.map(
+				(location) => location.id,
+			);
 			const limitedIds = locationIds.slice(0, args.count || 10);
 
 			try {
 				// Fetch POI details
-				const poiUrl = `https://api.search.brave.com/res/v1/local/pois?${limitedIds.map(id => `ids=${encodeURIComponent(id)}`).join('&')}`;
+				const poiUrl = `https://api.search.brave.com/res/v1/local/pois?${limitedIds.map((id) => `ids=${encodeURIComponent(id)}`).join("&")}`;
 				const poiResponse = await fetch(poiUrl, {
 					method: "GET",
 					headers: {
@@ -127,7 +131,7 @@ export const braveLocalSearchTool = createParameterizedTool({
 				}
 
 				// Fetch descriptions
-				const descUrl = `https://api.search.brave.com/res/v1/local/descriptions?${limitedIds.map(id => `ids=${encodeURIComponent(id)}`).join('&')}`;
+				const descUrl = `https://api.search.brave.com/res/v1/local/descriptions?${limitedIds.map((id) => `ids=${encodeURIComponent(id)}`).join("&")}`;
 				const descResponse = await fetch(descUrl, {
 					method: "GET",
 					headers: {

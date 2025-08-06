@@ -1,5 +1,13 @@
 import { db } from "@/db";
-import { accounts, appConnections, mcpApps, mcpRuns, mcpServer, sessions, users } from "@/db/schema";
+import {
+	accounts,
+	appConnections,
+	mcpApps,
+	mcpRuns,
+	mcpServer,
+	sessions,
+	users,
+} from "@/db/schema";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
@@ -12,7 +20,7 @@ export const userRouter = {
 				const userId = ctx.user.id;
 
 				// Delete user data in order (respecting foreign key constraints)
-				
+
 				// 1. Delete MCP runs first (they reference apps and servers)
 				await db.delete(mcpRuns).where(eq(mcpRuns.ownerId, userId));
 
@@ -21,7 +29,7 @@ export const userRouter = {
 					where: eq(mcpServer.ownerId, userId),
 					columns: { id: true },
 				});
-				
+
 				for (const server of userServers) {
 					await db.delete(mcpApps).where(eq(mcpApps.serverId, server.id));
 				}
@@ -30,7 +38,9 @@ export const userRouter = {
 				await db.delete(mcpServer).where(eq(mcpServer.ownerId, userId));
 
 				// 4. Delete app connections
-				await db.delete(appConnections).where(eq(appConnections.ownerId, userId));
+				await db
+					.delete(appConnections)
+					.where(eq(appConnections.ownerId, userId));
 
 				// 5. Delete user sessions
 				await db.delete(sessions).where(eq(sessions.userId, userId));

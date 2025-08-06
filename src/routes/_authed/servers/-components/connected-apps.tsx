@@ -193,9 +193,9 @@ export function ConnectedApps({
 
 											{/* Actions */}
 											<div className="mt-4 flex gap-2">
-												<Button 
-													variant="outline" 
-													size="sm" 
+												<Button
+													variant="outline"
+													size="sm"
 													className="gap-2"
 													onClick={() => handleConfigureApp(app)}
 												>

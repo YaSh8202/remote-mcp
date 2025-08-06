@@ -13,10 +13,7 @@ const playMusicSchema = {
 		.optional()
 		.describe("The type of item to play"),
 	id: z.string().optional().describe("The Spotify ID of the item to play"),
-	deviceId: z
-		.string()
-		.optional()
-		.describe("The Spotify device ID to play on"),
+	deviceId: z.string().optional().describe("The Spotify device ID to play on"),
 };
 
 export const playMusicTool = createParameterizedTool({
@@ -51,7 +48,7 @@ export const playMusicTool = createParameterizedTool({
 			}
 
 			const requestBody: Record<string, unknown> = {};
-			
+
 			if (spotifyUri) {
 				if (type === "track") {
 					requestBody.uris = [spotifyUri];
@@ -114,7 +111,9 @@ export const pausePlaybackTool = createParameterizedTool({
 				throw new Error("No access token available");
 			}
 
-			const url = deviceId ? `/me/player/pause?device_id=${deviceId}` : "/me/player/pause";
+			const url = deviceId
+				? `/me/player/pause?device_id=${deviceId}`
+				: "/me/player/pause";
 
 			await makeSpotifyRequest(url, accessToken, {
 				method: "PUT",
@@ -200,10 +199,7 @@ export const resumePlaybackTool = createParameterizedTool({
 
 // Skip to next track tool
 const skipToNextSchema = {
-	deviceId: z
-		.string()
-		.optional()
-		.describe("The Spotify device ID to skip on"),
+	deviceId: z.string().optional().describe("The Spotify device ID to skip on"),
 };
 
 export const skipToNextTool = createParameterizedTool({
@@ -220,7 +216,9 @@ export const skipToNextTool = createParameterizedTool({
 				throw new Error("No access token available");
 			}
 
-			const url = deviceId ? `/me/player/next?device_id=${deviceId}` : "/me/player/next";
+			const url = deviceId
+				? `/me/player/next?device_id=${deviceId}`
+				: "/me/player/next";
 
 			await makeSpotifyRequest(url, accessToken, {
 				method: "POST",
@@ -251,16 +249,14 @@ export const skipToNextTool = createParameterizedTool({
 
 // Skip to previous track tool
 const skipToPreviousSchema = {
-	deviceId: z
-		.string()
-		.optional()
-		.describe("The Spotify device ID to skip on"),
+	deviceId: z.string().optional().describe("The Spotify device ID to skip on"),
 };
 
 export const skipToPreviousTool = createParameterizedTool({
 	name: "skipToPrevious",
 	auth: spotifyAuth,
-	description: "Skip to the previous track in the current Spotify playback queue",
+	description:
+		"Skip to the previous track in the current Spotify playback queue",
 	paramsSchema: skipToPreviousSchema,
 	callback: async (args, extra) => {
 		try {
@@ -271,7 +267,9 @@ export const skipToPreviousTool = createParameterizedTool({
 				throw new Error("No access token available");
 			}
 
-			const url = deviceId ? `/me/player/previous?device_id=${deviceId}` : "/me/player/previous";
+			const url = deviceId
+				? `/me/player/previous?device_id=${deviceId}`
+				: "/me/player/previous";
 
 			await makeSpotifyRequest(url, accessToken, {
 				method: "POST",
@@ -310,7 +308,10 @@ const addToQueueSchema = {
 		.enum(["track", "album", "artist", "playlist"])
 		.optional()
 		.describe("The type of item to add to queue"),
-	id: z.string().optional().describe("The Spotify ID of the item to add to queue"),
+	id: z
+		.string()
+		.optional()
+		.describe("The Spotify ID of the item to add to queue"),
 	deviceId: z
 		.string()
 		.optional()
@@ -348,7 +349,7 @@ export const addToQueueTool = createParameterizedTool({
 				};
 			}
 
-			const url = deviceId 
+			const url = deviceId
 				? `/me/player/queue?uri=${encodeURIComponent(spotifyUri)}&device_id=${deviceId}`
 				: `/me/player/queue?uri=${encodeURIComponent(spotifyUri)}`;
 
@@ -412,14 +413,18 @@ export const createPlaylistTool = createParameterizedTool({
 			const userId = userData.id;
 
 			// Create the playlist
-			const response = await makeSpotifyRequest(`/users/${userId}/playlists`, accessToken, {
-				method: "POST",
-				body: JSON.stringify({
-					name,
-					description,
-					public: isPublic,
-				}),
-			});
+			const response = await makeSpotifyRequest(
+				`/users/${userId}/playlists`,
+				accessToken,
+				{
+					method: "POST",
+					body: JSON.stringify({
+						name,
+						description,
+						public: isPublic,
+					}),
+				},
+			);
 
 			const result = await response.json();
 

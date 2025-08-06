@@ -38,9 +38,7 @@ export {
 } from "./comments";
 
 // Search tools
-export {
-	searchTool,
-} from "./search";
+export { searchTool } from "./search";
 
 // Import tools for the array
 import {
@@ -51,10 +49,7 @@ import {
 	updateBlockTool,
 } from "./blocks";
 
-import {
-	retrievePageTool,
-	updatePagePropertiesTool,
-} from "./pages";
+import { retrievePageTool, updatePagePropertiesTool } from "./pages";
 
 import {
 	listAllUsersTool,
@@ -70,14 +65,9 @@ import {
 	updateDatabaseTool,
 } from "./databases";
 
-import {
-	createCommentTool,
-	retrieveCommentsTool,
-} from "./comments";
+import { createCommentTool, retrieveCommentsTool } from "./comments";
 
-import {
-	searchTool,
-} from "./search";
+import { searchTool } from "./search";
 
 // All tools array for easy importing
 export const notionTools = [

@@ -85,9 +85,9 @@ const Theme = ({
 	const [theme, setThemeState] = React.useState(() =>
 		getTheme(storageKey, defaultTheme),
 	);
-	const [systemTheme, setSystemTheme] = React.useState<"light" | "dark" | undefined>(
-		() => !isServer ? getSystemTheme() : undefined
-	);
+	const [systemTheme, setSystemTheme] = React.useState<
+		"light" | "dark" | undefined
+	>(() => (!isServer ? getSystemTheme() : undefined));
 	const attrs = !value ? themes : Object.values(value);
 
 	// apply selected theme function (light, dark, system)
@@ -201,19 +201,19 @@ const Theme = ({
 	// Calculate current resolved mode
 	const currentMode = React.useMemo((): "light" | "dark" | undefined => {
 		const activeTheme = forcedTheme ?? theme;
-		
+
 		if (!activeTheme) return undefined;
-		
+
 		// If theme is "system", resolve to system preference
 		if (activeTheme === "system" && enableSystem) {
 			return systemTheme;
 		}
-		
+
 		// If theme is explicitly "light" or "dark", return it
 		if (activeTheme === "light" || activeTheme === "dark") {
 			return activeTheme;
 		}
-		
+
 		// For custom themes, check if they map to light/dark via value prop
 		if (value?.[activeTheme]) {
 			const mappedValue = value[activeTheme];
@@ -221,7 +221,7 @@ const Theme = ({
 				return mappedValue;
 			}
 		}
-		
+
 		// Fallback: assume custom themes are light mode unless they contain "dark"
 		return activeTheme.includes("dark") ? "dark" : "light";
 	}, [forcedTheme, theme, enableSystem, systemTheme, value]);
@@ -235,7 +235,15 @@ const Theme = ({
 			systemTheme,
 			currentMode,
 		}),
-		[theme, setTheme, forcedTheme, enableSystem, themes, systemTheme, currentMode],
+		[
+			theme,
+			setTheme,
+			forcedTheme,
+			enableSystem,
+			themes,
+			systemTheme,
+			currentMode,
+		],
 	);
 
 	return (

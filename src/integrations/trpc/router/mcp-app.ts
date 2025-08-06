@@ -228,7 +228,9 @@ export const mcpAppRouter = {
 				}
 
 				// Get app definition to validate tools
-				const appDefinition = mcpApps.find((app) => app.name === existingApp.appName);
+				const appDefinition = mcpApps.find(
+					(app) => app.name === existingApp.appName,
+				);
 				if (!appDefinition) {
 					throw new TRPCError({
 						code: "NOT_FOUND",

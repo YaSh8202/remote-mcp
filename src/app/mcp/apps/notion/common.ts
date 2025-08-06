@@ -18,13 +18,14 @@ export const notionAuth = McpAppAuth.OAuth2({
 });
 
 // Common ID description for Notion objects
-export const commonIdDescription = 
+export const commonIdDescription =
 	" Note: when copying Notion IDs, remove any dashes (-) or encode as needed for the API.";
 
 // Format parameter for response type
 export const formatParameter = {
 	type: "string" as const,
 	enum: ["json", "markdown"],
-	description: 'Response format. Use "markdown" for human-readable output, "json" for programmatic access.',
+	description:
+		'Response format. Use "markdown" for human-readable output, "json" for programmatic access.',
 	default: "markdown",
 };

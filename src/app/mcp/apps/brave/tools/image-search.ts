@@ -51,12 +51,12 @@ export const braveImageSearchTool = createParameterizedTool({
 			for (const image of result.results) {
 				try {
 					const base64 = await imageToBase64(image.properties.url);
-					
+
 					imageContents.push({
 						type: "text" as const,
 						text: `Title: ${image.title}`,
 					});
-					
+
 					imageContents.push({
 						type: "image" as const,
 						data: base64,
