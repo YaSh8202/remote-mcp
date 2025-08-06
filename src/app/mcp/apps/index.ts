@@ -6,6 +6,7 @@ import { gitlabMcpApp } from "./gitlab";
 import { notionMcpApp } from "./notion";
 import { postgresMcpApp } from "./postgres";
 import { slackMcpApp } from "./slack";
+import { spotifyMcpApp } from "./spotify";
 import { youtubeMcpApp } from "./youtube";
 
 export const mcpApps = [
@@ -17,4 +18,5 @@ export const mcpApps = [
 	braveMcpApp,
 	postgresMcpApp,
 	notionMcpApp,
+	spotifyMcpApp,
 ] as McpApp[];
