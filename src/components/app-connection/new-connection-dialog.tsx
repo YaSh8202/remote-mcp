@@ -37,6 +37,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ViewMarkdown } from "../markdown";
 import { SecretTextConnectionSettings } from "./secret-text-connection-settings";
 
 const newConnectionSchema = z.object({
@@ -202,6 +203,7 @@ export const NewConnectionDialog = React.memo(
 							onSubmit={form.handleSubmit(handleSubmit)}
 							className="space-y-6"
 						>
+							{app.auth && <ViewMarkdown markdown={app.auth?.description} />}
 							<div className="py-4 space-y-6">
 								<FormField
 									control={form.control}

@@ -4,6 +4,7 @@ import {
 	FormField,
 	FormItem,
 	FormLabel,
+	FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UpsertSecretTextRequest } from "@/types/app-connection";
@@ -33,6 +34,7 @@ const SecretTextConnectionSettings = React.memo(
 						<FormControl>
 							<Input {...field} type="password" />
 						</FormControl>
+						<FormMessage />
 					</FormItem>
 				)}
 			/>
