@@ -1,4 +1,5 @@
 import type { McpApp } from "../mcp-app";
+import { atlassianMcpApp } from "./atlassian";
 import { braveMcpApp } from "./brave";
 import { fetchMcpApp } from "./fetch";
 import { githubMcpApp } from "./github";
@@ -13,6 +14,7 @@ import { youtubeMcpApp } from "./youtube";
 export const mcpApps = [
 	githubMcpApp,
 	gitlabMcpApp,
+	atlassianMcpApp,
 	fetchMcpApp,
 	youtubeMcpApp,
 	slackMcpApp,

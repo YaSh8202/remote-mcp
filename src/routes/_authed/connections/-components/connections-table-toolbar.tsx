@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import type { Table } from "@tanstack/react-table";
-import { Plus, Search, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import type { ConnectionWithUsage } from "./connections-table";
 
 interface ConnectionsTableToolbarProps {
