@@ -29,6 +29,11 @@ import { ConnectAppDialog } from "./-components/connect-app-dialog";
 
 export const Route = createFileRoute("/_authed/apps/")({
 	component: RouteComponent,
+	loader: async ({ context }) => {
+		return await context.queryClient.ensureQueryData(
+			context.trpc.mcpApp.getAvailableApps.queryOptions(),
+		);
+	},
 });
 
 interface AppCardProps {
