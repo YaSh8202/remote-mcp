@@ -11,7 +11,7 @@ import {
 	SidebarRail,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { MCPIcon } from "./icons";
+import { RemoteMcpLogo } from "./icons";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	return (
@@ -24,7 +24,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							className="data-[slot=sidebar-menu-button]:!p-1.5"
 						>
 							<Link to="/">
-								<MCPIcon className="!size-5" />
+								<RemoteMcpLogo className="!size-5 text-foreground" />
 								<span className="text-base font-semibold">Remote Mcp</span>
 							</Link>
 						</SidebarMenuButton>

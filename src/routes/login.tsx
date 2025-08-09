@@ -1,5 +1,5 @@
 import { MdiGithub } from "@/app/mcp/apps/icons";
-import { GoogleIcon } from "@/components/icons";
+import { GoogleIcon, RemoteMcpLogo } from "@/components/icons";
 import { LoadingSpinner } from "@/components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -147,6 +147,9 @@ function LoginPage() {
 			<div className="flex flex-col gap-6 w-full max-w-md">
 				<Card>
 					<CardHeader className="text-center">
+						<div className="flex justify-center mb-2">
+							<RemoteMcpLogo className="h-16 w-16 text-primary" />
+						</div>
 						<CardTitle className="text-xl">
 							{isSignUp ? "Create an account" : "Welcome back"}
 						</CardTitle>
