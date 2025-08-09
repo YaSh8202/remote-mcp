@@ -68,25 +68,25 @@ Easy-to-use dashboard to manage your servers, connections, and monitor usage.
 Remote MCP supports integration with popular apps and services:
 
 ### Developer Tools
-- **🐙 GitHub** - Comprehensive repository management with issues, pull requests, and code operations (32 tools)
-- **🦊 GitLab** - GitLab integration for merge requests, issues, and project management (10 tools)
-- **🌎 Atlassian** - Complete Jira and Confluence integration for project management and documentation (21 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/github.svg" width="16" height="16" style="vertical-align: middle;"> GitHub** - Comprehensive repository management with issues, pull requests, and code operations (32 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/gitlab.svg" width="16" height="16" style="vertical-align: middle;"> GitLab** - GitLab integration for merge requests, issues, and project management (10 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/atlassian.svg" width="16" height="16" style="vertical-align: middle;"> Atlassian** - Complete Jira and Confluence integration for project management and documentation (21 tools)
 
 ### Communication & Productivity
-- **💬 Slack** - Send messages, search conversations, and manage channels (5 tools)
-- **� Notion** - Database queries, page management, and content creation (18 tools)
-- **🎵 Spotify** - Music playback control, playlist management, and discovery (19 tools)
-- **☁️ Google Drive** - File management and Google Sheets operations (10 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/slack.svg" width="16" height="16" style="vertical-align: middle;"> Slack** - Send messages, search conversations, and manage channels (5 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg" width="16" height="16" style="vertical-align: middle;"> Notion** - Database queries, page management, and content creation (18 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/spotify.svg" width="16" height="16" style="vertical-align: middle;"> Spotify** - Music playback control, playlist management, and discovery (19 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googledrive.svg" width="16" height="16" style="vertical-align: middle;"> Google Drive** - File management and Google Sheets operations (10 tools)
 
 ### Content & Media
-- **📺 YouTube** - Comprehensive video, channel, playlist, and analytics management (27 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/youtube.svg" width="16" height="16" style="vertical-align: middle;"> YouTube** - Comprehensive video, channel, playlist, and analytics management (27 tools)
 
 ### Data & Search
-- **🐘 PostgreSQL** - Database queries and management (8 tools)
-- **🔍 Brave Search** - Web search, image search, news, and local business searches (5 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/postgresql.svg" width="16" height="16" style="vertical-align: middle;"> PostgreSQL** - Database queries and management (8 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/brave.svg" width="16" height="16" style="vertical-align: middle;"> Brave Search** - Web search, image search, news, and local business searches (5 tools)
 
 ### Utilities
-- **📥 Fetch** - HTTP requests and web content fetching in multiple formats (4 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/fastapi.svg" width="16" height="16" style="vertical-align: middle;"> Fetch** - HTTP requests and web content fetching in multiple formats (4 tools)
 
 > **Total: 159+ tools across 11 integrated applications**
 
