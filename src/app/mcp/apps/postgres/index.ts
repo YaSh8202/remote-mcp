@@ -12,7 +12,7 @@ export const postgresMcpApp = createMcpApp({
 		type: "url",
 		url: "https://api.iconify.design/logos:postgresql.svg",
 	},
-	categories: [McpAppCategory.DEVELOPER_TOOLS, McpAppCategory.PRODUCTIVITY],
+	categories: [McpAppCategory.DATA_STORAGE, McpAppCategory.DEVELOPER_TOOLS],
 	auth: postgresAuth,
 	tools: postgresTools,
 });

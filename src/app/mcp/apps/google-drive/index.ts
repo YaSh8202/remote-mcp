@@ -12,7 +12,7 @@ export const googleDriveMcpApp = createMcpApp({
 		type: "url",
 		url: "https://api.iconify.design/logos:google-drive.svg",
 	},
-	categories: [McpAppCategory.PRODUCTIVITY],
+	categories: [McpAppCategory.DATA_STORAGE, McpAppCategory.PRODUCTIVITY],
 	auth: googleDriveAuth,
 	tools: googleDriveTools,
 });

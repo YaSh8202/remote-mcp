@@ -12,7 +12,7 @@ export const spotifyMcpApp = createMcpApp({
 		type: "url",
 		url: "https://api.iconify.design/logos:spotify-icon.svg",
 	},
-	categories: [McpAppCategory.COMMUNICATION],
+	categories: [McpAppCategory.ENTERTAINMENT],
 	auth: spotifyAuth,
 	tools: spotifyTools,
 });

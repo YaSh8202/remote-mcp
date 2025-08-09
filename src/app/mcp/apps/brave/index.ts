@@ -12,7 +12,7 @@ export const braveMcpApp = createMcpApp({
 		type: "url",
 		url: "https://api.iconify.design/logos:brave.svg",
 	},
-	categories: [McpAppCategory.PRODUCTIVITY, McpAppCategory.DEVELOPER_TOOLS],
+	categories: [McpAppCategory.SEARCH, McpAppCategory.PRODUCTIVITY],
 	auth: braveAuth,
 	tools: braveTools,
 });

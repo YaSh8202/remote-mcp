@@ -12,7 +12,7 @@ export const youtubeMcpApp = createMcpApp({
 		type: "url",
 		url: "https://api.iconify.design/logos:youtube-icon.svg",
 	},
-	categories: [McpAppCategory.PRODUCTIVITY, McpAppCategory.DEVELOPER_TOOLS],
+	categories: [McpAppCategory.ENTERTAINMENT, McpAppCategory.DEVELOPER_TOOLS],
 	auth: youtubeAuth,
 	tools: youtubeTools,
 });
