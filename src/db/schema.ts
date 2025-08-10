@@ -72,6 +72,22 @@ export const verifications = pgTable("verifications", {
 		.defaultNow(),
 });
 
+export const userSettings = pgTable("user_settings", {
+	id: text("id").primaryKey(),
+	userId: text("user_id")
+		.notNull()
+		.unique()
+		.references(() => users.id, { onDelete: "cascade" }),
+	enableLogging: boolean("enable_logging").notNull().default(true),
+	autoRetry: boolean("auto_retry").notNull().default(true),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+});
+
 export enum AppConnectionStatus {
 	ACTIVE = "ACTIVE",
 	MISSING = "MISSING",
@@ -181,6 +197,8 @@ export type NewUser = typeof users.$inferInsert;
 export type Session = typeof sessions.$inferSelect;
 export type Account = typeof accounts.$inferSelect;
 export type Verification = typeof verifications.$inferSelect;
+export type UserSettings = typeof userSettings.$inferSelect;
+export type NewUserSettings = typeof userSettings.$inferInsert;
 export type AppConnectionSchema = typeof appConnections.$inferSelect;
 export type NewAppConnection = typeof appConnections.$inferInsert;
 export type McpServer = typeof mcpServer.$inferSelect;
@@ -191,12 +209,23 @@ export type McpRun = typeof mcpRuns.$inferSelect;
 export type NewMcpRun = typeof mcpRuns.$inferInsert;
 
 // Database Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
 	sessions: many(sessions),
 	accounts: many(accounts),
 	appConnections: many(appConnections),
 	mcpServers: many(mcpServer),
 	mcpRuns: many(mcpRuns),
+	settings: one(userSettings, {
+		fields: [users.id],
+		references: [userSettings.userId],
+	}),
+}));
+
+export const userSettingsRelations = relations(userSettings, ({ one }) => ({
+	user: one(users, {
+		fields: [userSettings.userId],
+		references: [users.id],
+	}),
 }));
 
 export const mcpServerRelations = relations(mcpServer, ({ one, many }) => ({

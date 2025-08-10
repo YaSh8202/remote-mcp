@@ -107,7 +107,6 @@ const OAuth2ConnectionSettingsForm = ({
 			pkce: authProperty.pkce ?? false,
 			extraParams: authProperty.extra ?? {},
 		});
-		console.log("🚀 ~ code:", code);
 		form.setValue("request.value.code", code, { shouldValidate: true });
 		form.setValue("request.value.code_challenge", codeChallenge, {
 			shouldValidate: true,

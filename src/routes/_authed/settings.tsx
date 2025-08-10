@@ -23,7 +23,7 @@ import { Switch } from "@/components/ui/switch";
 import { useUserSession } from "@/hooks/auth";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	Database,
@@ -31,7 +31,6 @@ import {
 	Languages,
 	Monitor,
 	Palette,
-	Save,
 	Trash2,
 	User,
 } from "lucide-react";
@@ -45,38 +44,78 @@ export const Route = createFileRoute("/_authed/settings")({
 function RouteComponent() {
 	const { user } = useUserSession();
 	const { theme, setTheme } = useTheme();
-	const [settings, setSettings] = useState({
-		mcp: {
-			enableLogging: true,
-			autoRetry: true,
-			// retryAttempts: 3,
+	const trpc = useTRPC();
+	const queryClient = useQueryClient();
+	
+	const [language, setLanguage] = useLocalStorage("language", "en");
+	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+	// Fetch user settings
+	const {
+		data: userSettings,
+		isLoading: isLoadingSettings,
+	} = useQuery(trpc.userSettings.get.queryOptions());
+
+		// Update user settings mutation with optimistic updates
+	const updateSettingsMutation = useMutation({
+		mutationFn: trpc.userSettings.update.mutationOptions().mutationFn,
+		// When mutate is called:
+		onMutate: async (newSettings: { enableLogging?: boolean; autoRetry?: boolean }) => {
+			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+			await queryClient.cancelQueries({
+				queryKey: trpc.userSettings.get.queryKey(),
+			});
+
+			// Snapshot the previous value
+			const previousSettings = queryClient.getQueryData(
+				trpc.userSettings.get.queryKey()
+			);
+
+			// Optimistically update to the new value
+			queryClient.setQueryData(
+				trpc.userSettings.get.queryKey(),
+				(old: typeof userSettings) => {
+					if (!old) return old;
+					return {
+						...old,
+						...newSettings,
+					};
+				}
+			);
+
+			// Return a context object with the snapshotted value
+			return { previousSettings };
+		},
+		// If the mutation fails, use the context returned from onMutate to roll back
+		onError: (
+			_err: Error, 
+			_newSettings: { enableLogging?: boolean; autoRetry?: boolean }, 
+			context: { previousSettings?: typeof userSettings } | undefined
+		) => {
+			if (context?.previousSettings) {
+				queryClient.setQueryData(
+					trpc.userSettings.get.queryKey(),
+					context.previousSettings
+				);
+			}
+		},
+		// Always refetch after error or success:
+		onSettled: () => {
+			queryClient.invalidateQueries({
+				queryKey: trpc.userSettings.get.queryKey(),
+			});
 		},
 	});
-	const [language, setLanguage] = useLocalStorage("language", "en");
 
-	const [hasChanges, setHasChanges] = useState(false);
-	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+	const updateUserSetting = async (key: "enableLogging" | "autoRetry", value: boolean) => {
+		updateSettingsMutation.mutate({
+			[key]: value,
+		});
+	};
 
 	usePageHeader({
 		breadcrumbs: [{ label: "Settings" }],
 	});
-
-	const updateSetting = (section: string, key: string, value: unknown) => {
-		setSettings((prev) => ({
-			...prev,
-			[section]: {
-				...prev[section as keyof typeof prev],
-				[key]: value,
-			},
-		}));
-		setHasChanges(true);
-	};
-
-	const saveSettings = async () => {
-		// TODO: Implement API call to save settings
-		console.log("Saving settings...", settings);
-		setHasChanges(false);
-	};
 
 	return (
 		<div className="max-w-4xl mx-2 space-y-8">
@@ -233,34 +272,57 @@ function RouteComponent() {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
-						<div className="flex items-center justify-between">
-							<div className="space-y-1">
-								<Label className="text-base">Enable Logging</Label>
-								<p className="text-sm text-muted-foreground">
-									Log all MCP server interactions and errors
-								</p>
+						{isLoadingSettings ? (
+							<div className="space-y-6">
+								<div className="flex items-center justify-between">
+									<div className="space-y-1">
+										<Skeleton className="h-4 w-24" />
+										<Skeleton className="h-3 w-48" />
+									</div>
+									<Skeleton className="h-6 w-10" />
+								</div>
+								<div className="flex items-center justify-between">
+									<div className="space-y-1">
+										<Skeleton className="h-4 w-32" />
+										<Skeleton className="h-3 w-40" />
+									</div>
+									<Skeleton className="h-6 w-10" />
+								</div>
 							</div>
-							<Switch
-								checked={settings.mcp.enableLogging}
-								onCheckedChange={(checked) =>
-									updateSetting("mcp", "enableLogging", checked)
-								}
-							/>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="space-y-1">
-								<Label className="text-base">Auto Retry Failed Tool Runs</Label>
-								<p className="text-sm text-muted-foreground">
-									Automatically retry failed tool runs
-								</p>
-							</div>
-							<Switch
-								checked={settings.mcp.autoRetry}
-								onCheckedChange={(checked) =>
-									updateSetting("mcp", "autoRetry", checked)
-								}
-							/>
-						</div>
+						) : (
+							<>
+								<div className="flex items-center justify-between">
+									<div className="space-y-1">
+										<Label className="text-base">Enable Logging</Label>
+										<p className="text-sm text-muted-foreground">
+											Log all MCP server interactions and errors
+										</p>
+									</div>
+									<Switch
+										checked={userSettings?.enableLogging ?? true}
+										onCheckedChange={(checked) =>
+											updateUserSetting("enableLogging", checked)
+										}
+										disabled={updateSettingsMutation.isPending}
+									/>
+								</div>
+								<div className="flex items-center justify-between">
+									<div className="space-y-1">
+										<Label className="text-base">Auto Retry Failed Tool Runs</Label>
+										<p className="text-sm text-muted-foreground">
+											Automatically retry failed tool runs
+										</p>
+									</div>
+									<Switch
+										checked={userSettings?.autoRetry ?? true}
+										onCheckedChange={(checked) =>
+											updateUserSetting("autoRetry", checked)
+										}
+										disabled={updateSettingsMutation.isPending}
+									/>
+								</div>
+							</>
+						)}
 					</CardContent>
 				</Card>
 			</section>
@@ -305,16 +367,6 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 			</section>
-
-			{/* Floating Save Button */}
-			{hasChanges && (
-				<div className="fixed bottom-6 right-6 z-50">
-					<Button onClick={saveSettings} size="lg" className="shadow-lg">
-						<Save className="h-4 w-4 mr-2" />
-						Save Changes
-					</Button>
-				</div>
-			)}
 
 			{/* Delete Account Dialog */}
 			<DeleteAccountDialog

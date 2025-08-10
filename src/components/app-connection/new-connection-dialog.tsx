@@ -157,7 +157,6 @@ export const NewConnectionDialog = React.memo(
 		const addConnectionMutation = useMutation({
 			...trpc.appConnection.upsert.mutationOptions(),
 			onSuccess: (data) => {
-				console.log("Connection created successfully:", data);
 				onSave({
 					displayName: form.getValues("request.displayName"),
 				});

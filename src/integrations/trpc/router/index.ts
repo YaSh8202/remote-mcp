@@ -4,6 +4,7 @@ import { mcpAppRouter } from "./mcp-app";
 import { mcpRunRouter } from "./mcp-run";
 import { mcpServerRouter } from "./mcp-server";
 import { userRouter } from "./user";
+import { userSettingsRouter } from "./user-settings";
 
 export const trpcRouter = createTRPCRouter({
 	mcpServer: mcpServerRouter,
@@ -11,5 +12,6 @@ export const trpcRouter = createTRPCRouter({
 	appConnection: appConnectionRouter,
 	mcpRun: mcpRunRouter,
 	user: userRouter,
+	userSettings: userSettingsRouter,
 });
 export type TRPCRouter = typeof trpcRouter;

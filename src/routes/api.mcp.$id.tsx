@@ -56,7 +56,7 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 
 		try {
 			const server = new McpServer({
-				name: "mcp-one-server",
+				name: "remote-mcp-server",
 				version: "1.0.0",
 			});
 
@@ -80,6 +80,11 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 					{ status: 404 },
 				);
 			}
+
+			const userSettings = await db.query.userSettings.findFirst({
+				where: (userSettings, { eq }) =>
+					eq(userSettings.userId, mcpServer.ownerId),
+			});
 
 			const apps = mcpServer?.apps || [];
 
@@ -108,10 +113,12 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				// Register tools with logging context
 				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				await mcpApp.registerTools(server, authValue as any, app.tools, {
+					enabled: userSettings?.enableLogging ?? true,
 					serverId: mcpServer.id,
 					appId: app.id,
 					appName: app.appName,
 					ownerId: mcpServer.ownerId,
+					maxRetries: userSettings?.autoRetry ? 1 : 0, // Use 1 for auto-retry, 0 for no retries
 				});
 			}
 

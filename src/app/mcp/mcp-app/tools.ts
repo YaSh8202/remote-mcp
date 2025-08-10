@@ -16,6 +16,15 @@ import type { ZodRawShape, z } from "zod";
 import type { AppPropValueSchema } from "./property";
 import type { McpAppAuthProperty } from "./property/authentication";
 
+export type ILoggingContext = {
+	enabled: boolean;
+	serverId: string;
+	appId: string;
+	appName: string;
+	ownerId: string;
+	maxRetries?: number;
+};
+
 export type Callback<
 	McpAppAuth extends McpAppAuthProperty,
 	Args extends ZodRawShape,
@@ -25,12 +34,7 @@ export type Callback<
 export type McpRequestHandlerExtra<McpAppAuth extends McpAppAuthProperty> =
 	RequestHandlerExtra<ServerRequest, ServerNotification> & {
 		auth?: AppPropValueSchema<McpAppAuth>;
-		loggingContext?: {
-			serverId: string;
-			appId: string;
-			appName: string;
-			ownerId: string;
-		};
+		loggingContext?: ILoggingContext;
 	};
 
 // Custom tool callback that includes auth in extra
@@ -112,7 +116,7 @@ export function createParameterizedTool<
 }
 
 /**
- * Wraps a tool callback with logging functionality
+ * Wraps a tool callback with logging functionality and retry logic
  */
 async function createLoggingWrapper<McpAppAuth extends McpAppAuthProperty>(
 	toolName: string,
@@ -131,52 +135,77 @@ async function createLoggingWrapper<McpAppAuth extends McpAppAuthProperty>(
 		extra: McpRequestHandlerExtra<McpAppAuth>,
 	): Promise<CallToolResult> => {
 		let runId: string | undefined;
+		const maxRetries = extra.loggingContext?.maxRetries ?? 0;
+		let lastError: unknown;
 
-		try {
-			// Only log if we have logging context
-			if (extra.loggingContext) {
-				// Create a run record
-				runId = await mcpRunService.createRun({
-					serverId: extra.loggingContext.serverId,
-					appId: extra.loggingContext.appId,
-					appName: extra.loggingContext.appName,
-					toolName,
-					input: args,
-					ownerId: extra.loggingContext.ownerId,
-				});
+		// Retry loop
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				// Only log if we have logging context and it's the first attempt
+				if (extra.loggingContext?.enabled && attempt === 0) {
+					// Create a run record
+					runId = await mcpRunService.createRun({
+						serverId: extra.loggingContext.serverId,
+						appId: extra.loggingContext.appId,
+						appName: extra.loggingContext.appName,
+						toolName,
+						input: args,
+						ownerId: extra.loggingContext.ownerId,
+					});
+				}
+
+				// Execute the actual tool callback
+				const result = await callback(args, extra);
+
+				if (result.isError && attempt < maxRetries) {
+					throw new Error(
+						typeof result.content === "string"
+							? result.content
+							: JSON.stringify(result.content),
+					);
+				}
+
+				// Log success
+				if (runId && extra.loggingContext?.enabled) {
+					await mcpRunService.updateRunResult(runId, {
+						output: result,
+						status: result.isError ? McpRunStatus.FAILED : McpRunStatus.SUCCESS,
+					});
+				}
+
+				return result;
+			} catch (error) {
+				lastError = error;
+
+				// If this is the last attempt, log failure and throw
+				if (attempt === maxRetries) {
+					if (runId && extra.loggingContext?.enabled) {
+						await mcpRunService.updateRunResult(runId, {
+							output: {
+								error: error instanceof Error ? error.message : String(error),
+								attempts: attempt + 1,
+							},
+							status: McpRunStatus.FAILED,
+						});
+					}
+					break;
+				}
+
+				// Optional: Add delay between retries (exponential backoff)
+				if (attempt < maxRetries) {
+					const delay = Math.min(1000 * 2 ** attempt, 10000); // Cap at 10 seconds
+					await new Promise((resolve) => setTimeout(resolve, delay));
+				}
 			}
-
-			// Execute the actual tool callback
-			const result = await callback(args, extra);
-
-			// Log success
-			if (runId && extra.loggingContext) {
-				await mcpRunService.updateRunResult(runId, {
-					output: result,
-					status: McpRunStatus.SUCCESS,
-				});
-			}
-
-			return result;
-		} catch (error) {
-			// Log failure
-			if (runId && extra.loggingContext) {
-				await mcpRunService.updateRunResult(runId, {
-					output: {
-						error: error instanceof Error ? error.message : String(error),
-					},
-					status: McpRunStatus.FAILED,
-				});
-			}
-
-			// Re-throw the error
-			throw error;
 		}
+
+		// Re-throw the last error
+		throw lastError;
 	};
 }
 
 /**
- * Wraps a simple tool callback (no args) with logging functionality
+ * Wraps a simple tool callback (no args) with logging functionality and retry logic
  */
 async function createSimpleLoggingWrapper<
 	McpAppAuth extends McpAppAuthProperty,
@@ -192,47 +221,64 @@ async function createSimpleLoggingWrapper<
 		extra: McpRequestHandlerExtra<McpAppAuth>,
 	): Promise<CallToolResult> => {
 		let runId: string | undefined;
+		const maxRetries = extra.loggingContext?.maxRetries ?? 0;
+		let lastError: unknown;
 
-		try {
-			// Only log if we have logging context
-			if (extra.loggingContext) {
-				// Create a run record with empty args
-				runId = await mcpRunService.createRun({
-					serverId: extra.loggingContext.serverId,
-					appId: extra.loggingContext.appId,
-					appName: extra.loggingContext.appName,
-					toolName,
-					input: {},
-					ownerId: extra.loggingContext.ownerId,
-				});
+		// Retry loop
+		for (let attempt = 0; attempt <= maxRetries; attempt++) {
+			try {
+				// Only log if we have logging context and it's the first attempt
+				if (extra.loggingContext?.enabled && attempt === 0) {
+					// Create a run record with empty args
+					runId = await mcpRunService.createRun({
+						serverId: extra.loggingContext.serverId,
+						appId: extra.loggingContext.appId,
+						appName: extra.loggingContext.appName,
+						toolName,
+						input: {},
+						ownerId: extra.loggingContext.ownerId,
+					});
+				}
+
+				// Execute the actual tool callback
+				const result = await callback(extra);
+
+				// Log success
+				if (runId && extra.loggingContext?.enabled) {
+					await mcpRunService.updateRunResult(runId, {
+						output: result,
+						status: result.isError ? McpRunStatus.FAILED : McpRunStatus.SUCCESS,
+					});
+				}
+
+				return result;
+			} catch (error) {
+				lastError = error;
+
+				// If this is the last attempt, log failure and throw
+				if (attempt === maxRetries) {
+					if (runId && extra.loggingContext) {
+						await mcpRunService.updateRunResult(runId, {
+							output: {
+								error: error instanceof Error ? error.message : String(error),
+								attempts: attempt + 1,
+							},
+							status: McpRunStatus.FAILED,
+						});
+					}
+					break;
+				}
+
+				// Optional: Add delay between retries (exponential backoff)
+				if (attempt < maxRetries) {
+					const delay = Math.min(1000 * 2 ** attempt, 10000); // Cap at 10 seconds
+					await new Promise((resolve) => setTimeout(resolve, delay));
+				}
 			}
-
-			// Execute the actual tool callback
-			const result = await callback(extra);
-
-			// Log success
-			if (runId && extra.loggingContext) {
-				await mcpRunService.updateRunResult(runId, {
-					output: result,
-					status: result.isError ? McpRunStatus.FAILED : McpRunStatus.SUCCESS,
-				});
-			}
-
-			return result;
-		} catch (error) {
-			// Log failure
-			if (runId && extra.loggingContext) {
-				await mcpRunService.updateRunResult(runId, {
-					output: {
-						error: error instanceof Error ? error.message : String(error),
-					},
-					status: McpRunStatus.FAILED,
-				});
-			}
-
-			// Re-throw the error
-			throw error;
 		}
+
+		// Re-throw the last error
+		throw lastError;
 	};
 }
 
@@ -241,12 +287,7 @@ export async function registerTool<McpAppAuth extends McpAppAuthProperty>(
 	server: McpServer,
 	config: AnyMcpToolConfig<McpAppAuth>,
 	authValue: AppPropValueSchema<McpAppAuth> | undefined,
-	loggingContext?: {
-		serverId: string;
-		appId: string;
-		appName: string;
-		ownerId: string;
-	},
+	loggingContext?: ILoggingContext,
 ): Promise<RegisteredTool> {
 	let wrappedCallback: ToolCallback<ZodRawShape> | ToolCallback<undefined>;
 

@@ -6,6 +6,7 @@ import {
 	mcpRuns,
 	mcpServer,
 	sessions,
+	userSettings,
 	users,
 } from "@/db/schema";
 import * as Sentry from "@sentry/tanstackstart-react";
@@ -42,13 +43,16 @@ export const userRouter = {
 					.delete(appConnections)
 					.where(eq(appConnections.ownerId, userId));
 
-				// 5. Delete user sessions
+				// 5. Delete user settings
+				await db.delete(userSettings).where(eq(userSettings.userId, userId));
+
+				// 6. Delete user sessions
 				await db.delete(sessions).where(eq(sessions.userId, userId));
 
-				// 6. Delete user accounts (OAuth connections)
+				// 7. Delete user accounts (OAuth connections)
 				await db.delete(accounts).where(eq(accounts.userId, userId));
 
-				// 7. Finally delete the user
+				// 8. Finally delete the user
 				await db.delete(users).where(eq(users.id, userId));
 
 				return { success: true };

@@ -10,7 +10,11 @@ import type {
 } from "./app-metadata";
 import type { AppPropValueSchema } from "./property";
 import type { McpAppAuthProperty } from "./property/authentication";
-import { type AnyMcpToolConfig, registerTool } from "./tools";
+import {
+	type AnyMcpToolConfig,
+	type ILoggingContext,
+	registerTool,
+} from "./tools";
 
 export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 	implements McpAppBase
@@ -30,12 +34,7 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 		server: McpServer,
 		auth: AppPropValueSchema<McpAppAuth>,
 		selectedTools: string[],
-		loggingContext: {
-			serverId: string;
-			appId: string;
-			appName: string;
-			ownerId: string;
-		},
+		loggingContext: ILoggingContext,
 	): Promise<RegisteredTool[]> {
 		const registeredTools: RegisteredTool[] = [];
 		for (const toolConfig of this.tools) {
