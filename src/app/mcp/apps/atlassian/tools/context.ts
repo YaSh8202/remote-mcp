@@ -24,12 +24,15 @@ async function getAtlassianUserInfo(accessToken: string) {
 // Helper function to get accessible Atlassian resources (includes cloud IDs)
 async function getAccessibleResources(accessToken: string) {
 	try {
-		const response = await fetch("https://api.atlassian.com/oauth/token/accessible-resources", {
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				Accept: "application/json",
+		const response = await fetch(
+			"https://api.atlassian.com/oauth/token/accessible-resources",
+			{
+				headers: {
+					Authorization: `Bearer ${accessToken}`,
+					Accept: "application/json",
+				},
 			},
-		});
+		);
 
 		if (!response.ok) {
 			throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -37,36 +40,42 @@ async function getAccessibleResources(accessToken: string) {
 
 		return await response.json();
 	} catch (error) {
-		throw new Error(`Failed to get accessible resources: ${formatError(error)}`);
+		throw new Error(
+			`Failed to get accessible resources: ${formatError(error)}`,
+		);
 	}
 }
 
 // Helper function to find the best cloud ID from accessible resources
-async function findCloudId(accessToken: string, preferJira = true): Promise<string | null> {
+async function findCloudId(
+	accessToken: string,
+	preferJira = true,
+): Promise<string | null> {
 	try {
 		const resources = await getAccessibleResources(accessToken);
-		
+
 		if (!Array.isArray(resources) || resources.length === 0) {
 			return null;
 		}
 
 		// Find the first resource with appropriate scopes
-		const jiraResource = resources.find((resource: { scopes?: string[] }) => 
-			resource.scopes?.some((scope: string) => scope.includes('jira'))
+		const jiraResource = resources.find((resource: { scopes?: string[] }) =>
+			resource.scopes?.some((scope: string) => scope.includes("jira")),
 		);
-		
-		const confluenceResource = resources.find((resource: { scopes?: string[] }) => 
-			resource.scopes?.some((scope: string) => scope.includes('confluence'))
+
+		const confluenceResource = resources.find(
+			(resource: { scopes?: string[] }) =>
+				resource.scopes?.some((scope: string) => scope.includes("confluence")),
 		);
 
 		if (preferJira && jiraResource) {
 			return (jiraResource as { id: string }).id;
 		}
-		
+
 		if (confluenceResource) {
 			return (confluenceResource as { id: string }).id;
 		}
-		
+
 		if (jiraResource) {
 			return (jiraResource as { id: string }).id;
 		}
@@ -118,7 +127,8 @@ const getAtlassianUserTool = createParameterizedTool({
 const getAccessibleResourcesTool = createParameterizedTool({
 	name: "getAccessibleResources",
 	auth: atlassianAuth,
-	description: "Get list of accessible Atlassian resources with their cloud IDs, scopes, and site information.",
+	description:
+		"Get list of accessible Atlassian resources with their cloud IDs, scopes, and site information.",
 	paramsSchema: {},
 	callback: async (_args, extra) => {
 		try {

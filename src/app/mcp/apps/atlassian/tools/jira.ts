@@ -8,11 +8,11 @@ async function makeJiraRequest(
 	accessToken: string,
 	cloudId: string,
 	endpoint: string,
-	options: RequestInit = {}
+	options: RequestInit = {},
 ) {
 	const baseUrl = `https://api.atlassian.com/ex/jira/${cloudId}`;
 	const url = `${baseUrl}${endpoint}`;
-	
+
 	const response = await fetch(url, {
 		...options,
 		headers: {
@@ -35,7 +35,10 @@ async function makeJiraRequest(
 const getIssueSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	issueKey: z.string().describe("Jira issue key (e.g., 'PROJ-123')"),
-	fields: z.string().optional().describe("Comma-separated list of fields to retrieve"),
+	fields: z
+		.string()
+		.optional()
+		.describe("Comma-separated list of fields to retrieve"),
 };
 
 const getIssueTool = createParameterizedTool({
@@ -50,7 +53,11 @@ const getIssueTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/3/issue/${args.issueKey}${args.fields ? `?fields=${args.fields}` : ""}`;
-			const issue = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const issue = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -79,9 +86,20 @@ const getIssueTool = createParameterizedTool({
 const searchIssuesSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	jql: z.string().describe("JQL query string"),
-	fields: z.string().optional().describe("Comma-separated list of fields to retrieve"),
-	maxResults: z.number().optional().default(50).describe("Maximum number of results"),
-	startAt: z.number().optional().default(0).describe("Starting index for pagination"),
+	fields: z
+		.string()
+		.optional()
+		.describe("Comma-separated list of fields to retrieve"),
+	maxResults: z
+		.number()
+		.optional()
+		.default(50)
+		.describe("Maximum number of results"),
+	startAt: z
+		.number()
+		.optional()
+		.default(0)
+		.describe("Starting index for pagination"),
 };
 
 const searchIssuesTool = createParameterizedTool({
@@ -106,7 +124,11 @@ const searchIssuesTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/3/search?${params.toString()}`;
-			const results = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const results = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -139,9 +161,15 @@ const createIssueSchema = {
 	issueType: z.string().describe("Issue type (e.g., 'Task', 'Bug', 'Story')"),
 	description: z.string().optional().describe("Issue description"),
 	assignee: z.string().optional().describe("Assignee account ID"),
-	priority: z.string().optional().describe("Priority name (e.g., 'High', 'Medium', 'Low')"),
+	priority: z
+		.string()
+		.optional()
+		.describe("Priority name (e.g., 'High', 'Medium', 'Low')"),
 	labels: z.array(z.string()).optional().describe("Array of label names"),
-	components: z.array(z.string()).optional().describe("Array of component names"),
+	components: z
+		.array(z.string())
+		.optional()
+		.describe("Array of component names"),
 };
 
 const createIssueTool = createParameterizedTool({
@@ -160,19 +188,39 @@ const createIssueTool = createParameterizedTool({
 					project: { key: args.projectKey },
 					summary: args.summary,
 					issuetype: { name: args.issueType },
-					...(args.description && { description: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: args.description }] }] } }),
+					...(args.description && {
+						description: {
+							type: "doc",
+							version: 1,
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: args.description }],
+								},
+							],
+						},
+					}),
 					...(args.assignee && { assignee: { accountId: args.assignee } }),
 					...(args.priority && { priority: { name: args.priority } }),
-					...(args.labels && { labels: args.labels.map(label => ({ name: label })) }),
-					...(args.components && { components: args.components.map(comp => ({ name: comp })) }),
+					...(args.labels && {
+						labels: args.labels.map((label) => ({ name: label })),
+					}),
+					...(args.components && {
+						components: args.components.map((comp) => ({ name: comp })),
+					}),
 				},
 			};
 
 			const endpoint = "/rest/api/3/issue";
-			const issue = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "POST",
-				body: JSON.stringify(issueData),
-			});
+			const issue = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "POST",
+					body: JSON.stringify(issueData),
+				},
+			);
 
 			return {
 				content: [
@@ -205,7 +253,10 @@ const updateIssueSchema = {
 	description: z.string().optional().describe("Updated description"),
 	assignee: z.string().optional().describe("Updated assignee account ID"),
 	priority: z.string().optional().describe("Updated priority name"),
-	labels: z.array(z.string()).optional().describe("Updated array of label names"),
+	labels: z
+		.array(z.string())
+		.optional()
+		.describe("Updated array of label names"),
 };
 
 const updateIssueTool = createParameterizedTool({
@@ -222,10 +273,23 @@ const updateIssueTool = createParameterizedTool({
 			const updateData = {
 				fields: {
 					...(args.summary && { summary: args.summary }),
-					...(args.description && { description: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: args.description }] }] } }),
+					...(args.description && {
+						description: {
+							type: "doc",
+							version: 1,
+							content: [
+								{
+									type: "paragraph",
+									content: [{ type: "text", text: args.description }],
+								},
+							],
+						},
+					}),
 					...(args.assignee && { assignee: { accountId: args.assignee } }),
 					...(args.priority && { priority: { name: args.priority } }),
-					...(args.labels && { labels: args.labels.map(label => ({ name: label })) }),
+					...(args.labels && {
+						labels: args.labels.map((label) => ({ name: label })),
+					}),
 				},
 			};
 
@@ -263,7 +327,10 @@ const transitionIssueSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	issueKey: z.string().describe("Jira issue key (e.g., 'PROJ-123')"),
 	transitionId: z.string().describe("Transition ID"),
-	comment: z.string().optional().describe("Optional comment for the transition"),
+	comment: z
+		.string()
+		.optional()
+		.describe("Optional comment for the transition"),
 };
 
 const transitionIssueTool = createParameterizedTool({
@@ -281,7 +348,22 @@ const transitionIssueTool = createParameterizedTool({
 				transition: { id: args.transitionId },
 				...(args.comment && {
 					update: {
-						comment: [{ add: { body: { type: "doc", version: 1, content: [{ type: "paragraph", content: [{ type: "text", text: args.comment }] }] } } }],
+						comment: [
+							{
+								add: {
+									body: {
+										type: "doc",
+										version: 1,
+										content: [
+											{
+												type: "paragraph",
+												content: [{ type: "text", text: args.comment }],
+											},
+										],
+									},
+								},
+							},
+						],
 					},
 				}),
 			};
@@ -347,10 +429,15 @@ const addCommentTool = createParameterizedTool({
 			};
 
 			const endpoint = `/rest/api/3/issue/${args.issueKey}/comment`;
-			const comment = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "POST",
-				body: JSON.stringify(commentData),
-			});
+			const comment = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "POST",
+					body: JSON.stringify(commentData),
+				},
+			);
 
 			return {
 				content: [
@@ -393,7 +480,11 @@ const getUserProfileTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/3/user?accountId=${args.accountId}`;
-			const user = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const user = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -435,7 +526,11 @@ const getAllProjectsTool = createParameterizedTool({
 			}
 
 			const endpoint = "/rest/api/3/project";
-			const projects = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const projects = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -466,7 +561,8 @@ const getAllProjectsAutoSchema = {};
 const getAllProjectsAutoTool = createParameterizedTool({
 	name: "getAllJiraProjectsAuto",
 	auth: atlassianAuth,
-	description: "Get all accessible Jira projects (automatically detects cloud ID).",
+	description:
+		"Get all accessible Jira projects (automatically detects cloud ID).",
 	paramsSchema: getAllProjectsAutoSchema,
 	callback: async (_args, extra) => {
 		try {
@@ -477,11 +573,17 @@ const getAllProjectsAutoTool = createParameterizedTool({
 			// Auto-detect cloud ID
 			const cloudId = await findCloudId(extra.auth.access_token, true);
 			if (!cloudId) {
-				throw new Error("No accessible Jira sites found. Please ensure you have access to at least one Jira instance.");
+				throw new Error(
+					"No accessible Jira sites found. Please ensure you have access to at least one Jira instance.",
+				);
 			}
 
 			const endpoint = "/rest/api/3/project";
-			const projects = await makeJiraRequest(extra.auth.access_token, cloudId, endpoint);
+			const projects = await makeJiraRequest(
+				extra.auth.access_token,
+				cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -524,7 +626,11 @@ const getTransitionsTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/3/issue/${args.issueKey}/transitions`;
-			const transitions = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const transitions = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -555,7 +661,10 @@ const addWorklogSchema = {
 	issueKey: z.string().describe("Jira issue key (e.g., 'PROJ-123')"),
 	timeSpent: z.string().describe("Time spent (e.g., '2h 30m', '1d 4h')"),
 	comment: z.string().optional().describe("Optional worklog comment"),
-	started: z.string().optional().describe("When work started (ISO 8601 format)"),
+	started: z
+		.string()
+		.optional()
+		.describe("When work started (ISO 8601 format)"),
 };
 
 const addWorklogTool = createParameterizedTool({
@@ -575,17 +684,27 @@ const addWorklogTool = createParameterizedTool({
 					comment: {
 						type: "doc",
 						version: 1,
-						content: [{ type: "paragraph", content: [{ type: "text", text: args.comment }] }],
+						content: [
+							{
+								type: "paragraph",
+								content: [{ type: "text", text: args.comment }],
+							},
+						],
 					},
 				}),
 				...(args.started && { started: args.started }),
 			};
 
 			const endpoint = `/rest/api/3/issue/${args.issueKey}/worklog`;
-			const worklog = await makeJiraRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "POST",
-				body: JSON.stringify(worklogData),
-			});
+			const worklog = await makeJiraRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "POST",
+					body: JSON.stringify(worklogData),
+				},
+			);
 
 			return {
 				content: [

@@ -46,21 +46,23 @@ function RouteComponent() {
 	const { theme, setTheme } = useTheme();
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
-	
+
 	const [language, setLanguage] = useLocalStorage("language", "en");
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
 	// Fetch user settings
-	const {
-		data: userSettings,
-		isLoading: isLoadingSettings,
-	} = useQuery(trpc.userSettings.get.queryOptions());
+	const { data: userSettings, isLoading: isLoadingSettings } = useQuery(
+		trpc.userSettings.get.queryOptions(),
+	);
 
-		// Update user settings mutation with optimistic updates
+	// Update user settings mutation with optimistic updates
 	const updateSettingsMutation = useMutation({
 		mutationFn: trpc.userSettings.update.mutationOptions().mutationFn,
 		// When mutate is called:
-		onMutate: async (newSettings: { enableLogging?: boolean; autoRetry?: boolean }) => {
+		onMutate: async (newSettings: {
+			enableLogging?: boolean;
+			autoRetry?: boolean;
+		}) => {
 			// Cancel any outgoing refetches (so they don't overwrite our optimistic update)
 			await queryClient.cancelQueries({
 				queryKey: trpc.userSettings.get.queryKey(),
@@ -68,7 +70,7 @@ function RouteComponent() {
 
 			// Snapshot the previous value
 			const previousSettings = queryClient.getQueryData(
-				trpc.userSettings.get.queryKey()
+				trpc.userSettings.get.queryKey(),
 			);
 
 			// Optimistically update to the new value
@@ -80,7 +82,7 @@ function RouteComponent() {
 						...old,
 						...newSettings,
 					};
-				}
+				},
 			);
 
 			// Return a context object with the snapshotted value
@@ -88,14 +90,14 @@ function RouteComponent() {
 		},
 		// If the mutation fails, use the context returned from onMutate to roll back
 		onError: (
-			_err: Error, 
-			_newSettings: { enableLogging?: boolean; autoRetry?: boolean }, 
-			context: { previousSettings?: typeof userSettings } | undefined
+			_err: Error,
+			_newSettings: { enableLogging?: boolean; autoRetry?: boolean },
+			context: { previousSettings?: typeof userSettings } | undefined,
 		) => {
 			if (context?.previousSettings) {
 				queryClient.setQueryData(
 					trpc.userSettings.get.queryKey(),
-					context.previousSettings
+					context.previousSettings,
 				);
 			}
 		},
@@ -107,7 +109,10 @@ function RouteComponent() {
 		},
 	});
 
-	const updateUserSetting = async (key: "enableLogging" | "autoRetry", value: boolean) => {
+	const updateUserSetting = async (
+		key: "enableLogging" | "autoRetry",
+		value: boolean,
+	) => {
 		updateSettingsMutation.mutate({
 			[key]: value,
 		});
@@ -308,7 +313,9 @@ function RouteComponent() {
 								</div>
 								<div className="flex items-center justify-between">
 									<div className="space-y-1">
-										<Label className="text-base">Auto Retry Failed Tool Runs</Label>
+										<Label className="text-base">
+											Auto Retry Failed Tool Runs
+										</Label>
 										<p className="text-sm text-muted-foreground">
 											Automatically retry failed tool runs
 										</p>

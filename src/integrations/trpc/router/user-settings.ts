@@ -1,9 +1,6 @@
-import { db } from "@/db";
-import { userSettings } from "@/db/schema";
-import { generateId } from "@/lib/id";
+import { userSettingsService } from "@/services/user-settings-service";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -16,28 +13,7 @@ export const userSettingsRouter = {
 	get: protectedProcedure.query(async ({ ctx }) => {
 		return Sentry.startSpan({ name: "Getting user settings" }, async () => {
 			try {
-				const settings = await db.query.userSettings.findFirst({
-					where: eq(userSettings.userId, ctx.user.id),
-				});
-
-				// Create default settings if they don't exist
-				if (!settings) {
-					const newSettings = {
-						id: generateId(),
-						userId: ctx.user.id,
-						enableLogging: true,
-						autoRetry: true,
-					};
-
-					const [created] = await db
-						.insert(userSettings)
-						.values(newSettings)
-						.returning();
-					
-					return created;
-				}
-
-				return settings;
+				return await userSettingsService.getUserSettings(ctx.user.id);
 			} catch (error) {
 				Sentry.captureException(error, {
 					tags: {
@@ -57,39 +33,25 @@ export const userSettingsRouter = {
 		.mutation(async ({ ctx, input }) => {
 			return Sentry.startSpan({ name: "Updating user settings" }, async () => {
 				try {
-					// First check if settings exist
-					const existingSettings = await db.query.userSettings.findFirst({
-						where: eq(userSettings.userId, ctx.user.id),
-					});
+					// Check if settings exist, if not create them first
+					const settingsExist = await userSettingsService.userSettingsExist(
+						ctx.user.id,
+					);
 
-					if (!existingSettings) {
+					if (!settingsExist) {
 						// Create new settings if they don't exist
-						const newSettings = {
-							id: generateId(),
+						return await userSettingsService.createUserSettings({
 							userId: ctx.user.id,
 							enableLogging: input.enableLogging ?? true,
 							autoRetry: input.autoRetry ?? true,
-						};
-
-						const [created] = await db
-							.insert(userSettings)
-							.values(newSettings)
-							.returning();
-
-						return created;
+						});
 					}
-					
-					// Update existing settings
-					const [updated] = await db
-						.update(userSettings)
-						.set({
-							...input,
-							updatedAt: new Date(),
-						})
-						.where(eq(userSettings.userId, ctx.user.id))
-						.returning();
 
-					return updated;
+					// Update existing settings
+					return await userSettingsService.updateUserSettings(
+						ctx.user.id,
+						input,
+					);
 				} catch (error) {
 					Sentry.captureException(error, {
 						tags: {

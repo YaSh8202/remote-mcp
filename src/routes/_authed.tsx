@@ -92,19 +92,23 @@ export const Route = createFileRoute("/_authed")({
 						</svg>
 					</div>
 					<div className="space-y-2">
-						<h2 className="text-2xl font-semibold text-foreground">Something went wrong</h2>
-						<p className="text-sm text-muted-foreground max-w-md">{error.message}</p>
+						<h2 className="text-2xl font-semibold text-foreground">
+							Something went wrong
+						</h2>
+						<p className="text-sm text-muted-foreground max-w-md">
+							{error.message}
+						</p>
 					</div>
 				</div>
 				<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-					<Button 
-						variant="outline" 
+					<Button
+						variant="outline"
 						onClick={() => reset()}
 						className="min-w-[120px]"
 					>
 						Try again
 					</Button>
-					<Button 
+					<Button
 						onClick={() => {
 							reset();
 							router.invalidate();
@@ -113,7 +117,7 @@ export const Route = createFileRoute("/_authed")({
 					>
 						Reload page
 					</Button>
-					<Button 
+					<Button
 						variant="secondary"
 						onClick={() => router.navigate({ to: "/" })}
 						className="min-w-[120px]"

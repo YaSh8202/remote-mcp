@@ -7,11 +7,11 @@ async function makeConfluenceRequest(
 	accessToken: string,
 	cloudId: string,
 	endpoint: string,
-	options: RequestInit = {}
+	options: RequestInit = {},
 ) {
 	const baseUrl = `https://api.atlassian.com/ex/confluence/${cloudId}`;
 	const url = `${baseUrl}${endpoint}`;
-	
+
 	const response = await fetch(url, {
 		...options,
 		headers: {
@@ -34,8 +34,16 @@ async function makeConfluenceRequest(
 const searchConfluenceSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	query: z.string().describe("Search query - can be simple text or CQL query"),
-	limit: z.number().optional().default(10).describe("Maximum number of results"),
-	start: z.number().optional().default(0).describe("Starting index for pagination"),
+	limit: z
+		.number()
+		.optional()
+		.default(10)
+		.describe("Maximum number of results"),
+	start: z
+		.number()
+		.optional()
+		.default(0)
+		.describe("Starting index for pagination"),
 	spaceKey: z.string().optional().describe("Limit search to specific space"),
 };
 
@@ -51,7 +59,9 @@ const searchConfluenceTool = createParameterizedTool({
 			}
 
 			const params = new URLSearchParams({
-				cql: args.query.includes("type=") ? args.query : `siteSearch ~ "${args.query}"`,
+				cql: args.query.includes("type=")
+					? args.query
+					: `siteSearch ~ "${args.query}"`,
 				limit: args.limit.toString(),
 				start: args.start.toString(),
 			});
@@ -62,7 +72,11 @@ const searchConfluenceTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/content/search?${params.toString()}`;
-			const results = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const results = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -91,7 +105,11 @@ const searchConfluenceTool = createParameterizedTool({
 const getPageSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	pageId: z.string().describe("Confluence page ID"),
-	expand: z.string().optional().default("body.storage,version").describe("Comma-separated list of properties to expand"),
+	expand: z
+		.string()
+		.optional()
+		.default("body.storage,version")
+		.describe("Comma-separated list of properties to expand"),
 };
 
 const getPageTool = createParameterizedTool({
@@ -106,7 +124,11 @@ const getPageTool = createParameterizedTool({
 			}
 
 			const endpoint = `/rest/api/content/${args.pageId}?expand=${args.expand}`;
-			const page = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const page = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -136,7 +158,9 @@ const createPageSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	spaceKey: z.string().describe("Space key where to create the page"),
 	title: z.string().describe("Page title"),
-	content: z.string().describe("Page content in Confluence storage format or plain text"),
+	content: z
+		.string()
+		.describe("Page content in Confluence storage format or plain text"),
 	parentId: z.string().optional().describe("Parent page ID (for child pages)"),
 };
 
@@ -157,7 +181,9 @@ const createPageTool = createParameterizedTool({
 				space: { key: args.spaceKey },
 				body: {
 					storage: {
-						value: args.content.startsWith("<") ? args.content : `<p>${args.content}</p>`,
+						value: args.content.startsWith("<")
+							? args.content
+							: `<p>${args.content}</p>`,
 						representation: "storage",
 					},
 				},
@@ -167,10 +193,15 @@ const createPageTool = createParameterizedTool({
 			};
 
 			const endpoint = "/rest/api/content";
-			const page = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "POST",
-				body: JSON.stringify(pageData),
-			});
+			const page = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "POST",
+					body: JSON.stringify(pageData),
+				},
+			);
 
 			return {
 				content: [
@@ -200,8 +231,13 @@ const updatePageSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	pageId: z.string().describe("Page ID to update"),
 	title: z.string().optional().describe("Updated page title"),
-	content: z.string().optional().describe("Updated page content in Confluence storage format"),
-	version: z.number().describe("Current version number of the page (required for updates)"),
+	content: z
+		.string()
+		.optional()
+		.describe("Updated page content in Confluence storage format"),
+	version: z
+		.number()
+		.describe("Current version number of the page (required for updates)"),
 };
 
 const updatePageTool = createParameterizedTool({
@@ -219,7 +255,7 @@ const updatePageTool = createParameterizedTool({
 			const currentPage = await makeConfluenceRequest(
 				extra.auth.access_token,
 				args.cloudId,
-				`/rest/api/content/${args.pageId}?expand=body.storage,space`
+				`/rest/api/content/${args.pageId}?expand=body.storage,space`,
 			);
 
 			const updateData = {
@@ -229,7 +265,9 @@ const updatePageTool = createParameterizedTool({
 				...(args.content && {
 					body: {
 						storage: {
-							value: args.content.startsWith("<") ? args.content : `<p>${args.content}</p>`,
+							value: args.content.startsWith("<")
+								? args.content
+								: `<p>${args.content}</p>`,
 							representation: "storage",
 						},
 					},
@@ -237,10 +275,15 @@ const updatePageTool = createParameterizedTool({
 			};
 
 			const endpoint = `/rest/api/content/${args.pageId}`;
-			const updatedPage = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "PUT",
-				body: JSON.stringify(updateData),
-			});
+			const updatedPage = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "PUT",
+					body: JSON.stringify(updateData),
+				},
+			);
 
 			return {
 				content: [
@@ -269,8 +312,16 @@ const updatePageTool = createParameterizedTool({
 const getPageChildrenSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	pageId: z.string().describe("Parent page ID"),
-	limit: z.number().optional().default(25).describe("Maximum number of children to retrieve"),
-	start: z.number().optional().default(0).describe("Starting index for pagination"),
+	limit: z
+		.number()
+		.optional()
+		.default(25)
+		.describe("Maximum number of children to retrieve"),
+	start: z
+		.number()
+		.optional()
+		.default(0)
+		.describe("Starting index for pagination"),
 };
 
 const getPageChildrenTool = createParameterizedTool({
@@ -290,7 +341,11 @@ const getPageChildrenTool = createParameterizedTool({
 			});
 
 			const endpoint = `/rest/api/content/${args.pageId}/child/page?${params.toString()}`;
-			const children = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const children = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -319,8 +374,16 @@ const getPageChildrenTool = createParameterizedTool({
 const getCommentsSchema = {
 	cloudId: z.string().describe("Atlassian Cloud ID"),
 	pageId: z.string().describe("Page ID to get comments for"),
-	limit: z.number().optional().default(25).describe("Maximum number of comments to retrieve"),
-	start: z.number().optional().default(0).describe("Starting index for pagination"),
+	limit: z
+		.number()
+		.optional()
+		.default(25)
+		.describe("Maximum number of comments to retrieve"),
+	start: z
+		.number()
+		.optional()
+		.default(0)
+		.describe("Starting index for pagination"),
 };
 
 const getCommentsTool = createParameterizedTool({
@@ -341,7 +404,11 @@ const getCommentsTool = createParameterizedTool({
 			});
 
 			const endpoint = `/rest/api/content/${args.pageId}/child/comment?${params.toString()}`;
-			const comments = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint);
+			const comments = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+			);
 
 			return {
 				content: [
@@ -389,17 +456,24 @@ const addPageCommentTool = createParameterizedTool({
 				container: { id: args.pageId },
 				body: {
 					storage: {
-						value: args.comment.startsWith("<") ? args.comment : `<p>${args.comment}</p>`,
+						value: args.comment.startsWith("<")
+							? args.comment
+							: `<p>${args.comment}</p>`,
 						representation: "storage",
 					},
 				},
 			};
 
 			const endpoint = "/rest/api/content";
-			const comment = await makeConfluenceRequest(extra.auth.access_token, args.cloudId, endpoint, {
-				method: "POST",
-				body: JSON.stringify(commentData),
-			});
+			const comment = await makeConfluenceRequest(
+				extra.auth.access_token,
+				args.cloudId,
+				endpoint,
+				{
+					method: "POST",
+					body: JSON.stringify(commentData),
+				},
+			);
 
 			return {
 				content: [

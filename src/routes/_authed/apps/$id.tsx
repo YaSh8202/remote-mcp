@@ -32,7 +32,7 @@ export const Route = createFileRoute("/_authed/apps/$id")({
 	},
 	notFoundComponent: () => {
 		const navigate = useNavigate();
-		
+
 		return (
 			<div className="min-h-[60vh] flex flex-col items-center justify-center max-w-lg mx-auto p-8 space-y-8">
 				<div className="space-y-4 text-center">
@@ -53,21 +53,24 @@ export const Route = createFileRoute("/_authed/apps/$id")({
 						</svg>
 					</div>
 					<div className="space-y-2">
-						<h1 className="text-2xl font-semibold text-foreground">App Not Found</h1>
+						<h1 className="text-2xl font-semibold text-foreground">
+							App Not Found
+						</h1>
 						<p className="text-sm text-muted-foreground max-w-md">
-							The app you are looking for does not exist or may have been removed.
+							The app you are looking for does not exist or may have been
+							removed.
 						</p>
 					</div>
 				</div>
 				<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-					<Button 
+					<Button
 						onClick={() => navigate({ to: "/apps" })}
 						className="min-w-[140px] gap-2"
 					>
 						<ArrowLeft className="h-4 w-4" />
 						Browse Apps
 					</Button>
-					<Button 
+					<Button
 						variant="outline"
 						onClick={() => navigate({ to: "/" })}
 						className="min-w-[140px]"

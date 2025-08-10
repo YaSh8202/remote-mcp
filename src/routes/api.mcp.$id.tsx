@@ -2,6 +2,7 @@ import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { AppConnectionType } from "@/db/schema";
 import { appConnectionService } from "@/services/app-connection-service";
+import { userSettingsService } from "@/services/user-settings-service";
 import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -81,10 +82,9 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				);
 			}
 
-			const userSettings = await db.query.userSettings.findFirst({
-				where: (userSettings, { eq }) =>
-					eq(userSettings.userId, mcpServer.ownerId),
-			});
+			const userSettings = await userSettingsService.getOrCreateUserSettings(
+				mcpServer.ownerId,
+			);
 
 			const apps = mcpServer?.apps || [];
 
@@ -113,12 +113,12 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 				// Register tools with logging context
 				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 				await mcpApp.registerTools(server, authValue as any, app.tools, {
-					enabled: userSettings?.enableLogging ?? true,
+					enabled: userSettings.enableLogging ?? true,
 					serverId: mcpServer.id,
 					appId: app.id,
 					appName: app.appName,
 					ownerId: mcpServer.ownerId,
-					maxRetries: userSettings?.autoRetry ? 1 : 0, // Use 1 for auto-retry, 0 for no retries
+					maxRetries: userSettings.autoRetry ? 1 : 0, // Use 1 for auto-retry, 0 for no retries
 				});
 			}
 

@@ -1,5 +1,5 @@
 // Jira tools
-import { 
+import {
 	addCommentTool,
 	addWorklogTool,
 	createIssueTool,
@@ -13,7 +13,7 @@ import {
 	updateIssueTool,
 } from "./jira";
 
-// Confluence tools  
+// Confluence tools
 import {
 	addPageCommentTool,
 	createPageTool,
@@ -31,7 +31,7 @@ export const atlassianTools = [
 	// Context tools
 	getAtlassianUserTool,
 	getAccessibleResourcesTool,
-	
+
 	// Jira tools
 	getIssueTool,
 	searchIssuesTool,
@@ -44,7 +44,7 @@ export const atlassianTools = [
 	getAllProjectsAutoTool,
 	getTransitionsTool,
 	addWorklogTool,
-	
+
 	// Confluence tools
 	searchConfluenceTool,
 	getPageTool,
