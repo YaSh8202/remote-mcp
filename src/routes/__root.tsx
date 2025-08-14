@@ -12,6 +12,7 @@ import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 
+import { I18nProvider } from "@/components/i18n-provider.tsx";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -71,15 +72,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<ThemeProvider
-					attribute="class"
-					defaultTheme="system"
-					enableSystem
-					storageKey="mcp-one-theme"
-					enableColorScheme
-				>
-					<TooltipProvider>{children}</TooltipProvider>
-				</ThemeProvider>
+				<I18nProvider>
+					<ThemeProvider
+						attribute="class"
+						defaultTheme="system"
+						enableSystem
+						storageKey="mcp-one-theme"
+						enableColorScheme
+					>
+						<TooltipProvider>{children}</TooltipProvider>
+					</ThemeProvider>
+				</I18nProvider>
 				<Toaster />
 				<Scripts />
 			</body>

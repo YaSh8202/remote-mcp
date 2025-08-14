@@ -1,0 +1,57 @@
+{
+  "title": "Paramètres",
+  "description": "Gérez les paramètres de votre compte et les préférences du serveur MCP",
+  "profile": {
+    "title": "Profil",
+    "description": "Les informations de votre profil depuis votre compte."
+  },
+  "general": {
+    "title": "Général",
+    "description": "Personnalisez l'apparence et le comportement de Remote Mcp.",
+    "interface_preferences": {
+      "title": "Préférences d'Interface",
+      "description": "Configurez l'apparence et les paramètres de langue."
+    },
+    "theme": {
+      "label": "Thème"
+    },
+    "language": {
+      "label": "Langue"
+    }
+  },
+  "mcp": {
+    "title": "Configuration MCP",
+    "description": "Configurez les paramètres par défaut pour vos serveurs MCP et connexions.",
+    "advanced_options": {
+      "title": "Options Avancées",
+      "description": "Configurez le comportement avancé du serveur MCP et les fonctionnalités."
+    },
+    "enable_logging": {
+      "title": "Activer la Journalisation",
+      "description": "Enregistrer toutes les interactions et erreurs du serveur MCP"
+    },
+    "auto_retry": {
+      "title": "Réessayer Automatiquement les Exécutions d'Outils Échouées",
+      "description": "Réessayer automatiquement les exécutions d'outils échouées"
+    }
+  },
+  "storage": {
+    "title": "Stockage et Données",
+    "description": "Contrôlez comment vos données sont stockées, sauvegardées et conservées.",
+    "usage": {
+      "title": "Utilisation du Stockage",
+      "description": "Surveillez votre utilisation actuelle du stockage et les limites."
+    },
+    "servers": "Serveurs",
+    "connections": "Connexions"
+  },
+  "danger_zone": {
+    "title": "Zone de Danger",
+    "description": "Actions permanentes qui ne peuvent pas être annulées.",
+    "delete_account": {
+      "title": "Supprimer le Compte",
+      "description": "Une fois que vous supprimez votre compte, il n'y a pas de retour en arrière. Veuillez être certain.",
+      "button": "Supprimer le Compte"
+    }
+  }
+}

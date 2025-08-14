@@ -1,0 +1,57 @@
+{
+  "title": "Einstellungen",
+  "description": "Verwalten Sie Ihre Kontoeinstellungen und MCP-Server-Präferenzen",
+  "profile": {
+    "title": "Profil",
+    "description": "Ihre Profilinformationen aus Ihrem Konto."
+  },
+  "general": {
+    "title": "Allgemein",
+    "description": "Passen Sie an, wie Remote Mcp aussieht und sich verhält.",
+    "interface_preferences": {
+      "title": "Oberflächen-Einstellungen",
+      "description": "Konfigurieren Sie das Erscheinungsbild und die Spracheinstellungen."
+    },
+    "theme": {
+      "label": "Design"
+    },
+    "language": {
+      "label": "Sprache"
+    }
+  },
+  "mcp": {
+    "title": "MCP-Konfiguration",
+    "description": "Konfigurieren Sie Standardeinstellungen für Ihre MCP-Server und Verbindungen.",
+    "advanced_options": {
+      "title": "Erweiterte Optionen",
+      "description": "Konfigurieren Sie erweiterte MCP-Server-Verhaltensweisen und -Funktionen."
+    },
+    "enable_logging": {
+      "title": "Protokollierung aktivieren",
+      "description": "Alle MCP-Server-Interaktionen und -Fehler protokollieren"
+    },
+    "auto_retry": {
+      "title": "Fehlgeschlagene Tool-Ausführungen automatisch wiederholen",
+      "description": "Fehlgeschlagene Tool-Ausführungen automatisch wiederholen"
+    }
+  },
+  "storage": {
+    "title": "Speicher & Daten",
+    "description": "Kontrollieren Sie, wie Ihre Daten gespeichert, gesichert und aufbewahrt werden.",
+    "usage": {
+      "title": "Speichernutzung",
+      "description": "Überwachen Sie Ihre aktuelle Speichernutzung und Grenzen."
+    },
+    "servers": "Server",
+    "connections": "Verbindungen"
+  },
+  "danger_zone": {
+    "title": "Gefahrenzone",
+    "description": "Permanente Aktionen, die nicht rückgängig gemacht werden können.",
+    "delete_account": {
+      "title": "Konto löschen",
+      "description": "Sobald Sie Ihr Konto löschen, gibt es kein Zurück. Bitte seien Sie sicher.",
+      "button": "Konto löschen"
+    }
+  }
+}

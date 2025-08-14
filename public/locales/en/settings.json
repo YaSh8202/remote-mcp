@@ -1,0 +1,57 @@
+{
+  "title": "Settings",
+  "description": "Manage your account settings and MCP server preferences",
+  "profile": {
+    "title": "Profile",
+    "description": "Your profile information from your account."
+  },
+  "general": {
+    "title": "General",
+    "description": "Customize how Remote Mcp looks and behaves.",
+    "interface_preferences": {
+      "title": "Interface Preferences",
+      "description": "Configure the appearance and language settings."
+    },
+    "theme": {
+      "label": "Theme"
+    },
+    "language": {
+      "label": "Language"
+    }
+  },
+  "mcp": {
+    "title": "MCP Configuration",
+    "description": "Configure default settings for your MCP servers and connections.",
+    "advanced_options": {
+      "title": "Advanced Options",
+      "description": "Configure advanced MCP server behavior and features."
+    },
+    "enable_logging": {
+      "title": "Enable Logging",
+      "description": "Log all MCP server interactions and errors"
+    },
+    "auto_retry": {
+      "title": "Auto Retry Failed Tool Runs",
+      "description": "Automatically retry failed tool runs"
+    }
+  },
+  "storage": {
+    "title": "Storage & Data",
+    "description": "Control how your data is stored, backed up, and retained.",
+    "usage": {
+      "title": "Storage Usage",
+      "description": "Monitor your current storage usage and limits."
+    },
+    "servers": "Servers",
+    "connections": "Connections"
+  },
+  "danger_zone": {
+    "title": "Danger Zone",
+    "description": "Permanent actions that cannot be undone.",
+    "delete_account": {
+      "title": "Delete Account",
+      "description": "Once you delete your account, there is no going back. Please be certain.",
+      "button": "Delete Account"
+    }
+  }
+}

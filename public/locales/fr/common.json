@@ -1,0 +1,26 @@
+{
+  "navigation": {
+    "settings": "Paramètres"
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "back": "Retour",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès"
+  },
+  "theme": {
+    "light": "☀️ Clair",
+    "dark": "🌙 Sombre", 
+    "system": "💻 Système"
+  },
+  "language": {
+    "en": "🇺🇸 Anglais",
+    "es": "🇪🇸 Espagnol",
+    "fr": "🇫🇷 Français",
+    "de": "🇩🇪 Allemand"
+  }
+}

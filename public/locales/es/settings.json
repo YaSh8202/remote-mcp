@@ -1,0 +1,57 @@
+{
+  "title": "Configuración",
+  "description": "Gestiona la configuración de tu cuenta y las preferencias del servidor MCP",
+  "profile": {
+    "title": "Perfil",
+    "description": "La información de tu perfil desde tu cuenta."
+  },
+  "general": {
+    "title": "General",
+    "description": "Personaliza cómo se ve y se comporta Remote Mcp.",
+    "interface_preferences": {
+      "title": "Preferencias de Interfaz",
+      "description": "Configura la apariencia y la configuración de idioma."
+    },
+    "theme": {
+      "label": "Tema"
+    },
+    "language": {
+      "label": "Idioma"
+    }
+  },
+  "mcp": {
+    "title": "Configuración MCP",
+    "description": "Configura los ajustes predeterminados para tus servidores MCP y conexiones.",
+    "advanced_options": {
+      "title": "Opciones Avanzadas",
+      "description": "Configura el comportamiento avanzado del servidor MCP y las características."
+    },
+    "enable_logging": {
+      "title": "Habilitar Registro",
+      "description": "Registra todas las interacciones y errores del servidor MCP"
+    },
+    "auto_retry": {
+      "title": "Reintentar Automáticamente Ejecuciones de Herramientas Fallidas",
+      "description": "Reintentar automáticamente las ejecuciones de herramientas fallidas"
+    }
+  },
+  "storage": {
+    "title": "Almacenamiento y Datos",
+    "description": "Controla cómo se almacenan, respaldan y retienen tus datos.",
+    "usage": {
+      "title": "Uso de Almacenamiento",
+      "description": "Monitorea tu uso actual de almacenamiento y límites."
+    },
+    "servers": "Servidores",
+    "connections": "Conexiones"
+  },
+  "danger_zone": {
+    "title": "Zona de Peligro",
+    "description": "Acciones permanentes que no se pueden deshacer.",
+    "delete_account": {
+      "title": "Eliminar Cuenta",
+      "description": "Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor, ten certeza.",
+      "button": "Eliminar Cuenta"
+    }
+  }
+}

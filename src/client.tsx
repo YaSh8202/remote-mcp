@@ -4,6 +4,7 @@ import { hydrateRoot } from "react-dom/client";
 import * as Sentry from "@sentry/tanstackstart-react";
 
 import { createRouter } from "./router";
+import "./lib/i18n"; // Initialize i18n
 
 const router = createRouter();
 

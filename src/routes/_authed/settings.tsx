@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useUserSession } from "@/hooks/auth";
+import { useCommonTranslation, useSettingsTranslation } from "@/hooks/use-translation";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -46,6 +47,8 @@ function RouteComponent() {
 	const { theme, setTheme } = useTheme();
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
+	const { t: tCommon } = useCommonTranslation();
+	const { t: tSettings } = useSettingsTranslation();
 
 	const [language, setLanguage] = useLocalStorage("language", "en");
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -119,14 +122,14 @@ function RouteComponent() {
 	};
 
 	usePageHeader({
-		breadcrumbs: [{ label: "Settings" }],
+		breadcrumbs: [{ label: tSettings("title") }],
 	});
 
 	return (
 		<div className="max-w-4xl mx-2 space-y-8">
 			<div className="space-y-2">
 				<p className="text-muted-foreground">
-					Manage your account settings and MCP server preferences
+					{tSettings("description")}
 				</p>
 			</div>
 
@@ -135,10 +138,10 @@ function RouteComponent() {
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">
 						<User className="h-5 w-5" />
-						<h2 className="text-xl font-semibold">Profile</h2>
+						<h2 className="text-xl font-semibold">{tSettings("profile.title")}</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						Your profile information from your account.
+						{tSettings("profile.description")}
 					</p>
 				</div>
 
@@ -163,18 +166,18 @@ function RouteComponent() {
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">
 						<Monitor className="h-5 w-5" />
-						<h2 className="text-xl font-semibold">General</h2>
+						<h2 className="text-xl font-semibold">{tSettings("general.title")}</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						Customize how Remote Mcp looks and behaves.
+						{tSettings("general.description")}
 					</p>
 				</div>
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Interface Preferences</CardTitle>
+						<CardTitle>{tSettings("general.interface_preferences.title")}</CardTitle>
 						<CardDescription>
-							Configure the appearance and language settings.
+							{tSettings("general.interface_preferences.description")}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
@@ -185,7 +188,7 @@ function RouteComponent() {
 									className="flex items-center gap-2 text-sm font-medium"
 								>
 									<Palette className="h-4 w-4" />
-									Theme
+									{tSettings("general.theme.label")}
 								</Label>
 								<Select
 									value={theme}
@@ -202,19 +205,19 @@ function RouteComponent() {
 											value="light"
 											className="flex items-center gap-2"
 										>
-											<span>☀️ Light</span>
+											<span>{tCommon("theme.light")}</span>
 										</SelectItem>
 										<SelectItem
 											value="dark"
 											className="flex items-center gap-2"
 										>
-											<span>🌙 Dark</span>
+											<span>{tCommon("theme.dark")}</span>
 										</SelectItem>
 										<SelectItem
 											value="system"
 											className="flex items-center gap-2"
 										>
-											<span>💻 System</span>
+											<span>{tCommon("theme.system")}</span>
 										</SelectItem>
 									</SelectContent>
 								</Select>
@@ -225,7 +228,7 @@ function RouteComponent() {
 									className="flex items-center gap-2 text-sm font-medium"
 								>
 									<Languages className="h-4 w-4" />
-									Language
+									{tSettings("general.language.label")}
 								</Label>
 								<Select
 									value={language}
@@ -236,16 +239,16 @@ function RouteComponent() {
 									</SelectTrigger>
 									<SelectContent>
 										<SelectItem value="en" className="flex items-center gap-2">
-											<span>🇺🇸 English</span>
+											<span>{tCommon("language.en")}</span>
 										</SelectItem>
 										<SelectItem value="es" className="flex items-center gap-2">
-											<span>🇪🇸 Spanish</span>
+											<span>{tCommon("language.es")}</span>
 										</SelectItem>
 										<SelectItem value="fr" className="flex items-center gap-2">
-											<span>🇫🇷 French</span>
+											<span>{tCommon("language.fr")}</span>
 										</SelectItem>
 										<SelectItem value="de" className="flex items-center gap-2">
-											<span>🇩🇪 German</span>
+											<span>{tCommon("language.de")}</span>
 										</SelectItem>
 									</SelectContent>
 								</Select>
@@ -262,18 +265,18 @@ function RouteComponent() {
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">
 						<Globe className="h-5 w-5" />
-						<h2 className="text-xl font-semibold">MCP Configuration</h2>
+						<h2 className="text-xl font-semibold">{tSettings("mcp.title")}</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						Configure default settings for your MCP servers and connections.
+						{tSettings("mcp.description")}
 					</p>
 				</div>
 
 				<Card>
 					<CardHeader>
-						<CardTitle>Advanced Options</CardTitle>
+						<CardTitle>{tSettings("mcp.advanced_options.title")}</CardTitle>
 						<CardDescription>
-							Configure advanced MCP server behavior and features.
+							{tSettings("mcp.advanced_options.description")}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
@@ -298,9 +301,9 @@ function RouteComponent() {
 							<>
 								<div className="flex items-center justify-between">
 									<div className="space-y-1">
-										<Label className="text-base">Enable Logging</Label>
+										<Label className="text-base">{tSettings("mcp.enable_logging.title")}</Label>
 										<p className="text-sm text-muted-foreground">
-											Log all MCP server interactions and errors
+											{tSettings("mcp.enable_logging.description")}
 										</p>
 									</div>
 									<Switch
@@ -314,10 +317,10 @@ function RouteComponent() {
 								<div className="flex items-center justify-between">
 									<div className="space-y-1">
 										<Label className="text-base">
-											Auto Retry Failed Tool Runs
+											{tSettings("mcp.auto_retry.title")}
 										</Label>
 										<p className="text-sm text-muted-foreground">
-											Automatically retry failed tool runs
+											{tSettings("mcp.auto_retry.description")}
 										</p>
 									</div>
 									<Switch
@@ -347,20 +350,19 @@ function RouteComponent() {
 					<div className="flex items-center gap-2">
 						<Trash2 className="h-5 w-5 text-destructive" />
 						<h2 className="text-xl font-semibold text-destructive">
-							Danger Zone
+							{tSettings("danger_zone.title")}
 						</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
-						Permanent actions that cannot be undone.
+						{tSettings("danger_zone.description")}
 					</p>
 				</div>
 
 				<Card className="border-destructive/50">
 					<CardHeader>
-						<CardTitle className="text-destructive">Delete Account</CardTitle>
+						<CardTitle className="text-destructive">{tSettings("danger_zone.delete_account.title")}</CardTitle>
 						<CardDescription>
-							Once you delete your account, there is no going back. Please be
-							certain.
+							{tSettings("danger_zone.delete_account.description")}
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
@@ -369,7 +371,7 @@ function RouteComponent() {
 							className="w-full"
 							onClick={() => setDeleteDialogOpen(true)}
 						>
-							Delete Account
+							{tSettings("danger_zone.delete_account.button")}
 						</Button>
 					</CardContent>
 				</Card>
@@ -388,6 +390,7 @@ const mcpServerLimit = 25;
 const appConnectionLimit = 100;
 export function StorageSection() {
 	const trpc = useTRPC();
+	const { t: tSettings } = useSettingsTranslation();
 	const { data: mcpServerCount, isLoading: isServerCountLoading } = useQuery(
 		trpc.mcpServer.count.queryOptions(),
 	);
@@ -406,25 +409,25 @@ export function StorageSection() {
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Database className="h-5 w-5" />
-					<h2 className="text-xl font-semibold">Storage & Data</h2>
+					<h2 className="text-xl font-semibold">{tSettings("storage.title")}</h2>
 				</div>
 				<p className="text-sm text-muted-foreground">
-					Control how your data is stored, backed up, and retained.
+					{tSettings("storage.description")}
 				</p>
 			</div>
 
 			<Card>
 				<CardHeader>
-					<CardTitle>Storage Usage</CardTitle>
+					<CardTitle>{tSettings("storage.usage.title")}</CardTitle>
 					<CardDescription>
-						Monitor your current storage usage and limits.
+						{tSettings("storage.usage.description")}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className="space-y-6">
 					{/* Servers */}
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
-							<span className="font-medium">Servers</span>
+							<span className="font-medium">{tSettings("storage.servers")}</span>
 							{isServerCountLoading ? (
 								<Skeleton className="h-4 w-16" />
 							) : (
@@ -448,7 +451,7 @@ export function StorageSection() {
 					{/* Connections */}
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
-							<span className="font-medium">Connections</span>
+							<span className="font-medium">{tSettings("storage.connections")}</span>
 							{isConnectionCountLoading ? (
 								<Skeleton className="h-4 w-16" />
 							) : (
