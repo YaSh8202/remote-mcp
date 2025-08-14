@@ -37,6 +37,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { AppLogo } from "../AppLogo";
 import { ViewMarkdown } from "../markdown";
 import { SecretTextConnectionSettings } from "./secret-text-connection-settings";
 
@@ -156,7 +157,7 @@ export const NewConnectionDialog = React.memo(
 
 		const addConnectionMutation = useMutation({
 			...trpc.appConnection.upsert.mutationOptions(),
-			onSuccess: (data) => {
+			onSuccess: () => {
 				onSave({
 					displayName: form.getValues("request.displayName"),
 				});
@@ -189,69 +190,121 @@ export const NewConnectionDialog = React.memo(
 
 		return (
 			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent className="max-w-md">
-					<DialogHeader>
-						<DialogTitle>New Connection</DialogTitle>
-						<DialogDescription>
-							Create a new connection for {app?.name}
-						</DialogDescription>
+				<DialogContent className="max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+					<DialogHeader className="space-y-4 pb-6 border-b">
+						<div className="flex items-center gap-4">
+							<div className="p-2 rounded-xl bg-primary/10">
+								<AppLogo
+									logo={app.logo}
+									appName={app.name}
+									className="w-8 h-8 rounded-lg"
+								/>
+							</div>
+							<div className="flex-1">
+								<DialogTitle className="text-xl font-semibold">
+									New Connection
+								</DialogTitle>
+								<DialogDescription className="text-sm text-muted-foreground mt-1">
+									Create a new connection for {app?.displayName || app?.name}
+								</DialogDescription>
+							</div>
+						</div>
 					</DialogHeader>
 
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(handleSubmit)}
-							className="space-y-6"
+							className="flex flex-col flex-1 overflow-hidden"
 						>
-							{app.auth && <ViewMarkdown markdown={app.auth?.description} />}
-							<div className="py-4 space-y-6">
-								<FormField
-									control={form.control}
-									name="request.displayName"
-									rules={{
-										validate: validateDisplayName,
-									}}
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Connection Name</FormLabel>
-											<FormControl>
-												<Input placeholder="Enter connection name" {...field} />
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-								{app.auth?.type === PropertyType.OAUTH2 && (
-									<div className="mt-3.5">
-										<OAuth2ConnectionSettings
-											authProperty={app.auth as OAuth2Property<OAuth2Props>}
-											app={app}
-										/>
+							<div className="flex-1 overflow-y-auto py-3 space-y-6">
+								{app.auth?.description && (
+									<div className="p-1 rounded-lg bg-muted/50 border">
+										<ViewMarkdown markdown={app.auth.description} />
 									</div>
 								)}
-								{app.auth?.type === PropertyType.SECRET_TEXT && (
-									<div className="mt-3.5">
-										<SecretTextConnectionSettings
-											authProperty={app.auth as SecretTextProperty<boolean>}
-										/>
+
+								<div className="space-y-6">
+									<FormField
+										control={form.control}
+										name="request.displayName"
+										rules={{
+											validate: validateDisplayName,
+										}}
+										render={({ field }) => (
+											<FormItem>
+												<FormLabel className="text-sm font-medium">
+													Connection Name
+												</FormLabel>
+												<FormControl>
+													<Input
+														placeholder="Enter connection name"
+														{...field}
+														className="h-11"
+													/>
+												</FormControl>
+												<FormMessage />
+											</FormItem>
+										)}
+									/>
+
+									<div className="space-y-4">
+										<div className="flex items-center gap-2 pb-2">
+											<div className="h-px bg-border flex-1" />
+											<span className="text-xs text-muted-foreground px-2 font-medium">
+												AUTHENTICATION
+											</span>
+											<div className="h-px bg-border flex-1" />
+										</div>
+										{app.auth?.type === PropertyType.OAUTH2 && (
+											<OAuth2ConnectionSettings
+												authProperty={app.auth as OAuth2Property<OAuth2Props>}
+												app={app}
+											/>
+										)}
+										{app.auth?.type === PropertyType.SECRET_TEXT && (
+											<SecretTextConnectionSettings
+												authProperty={app.auth as SecretTextProperty<boolean>}
+											/>
+										)}
 									</div>
-								)}
+								</div>
 							</div>
 
-							<DialogFooter>
+							<div className="pt-6 border-t bg-background">
 								{addConnectionMutation.error && (
-									<div className="w-full">
-										<p className="text-sm text-destructive mb-2">
+									<div className="mb-4 p-3 rounded-md bg-destructive/10 border border-destructive/20">
+										<p className="text-sm text-destructive">
 											{addConnectionMutation.error.message}
 										</p>
 									</div>
 								)}
-								<Button type="button" variant="outline" onClick={handleClose}>
-									Cancel
-								</Button>
-								<Button type="submit" disabled={!form.formState.isValid}>
-									{addConnectionMutation.isPending ? "Saving..." : "Save"}
-								</Button>
-							</DialogFooter>
+								<DialogFooter className="gap-3">
+									<Button
+										type="button"
+										variant="outline"
+										onClick={handleClose}
+										className="min-w-[100px]"
+									>
+										Cancel
+									</Button>
+									<Button
+										type="submit"
+										disabled={
+											!form.formState.isValid || addConnectionMutation.isPending
+										}
+										className="min-w-[100px]"
+									>
+										{addConnectionMutation.isPending ? (
+											<div className="flex items-center gap-2">
+												<div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+												Saving...
+											</div>
+										) : (
+											"Save"
+										)}
+									</Button>
+								</DialogFooter>
+							</div>
 						</form>
 					</Form>
 				</DialogContent>

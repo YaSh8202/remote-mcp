@@ -115,7 +115,7 @@ const OAuth2ConnectionSettingsForm = ({
 	};
 
 	return (
-		<div className="flex flex-col gap-4">
+		<div className="space-y-6">
 			{/* {authProperty.props && (
 				<AutoPropertiesFormComponent
 					prefixValue="request.value.props"
@@ -126,50 +126,111 @@ const OAuth2ConnectionSettingsForm = ({
 			)} */}
 
 			{currentGrantType !== OAuth2GrantType.CLIENT_CREDENTIALS && (
-				<div className="border border-solid p-2 rounded-lg gap-2 flex text-center items-center justify-center h-full">
-					<div className="rounded-full border border-solid p-1 flex items-center justify-center">
-						<AppLogo
-							logo={app.logo}
-							appName={app.displayName}
-							className="w-5 h-5 rounded-full"
-						/>
+				<div className="relative">
+					<div className="p-6 rounded-xl border-2 border-dashed border-border/60 bg-gradient-to-br from-background to-muted/20 hover:border-border transition-colors">
+						<div className="flex items-center justify-between">
+							<div className="flex items-center gap-4">
+								<div className="relative">
+									<div className="p-2 rounded-full bg-primary/10 border border-primary/20">
+										<AppLogo
+											logo={app.logo}
+											appName={app.displayName}
+											className="w-6 h-6"
+										/>
+									</div>
+									{hasCode && (
+										<div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-green-500 border-2 border-background" />
+									)}
+								</div>
+								<div className="space-y-1">
+									<h3 className="text-sm font-semibold text-foreground">
+										{app.displayName}
+									</h3>
+									<p className="text-xs text-muted-foreground">
+										{hasCode ? "Connected" : "Ready to connect"}
+									</p>
+								</div>
+							</div>
+
+							<div className="flex items-center gap-3">
+								{hasCode && (
+									<div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+										<div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+										<span className="text-xs font-medium text-green-700 dark:text-green-300">
+											Authorized
+										</span>
+									</div>
+								)}
+
+								{!hasCode && (
+									<Button
+										size="sm"
+										variant="default"
+										disabled={!readyToConnect}
+										type="button"
+										onClick={async () =>
+											openPopup(
+												redirectUrl,
+												form.getValues().request.value.client_id,
+												form.getValues().request.value.props,
+											)
+										}
+										className="shadow-sm"
+									>
+										<svg
+											className="w-4 h-4 mr-2"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											aria-label="Connect"
+										>
+											<title>Connect</title>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+											/>
+										</svg>
+										Connect
+									</Button>
+								)}
+
+								{hasCode && (
+									<Button
+										size="sm"
+										variant="outline"
+										onClick={() => {
+											form.setValue("request.value.code", "", {
+												shouldValidate: true,
+											});
+											form.setValue("request.value.code_challenge", "", {
+												shouldValidate: true,
+											});
+										}}
+										className="text-muted-foreground hover:text-destructive hover:border-destructive/30"
+									>
+										<svg
+											className="w-4 h-4 mr-2"
+											fill="none"
+											stroke="currentColor"
+											viewBox="0 0 24 24"
+											aria-label="Disconnect"
+										>
+											<title>Disconnect</title>
+											<path
+												strokeLinecap="round"
+												strokeLinejoin="round"
+												strokeWidth={2}
+												d="M6 18L18 6M6 6l12 12"
+											/>
+										</svg>
+										Disconnect
+									</Button>
+								)}
+							</div>
+						</div>
 					</div>
-					<div className="text-sm">{app.displayName}</div>
-					<div className="flex-grow" />
-					{!hasCode && (
-						<Button
-							size={"sm"}
-							variant={"default"}
-							disabled={!readyToConnect}
-							type="button"
-							onClick={async () =>
-								openPopup(
-									redirectUrl,
-									form.getValues().request.value.client_id,
-									form.getValues().request.value.props,
-								)
-							}
-						>
-							Connect
-						</Button>
-					)}
-					{hasCode && (
-						<Button
-							size={"sm"}
-							variant={"destructive"}
-							// className="text-destructive"
-							onClick={() => {
-								form.setValue("request.value.code", "", {
-									shouldValidate: true,
-								});
-								form.setValue("request.value.code_challenge", "", {
-									shouldValidate: true,
-								});
-							}}
-						>
-							Disconnect
-						</Button>
-					)}
 				</div>
 			)}
 		</div>
@@ -196,7 +257,7 @@ const OAuth2ConnectionSettings = (props: OAuth2ConnectionSettingsProps) => {
 	const clientId = appToClientIdMap[props.app.name]?.clientId;
 	if (isNil(clientId)) {
 		return (
-			<div className="text-red-500">
+			<div className="text-destructive">
 				Client ID not found for app: {props.app.displayName}
 			</div>
 		);

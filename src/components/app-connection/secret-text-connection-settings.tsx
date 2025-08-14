@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UpsertSecretTextRequest } from "@/types/app-connection";
+import { KeyRound } from "lucide-react";
 import React from "react";
 import { useFormContext } from "react-hook-form";
 import { z } from "zod";
@@ -29,12 +30,25 @@ const SecretTextConnectionSettings = React.memo(
 				name="request.value.secret_text"
 				control={form.control}
 				render={({ field }) => (
-					<FormItem className="flex flex-col">
-						<FormLabel>{authProperty.displayName}</FormLabel>
+					<FormItem className="space-y-3">
+						<FormLabel className="text-sm font-medium flex items-center gap-2">
+							<KeyRound className="w-4 h-4" />
+							{authProperty.displayName}
+						</FormLabel>
 						<FormControl>
-							<Input {...field} type="password" />
+							<div className="relative">
+								<Input
+									{...field}
+									type="password"
+									className="h-11 pr-10"
+									placeholder="Enter your secret key or token"
+								/>
+							</div>
 						</FormControl>
 						<FormMessage />
+						<p className="text-xs text-muted-foreground">
+							This information is encrypted and securely stored.
+						</p>
 					</FormItem>
 				)}
 			/>

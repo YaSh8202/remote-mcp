@@ -8,3 +8,4 @@ dist-ssr
 .env
 .vscode/mcp.json
 .vercel
+.playwright-mcp
