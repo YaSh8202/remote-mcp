@@ -2,6 +2,7 @@ import type { McpApp } from "../mcp-app";
 import { atlassianMcpApp } from "./atlassian";
 import { braveMcpApp } from "./brave";
 import { fetchMcpApp } from "./fetch";
+import { firecrawlMcpApp } from "./firecrawl";
 import { githubMcpApp } from "./github";
 import { gitlabMcpApp } from "./gitlab";
 import { googleDriveMcpApp } from "./google-drive";
@@ -16,6 +17,7 @@ export const mcpApps = [
 	gitlabMcpApp,
 	atlassianMcpApp,
 	fetchMcpApp,
+	firecrawlMcpApp,
 	youtubeMcpApp,
 	slackMcpApp,
 	braveMcpApp,
