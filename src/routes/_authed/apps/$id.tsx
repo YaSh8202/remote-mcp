@@ -1,5 +1,6 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
+import { SchemaDisplay } from "@/components/SchemaDisplay";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -124,14 +125,12 @@ function ToolCard({ tool }: ToolCardProps) {
 
 			{isExpanded && (tool.paramsSchema || tool.annotations) && (
 				<CardContent className="pt-0">
-					<div className="space-y-3">
+					<div className="space-y-6">
 						{tool.paramsSchema && (
-							<div>
-								<h5 className="text-sm font-medium mb-2">Parameters Schema</h5>
-								<pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-									<code>{JSON.stringify(tool.paramsSchema, null, 2)}</code>
-								</pre>
-							</div>
+							<SchemaDisplay 
+								schema={tool.paramsSchema} 
+								title="Parameters Schema" 
+							/>
 						)}
 						{tool.annotations && (
 							<div>
