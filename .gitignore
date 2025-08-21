@@ -9,3 +9,10 @@ dist-ssr
 .vscode/mcp.json
 .vercel
 .playwright-mcp
+
+# Lock files - only pnpm-lock.yaml should be committed
+package-lock.json
+yarn.lock
+
+# TanStack Router temporary files
+app.config.timestamp_*.js

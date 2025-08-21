@@ -1,5 +1,6 @@
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
+import { SchemaDisplay } from "@/components/SchemaDisplay";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -9,6 +10,13 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+} from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
@@ -90,11 +98,10 @@ interface ToolCardProps {
 		paramsSchema?: Record<string, unknown>;
 		annotations?: Record<string, unknown>;
 	};
+	onViewDetails: () => void;
 }
 
-function ToolCard({ tool }: ToolCardProps) {
-	const [isExpanded, setIsExpanded] = useState(false);
-
+function ToolCard({ tool, onViewDetails }: ToolCardProps) {
 	return (
 		<Card className="group hover:shadow-md transition-all duration-200">
 			<CardHeader className="pb-3">
@@ -114,36 +121,13 @@ function ToolCard({ tool }: ToolCardProps) {
 						<Button
 							variant="ghost"
 							size="sm"
-							onClick={() => setIsExpanded(!isExpanded)}
+							onClick={onViewDetails}
 						>
-							{isExpanded ? "Hide" : "Show"} Details
+							View Details
 						</Button>
 					)}
 				</div>
 			</CardHeader>
-
-			{isExpanded && (tool.paramsSchema || tool.annotations) && (
-				<CardContent className="pt-0">
-					<div className="space-y-3">
-						{tool.paramsSchema && (
-							<div>
-								<h5 className="text-sm font-medium mb-2">Parameters Schema</h5>
-								<pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-									<code>{JSON.stringify(tool.paramsSchema, null, 2)}</code>
-								</pre>
-							</div>
-						)}
-						{tool.annotations && (
-							<div>
-								<h5 className="text-sm font-medium mb-2">Annotations</h5>
-								<pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-									<code>{JSON.stringify(tool.annotations, null, 2)}</code>
-								</pre>
-							</div>
-						)}
-					</div>
-				</CardContent>
-			)}
 		</Card>
 	);
 }
@@ -153,6 +137,13 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const trpc = useTRPC();
 	const [connectDialogOpen, setConnectDialogOpen] = useState(false);
+	const [selectedTool, setSelectedTool] = useState<{
+		name: string;
+		description?: string;
+		paramsSchema?: Record<string, unknown>;
+		annotations?: Record<string, unknown>;
+	} | null>(null);
+	const [toolSheetOpen, setToolSheetOpen] = useState(false);
 
 	const { data: apps = [], isLoading } = useQuery(
 		trpc.mcpApp.getAvailableApps.queryOptions(),
@@ -203,6 +194,16 @@ function RouteComponent() {
 			.split("_")
 			.map((word) => word.charAt(0) + word.slice(1).toLowerCase())
 			.join(" ");
+	};
+
+	const handleViewToolDetails = (tool: {
+		name: string;
+		description?: string;
+		paramsSchema?: Record<string, unknown>;
+		annotations?: Record<string, unknown>;
+	}) => {
+		setSelectedTool(tool);
+		setToolSheetOpen(true);
 	};
 
 	if (isLoading) {
@@ -371,11 +372,49 @@ function RouteComponent() {
 				) : (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{app.tools.map((tool, index) => (
-							<ToolCard key={`${tool.name}-${index}`} tool={tool} />
+							<ToolCard 
+								key={`${tool.name}-${index}`} 
+								tool={tool} 
+								onViewDetails={() => handleViewToolDetails(tool)}
+							/>
 						))}
 					</div>
 				)}
 			</div>
+
+			{/* Tool Details Sheet */}
+			<Sheet open={toolSheetOpen} onOpenChange={setToolSheetOpen}>
+				<SheetContent className="w-[400px] sm:w-[540px]">
+					<SheetHeader>
+						<SheetTitle className="flex items-center gap-2">
+							<Code className="h-5 w-5 text-primary" />
+							{selectedTool?.name}
+						</SheetTitle>
+						{selectedTool?.description && (
+							<SheetDescription>
+								{selectedTool.description}
+							</SheetDescription>
+						)}
+					</SheetHeader>
+					
+					<div className="mt-6 space-y-6">
+						{selectedTool?.paramsSchema && (
+							<SchemaDisplay 
+								schema={selectedTool.paramsSchema} 
+								title="Parameters Schema" 
+							/>
+						)}
+						{selectedTool?.annotations && (
+							<div>
+								<h5 className="text-sm font-medium mb-2">Annotations</h5>
+								<pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
+									<code>{JSON.stringify(selectedTool.annotations, null, 2)}</code>
+								</pre>
+							</div>
+						)}
+					</div>
+				</SheetContent>
+			</Sheet>
 
 			{/* Connect App Dialog */}
 			<ConnectAppDialog
