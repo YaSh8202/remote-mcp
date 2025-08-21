@@ -22,12 +22,71 @@ interface ParameterInfo {
 	defaultValue?: unknown;
 }
 
+function parseJsonSchema(jsonSchema: { properties: Record<string, unknown>; required?: string[] }): ParameterInfo[] {
+	const parameters: ParameterInfo[] = [];
+	const { properties, required = [] } = jsonSchema;
+
+	for (const [key, property] of Object.entries(properties)) {
+		if (property && typeof property === 'object') {
+			const prop = property as Record<string, unknown>;
+			const param: ParameterInfo = {
+				name: key,
+				type: 'unknown',
+				required: required.includes(key),
+				description: typeof prop.description === 'string' ? prop.description : undefined,
+			};
+
+			// Handle type information
+			if (typeof prop.type === 'string') {
+				param.type = prop.type;
+			} else if (Array.isArray(prop.type)) {
+				// Handle union types like ["string", "null"]
+				param.type = prop.type.filter(t => t !== 'null').join(' | ') || 'unknown';
+			}
+
+			// Handle default values
+			if ('default' in prop) {
+				param.defaultValue = prop.default;
+			}
+
+			// Handle array types
+			if (prop.type === 'array' && prop.items && typeof prop.items === 'object') {
+				const items = prop.items as Record<string, unknown>;
+				if (typeof items.type === 'string') {
+					param.type = `array<${items.type}>`;
+				}
+			}
+
+			// Handle object types  
+			if (prop.type === 'object') {
+				param.type = 'object';
+			}
+
+			// Handle enum types
+			if (prop.enum && Array.isArray(prop.enum)) {
+				param.type = 'enum';
+				param.description = `${param.description || ''} Options: ${prop.enum.join(', ')}`.trim();
+			}
+
+			parameters.push(param);
+		}
+	}
+
+	return parameters;
+}
+
 function parseZodSchema(schema: Record<string, unknown>): ParameterInfo[] {
 	const parameters: ParameterInfo[] = [];
 
 	try {
 		// Handle direct Zod schema objects
 		if (schema && typeof schema === 'object') {
+			// Check if this is a JSON Schema format
+			if ('type' in schema && schema.type === 'object' && 'properties' in schema) {
+				return parseJsonSchema(schema as { properties: Record<string, unknown>; required?: string[] });
+			}
+			
+			// Handle Zod schema objects
 			// If this is a Zod object schema, iterate through its shape
 			const entries = Object.entries(schema);
 			
@@ -142,52 +201,56 @@ export function SchemaDisplay({ schema, title = "Parameters" }: SchemaDisplayPro
 	}
 
 	return (
-		<div className="space-y-3">
+		<div className="space-y-4">
 			<h5 className="text-sm font-medium">{title}</h5>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						<TableHead className="w-[150px]">Parameter</TableHead>
-						<TableHead className="w-[100px]">Type</TableHead>
-						<TableHead className="w-[80px]">Required</TableHead>
-						<TableHead>Description</TableHead>
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{parameters.map((param) => (
-						<TableRow key={param.name}>
-							<TableCell className="font-mono text-sm">
-								{param.name}
-								{param.defaultValue !== undefined && (
-									<div className="text-xs text-muted-foreground mt-1">
-										Default: {JSON.stringify(param.defaultValue)}
-									</div>
-								)}
-							</TableCell>
-							<TableCell>
-								<Badge
-									variant="secondary"
-									className={getTypeColor(param.type)}
-								>
-									{param.type}
-								</Badge>
-							</TableCell>
-							<TableCell>
-								<Badge variant={param.required ? "destructive" : "secondary"}>
-									{param.required ? "Yes" : "No"}
-								</Badge>
-							</TableCell>
-							<TableCell className="text-sm">
-								{param.description || (
-									<span className="text-muted-foreground italic">
-										No description provided
-									</span>
-								)}
-							</TableCell>
+			<div className="border rounded-md">
+				<Table>
+					<TableHeader>
+						<TableRow>
+							<TableHead className="w-[140px]">Parameter</TableHead>
+							<TableHead className="w-[100px]">Type</TableHead>
+							<TableHead className="w-[80px]">Required</TableHead>
+							<TableHead>Description</TableHead>
 						</TableRow>
-					))}
-				</TableBody>
-			</Table>
+					</TableHeader>
+					<TableBody>
+						{parameters.map((param) => (
+							<TableRow key={param.name}>
+								<TableCell className="font-mono text-sm">
+									<div>
+										<span className="font-medium">{param.name}</span>
+										{param.defaultValue !== undefined && (
+											<div className="text-xs text-muted-foreground mt-1">
+												Default: <code className="bg-muted px-1 py-0.5 rounded text-xs">{JSON.stringify(param.defaultValue)}</code>
+											</div>
+										)}
+									</div>
+								</TableCell>
+								<TableCell>
+									<Badge
+										variant="secondary"
+										className={getTypeColor(param.type)}
+									>
+										{param.type}
+									</Badge>
+								</TableCell>
+								<TableCell>
+									<Badge variant={param.required ? "destructive" : "secondary"}>
+										{param.required ? "Yes" : "No"}
+									</Badge>
+								</TableCell>
+								<TableCell className="text-sm">
+									{param.description || (
+										<span className="text-muted-foreground italic">
+											No description provided
+										</span>
+									)}
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
 		</div>
 	);
 }
