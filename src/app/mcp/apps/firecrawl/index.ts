@@ -10,7 +10,7 @@ export const firecrawlMcpApp = createMcpApp({
 		"Firecrawl MCP App - A comprehensive web scraping and crawling solution with advanced features including single page scraping, batch processing, website mapping, web search, structured data extraction, and deep research capabilities using the Firecrawl API",
 	logo: {
 		type: "url",
-		url: "/assets/firecrawl-logo.png",
+		url: "/firecrawl-logo.png",
 	},
 	categories: [
 		McpAppCategory.DEVELOPER_TOOLS,
