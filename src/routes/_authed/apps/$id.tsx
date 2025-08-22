@@ -9,6 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { JsonViewer } from "@/components/ui/json-viewer";
 import { Separator } from "@/components/ui/separator";
 import {
 	Sheet,
@@ -384,32 +385,33 @@ function RouteComponent() {
 
 			{/* Tool Details Sheet */}
 			<Sheet open={toolSheetOpen} onOpenChange={setToolSheetOpen}>
-				<SheetContent className="w-[400px] sm:w-[540px]">
-					<SheetHeader>
+				<SheetContent className="w-[420px] sm:w-[560px] md:w-[640px] sm:max-w-[560px] md:max-w-[640px]">
+					<SheetHeader className="pb-2">
 						<SheetTitle className="flex items-center gap-2">
 							<Code className="h-5 w-5 text-primary" />
 							{selectedTool?.name}
 						</SheetTitle>
 						{selectedTool?.description && (
-							<SheetDescription>
+							<SheetDescription className="leading-relaxed">
 								{selectedTool.description}
 							</SheetDescription>
 						)}
 					</SheetHeader>
-					
-					<div className="mt-6 space-y-6">
+
+					<div className="mt-2 flex-1 overflow-y-auto px-4 pb-4 space-y-6">
 						{selectedTool?.paramsSchema && (
-							<SchemaDisplay 
-								schema={selectedTool.paramsSchema} 
-								title="Parameters Schema" 
+							<SchemaDisplay
+								schema={selectedTool.paramsSchema}
+								title="Parameters"
 							/>
+						)}
+						{selectedTool?.paramsSchema && selectedTool?.annotations && (
+							<Separator />
 						)}
 						{selectedTool?.annotations && (
 							<div>
 								<h5 className="text-sm font-medium mb-2">Annotations</h5>
-								<pre className="bg-muted p-3 rounded text-xs overflow-x-auto">
-									<code>{JSON.stringify(selectedTool.annotations, null, 2)}</code>
-								</pre>
+								<JsonViewer data={selectedTool.annotations} className="rounded-md" maxHeight={260} collapsed={1} />
 							</div>
 						)}
 					</div>

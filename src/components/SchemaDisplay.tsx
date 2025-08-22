@@ -1,13 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { z, type ZodSchema } from "zod";
 
 interface SchemaDisplayProps {
 	schema: Record<string, unknown>;
@@ -203,53 +194,42 @@ export function SchemaDisplay({ schema, title = "Parameters" }: SchemaDisplayPro
 	return (
 		<div className="space-y-4">
 			<h5 className="text-sm font-medium">{title}</h5>
-			<div className="border rounded-md">
-				<Table>
-					<TableHeader>
-						<TableRow>
-							<TableHead className="w-[140px]">Parameter</TableHead>
-							<TableHead className="w-[100px]">Type</TableHead>
-							<TableHead className="w-[80px]">Required</TableHead>
-							<TableHead>Description</TableHead>
-						</TableRow>
-					</TableHeader>
-					<TableBody>
-						{parameters.map((param) => (
-							<TableRow key={param.name}>
-								<TableCell className="font-mono text-sm">
-									<div>
-										<span className="font-medium">{param.name}</span>
-										{param.defaultValue !== undefined && (
-											<div className="text-xs text-muted-foreground mt-1">
-												Default: <code className="bg-muted px-1 py-0.5 rounded text-xs">{JSON.stringify(param.defaultValue)}</code>
-											</div>
-										)}
-									</div>
-								</TableCell>
-								<TableCell>
-									<Badge
-										variant="secondary"
-										className={getTypeColor(param.type)}
-									>
+			<div className="space-y-3">
+				{parameters.map((param) => (
+					<div
+						key={param.name}
+						className="rounded-md border bg-card p-3 sm:p-4"
+					>
+						<div className="flex items-start justify-between gap-3">
+							<div className="min-w-0">
+								<div className="flex flex-wrap items-center gap-2">
+									<code className="font-mono text-sm font-medium">{param.name}</code>
+									<Badge variant="secondary" className={getTypeColor(param.type)}>
 										{param.type}
 									</Badge>
-								</TableCell>
-								<TableCell>
 									<Badge variant={param.required ? "destructive" : "secondary"}>
-										{param.required ? "Yes" : "No"}
+										{param.required ? "Required" : "Optional"}
 									</Badge>
-								</TableCell>
-								<TableCell className="text-sm">
-									{param.description || (
-										<span className="text-muted-foreground italic">
-											No description provided
-										</span>
-									)}
-								</TableCell>
-							</TableRow>
-						))}
-					</TableBody>
-				</Table>
+								</div>
+							</div>
+						</div>
+						{(param.description || param.defaultValue !== undefined) && (
+							<div className="mt-2 space-y-2">
+								{param.description && (
+									<p className="text-sm text-muted-foreground">{param.description}</p>
+								)}
+								{param.defaultValue !== undefined && (
+									<div className="text-xs text-muted-foreground">
+										Default: {" "}
+										<code className="bg-muted px-1 py-0.5 rounded">
+											{JSON.stringify(param.defaultValue)}
+										</code>
+									</div>
+								)}
+							</div>
+						)}
+					</div>
+				))}
 			</div>
 		</div>
 	);
