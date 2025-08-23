@@ -109,7 +109,7 @@ export function ConnectedApps({
 			<Card>
 				<CardHeader>
 					<div className="flex items-center justify-between">
-						<div>
+						<div className="space-y-1" >
 							<CardTitle className="flex items-center gap-2">
 								<Activity className="h-5 w-5" />
 								Connected Applications ({serverApps.length})
@@ -120,7 +120,7 @@ export function ConnectedApps({
 						</div>
 						<Button className="gap-2" onClick={() => setAddDialogOpen(true)}>
 							<Plus className="h-4 w-4" />
-							Add App
+							<span className="hidden sm:inline">Add App</span>
 						</Button>
 					</div>
 				</CardHeader>

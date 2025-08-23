@@ -234,7 +234,7 @@ function RouteComponent() {
 
 	if (isLoading) {
 		return (
-			<div className="container mx-auto p-6 space-y-6">
+			<div className="w-full max-w-full mx-auto p-4 md:p-6 space-y-6">
 				{/* Page Header */}
 				<div className="space-y-2">
 					<div className="flex items-center gap-3">
@@ -292,7 +292,7 @@ function RouteComponent() {
 				</div>
 
 				{/* Loading skeleton grid */}
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
 					{Array.from({ length: 6 }).map((_, i) => (
 						<AppCardSkeleton key={i} />
 					))}
@@ -302,7 +302,7 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="w-full max-w-full mx-auto p-4 md:p-6 space-y-6">
 			{/* Page Header */}
 			<div className="space-y-2">
 				<div className="flex items-center gap-3">
@@ -328,7 +328,7 @@ function RouteComponent() {
 					placeholder="Search apps by name, description, category, or tools..."
 					value={searchQuery}
 					onChange={(e) => setSearchQuery(e.target.value)}
-					className="pl-10"
+					className="pl-10 w-full"
 				/>
 			</div>
 
@@ -367,7 +367,7 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
 					{filteredApps.map((app) => (
 						<AppCard
 							key={app.name}

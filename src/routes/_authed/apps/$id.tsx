@@ -209,7 +209,7 @@ function RouteComponent() {
 
 	if (isLoading) {
 		return (
-			<div className="container mx-auto p-6 space-y-6">
+			<div className="container mx-auto p-4 md:p-6 space-y-6">
 				{/* Back button */}
 				<Button
 					variant="ghost"
@@ -261,7 +261,7 @@ function RouteComponent() {
 	}
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="container mx-auto p-4 md:p-6 space-y-6">
 			{/* Back button */}
 			<Button
 				variant="ghost"
@@ -276,16 +276,18 @@ function RouteComponent() {
 			{/* App Header */}
 			<Card>
 				<CardHeader>
-					<div className="flex items-start gap-6">
+					<div className="flex flex-wrap items-start gap-4 md:gap-6">
 						<AppLogo
 							logo={app.logo}
 							appName={app.displayName}
 							className="h-20 w-20 rounded-lg flex-shrink-0"
 						/>
-						<div className="flex-1 space-y-4">
+							<div className="flex-1 min-w-0 space-y-4">
 							<div>
-								<h1 className="text-3xl font-bold">{app.displayName}</h1>
-								<p className="text-lg text-muted-foreground mt-2">
+									<h1 className="text-2xl md:text-3xl font-bold break-words">
+										{app.displayName}
+									</h1>
+									<p className="text-base md:text-lg text-muted-foreground mt-2">
 									{app.description}
 								</p>
 							</div>
@@ -324,7 +326,7 @@ function RouteComponent() {
 							</div>
 
 							{/* Action Buttons */}
-							<div className="flex gap-3">
+							<div className="flex flex-wrap gap-3">
 								<Button
 									className="gap-2"
 									onClick={() => setConnectDialogOpen(true)}
@@ -385,7 +387,7 @@ function RouteComponent() {
 
 			{/* Tool Details Sheet */}
 			<Sheet open={toolSheetOpen} onOpenChange={setToolSheetOpen}>
-				<SheetContent className="w-[420px] sm:w-[560px] md:w-[640px] sm:max-w-[560px] md:max-w-[640px]">
+				<SheetContent className="w-full sm:max-w-[560px] md:max-w-[640px]">
 					<SheetHeader className="pb-2">
 						<SheetTitle className="flex items-center gap-2">
 							<Code className="h-5 w-5 text-primary" />

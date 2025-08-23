@@ -28,15 +28,17 @@ export const Route = createFileRoute("/_authed")({
 		<SidebarProvider>
 			<AppSidebar />
 			<SidebarInset>
-				<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-					<SidebarTrigger className="-ml-1" />
+				<header className="flex min-h-14 h-14 shrink-0 items-center gap-2 border-b px-3 md:px-4 pt-[env(safe-area-inset-top)] overflow-hidden">
+					<SidebarTrigger className="-ml-1 shrink-0" />
 					<Separator
 						orientation="vertical"
-						className="mr-2 data-[orientation=vertical]:h-4"
+						className="mr-2 data-[orientation=vertical]:h-4 shrink-0"
 					/>
-					<HeaderBreadcrumb />
+					<div className="min-w-0 flex-1 overflow-hidden">
+						<HeaderBreadcrumb />
+					</div>
 				</header>
-				<div className="flex flex-1 flex-col p-4">
+				<div className="flex flex-1 flex-col p-3 md:p-4 pb-[env(safe-area-inset-bottom)]">
 					<Suspense
 						fallback={
 							<div className="space-y-6">

@@ -136,7 +136,7 @@ export function HowToConnect({
 								~/Library/Application Support/Claude/claude_desktop_config.json
 							</div>
 							<div className="bg-muted p-3 rounded-lg">
-								<code className="text-xs block overflow-scroll whitespace-pre">
+								<code className="text-xs block overflow-x-auto whitespace-pre break-words">
 									{claudeConfig}
 								</code>
 							</div>
@@ -183,7 +183,7 @@ export function HowToConnect({
 								~/.cursor/mcp_config.json
 							</div>
 							<div className="bg-muted p-3 rounded-lg">
-								<code className="text-xs overflow-scroll block whitespace-pre">
+								<code className="text-xs overflow-x-auto block whitespace-pre break-words">
 									{cursorConfig}
 								</code>
 							</div>
@@ -237,7 +237,7 @@ export function HowToConnect({
 								.vscode/mcp.json
 							</div>
 							<div className="bg-muted p-3 rounded-lg">
-								<code className="text-xs overflow-scroll block whitespace-pre">
+								<code className="text-xs overflow-x-auto block whitespace-pre break-words">
 									{vscodeConfig}
 								</code>
 							</div>
@@ -287,7 +287,7 @@ export function HowToConnect({
 								~/.windsurf/mcp_config.json
 							</div>
 							<div className="bg-muted p-3 rounded-lg">
-								<code className="text-xs block whitespace-pre">
+								<code className="text-xs block whitespace-pre break-words overflow-x-auto">
 									{windsurfConfig}
 								</code>
 							</div>

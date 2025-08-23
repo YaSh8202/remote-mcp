@@ -107,7 +107,7 @@ function RouteComponent() {
 
 	if (isLoading) {
 		return (
-			<div className="container mx-auto p-6 space-y-8">
+			<div className="container mx-auto p-4 md:p-6 space-y-8">
 				{/* Page Heading Skeleton */}
 				<div className="space-y-2">
 					<Skeleton className="h-8 w-64" />
@@ -139,7 +139,7 @@ function RouteComponent() {
 	const connectionsData = connections || [];
 
 	return (
-		<div className="container mx-auto p-6 space-y-8">
+		<div className="container mx-auto p-4 md:p-6 space-y-8">
 			{/* Page Heading */}
 			<div className="space-y-2">
 				<h1 className="text-2xl font-semibold tracking-tight flex items-center gap-3">

@@ -182,8 +182,8 @@ export function RunsTable() {
 	}
 
 	return (
-		<div className="space-y-4">
-			<DataTable table={table}>
+		<div className="w-full space-y-4">
+			<DataTable table={table} className="w-full">
 				<DataTableToolbar table={table} />
 			</DataTable>
 

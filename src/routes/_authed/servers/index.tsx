@@ -223,16 +223,16 @@ function RouteComponent() {
 	const isLoading = serversLoading || appsLoading;
 
 	return (
-		<div className="container mx-auto p-6 space-y-6">
+		<div className="w-full max-w-full mx-auto p-4 md:p-6 space-y-6">
 			{/* Stats Overview */}
-			<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+			<div className="md:grid grid-cols-1 hidden sm:grid-cols-2 lg:grid-cols-3 gap-4">
 				<Card className="border-blue-200 dark:border-blue-800">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3">
-							<div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+							<div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg shrink-0">
 								<Server className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
-							<div>
+							<div className="min-w-0">
 								{isLoading ? (
 									<div className="space-y-1">
 										<Skeleton className="h-6 w-8" />
@@ -254,10 +254,10 @@ function RouteComponent() {
 				<Card className="border-green-200 dark:border-green-800">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3">
-							<div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
+							<div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg shrink-0">
 								<Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
 							</div>
-							<div>
+							<div className="min-w-0">
 								{isLoading ? (
 									<div className="space-y-1">
 										<Skeleton className="h-6 w-8" />
@@ -276,7 +276,7 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 
-				<Card className="border-orange-200 dark:border-orange-800">
+				<Card className="border-orange-200 dark:border-orange-800 sm:col-span-2 lg:col-span-1">
 					<CardContent className="p-4">
 						<div className="flex items-center gap-3">
 							<div className="p-2 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
@@ -304,7 +304,7 @@ function RouteComponent() {
 
 			{/* Servers Grid */}
 			{isLoading ? (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 					<ServerCardSkeleton />
 					<ServerCardSkeleton />
 					<ServerCardSkeleton />
@@ -335,7 +335,7 @@ function RouteComponent() {
 					</div>
 				</Card>
 			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
 					{servers.map((server) => (
 						<ServerCard
 							key={server.id}

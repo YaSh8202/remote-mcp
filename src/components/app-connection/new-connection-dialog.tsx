@@ -190,7 +190,7 @@ export const NewConnectionDialog = React.memo(
 
 		return (
 			<Dialog open={open} onOpenChange={onOpenChange}>
-				<DialogContent className="max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
+				<DialogContent className="max-w-11/12 md:max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col">
 					<DialogHeader className="space-y-4 pb-6 border-b">
 						<div className="flex items-center gap-4">
 							<div className="p-2 rounded-xl bg-primary/10">
@@ -200,7 +200,7 @@ export const NewConnectionDialog = React.memo(
 									className="w-8 h-8 rounded-lg"
 								/>
 							</div>
-							<div className="flex-1">
+							<div className="flex-1 text-left">
 								<DialogTitle className="text-xl font-semibold">
 									New Connection
 								</DialogTitle>

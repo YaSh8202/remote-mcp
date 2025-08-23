@@ -53,7 +53,7 @@ export function RunDetailsSheet({
 	if (error) {
 		return (
 			<Sheet open={open} onOpenChange={onOpenChange}>
-				<SheetContent className="w-[600px] sm:w-[600px]">
+				<SheetContent className="w-full sm:w-[600px] sm:max-w-[600px]">
 					<SheetHeader>
 						<SheetTitle>Error Loading Run</SheetTitle>
 						<SheetDescription>
@@ -67,7 +67,7 @@ export function RunDetailsSheet({
 
 	return (
 		<Sheet open={open} onOpenChange={onOpenChange}>
-			<SheetContent className="w-[600px] sm:w-[600px] px-6">
+			<SheetContent className="w-full sm:w-[600px] sm:max-w-[600px] px-3 sm:px-6">
 				<SheetHeader>
 					<SheetTitle>Run Details</SheetTitle>
 					<SheetDescription>

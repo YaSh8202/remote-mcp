@@ -37,7 +37,9 @@ export const createRunsColumns = (
 		cell: ({ row }) => {
 			const serverName = row.original.server.name;
 			return (
-				<div className="font-medium text-muted-foreground">{serverName}</div>
+				<div className="font-medium text-muted-foreground max-w-[120px] truncate">
+					{serverName}
+				</div>
 			);
 		},
 		meta: {
@@ -64,19 +66,19 @@ export const createRunsColumns = (
 			const appMetadata = getAppMetadata(appName);
 
 			return (
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-2 max-w-[140px]">
 					{appMetadata ? (
 						<AppLogo
 							logo={appMetadata.logo}
 							appName={appMetadata.displayName}
-							className="h-5 w-5"
+							className="h-5 w-5 shrink-0"
 						/>
 					) : (
-						<div className="h-5 w-5 rounded bg-muted flex items-center justify-center text-xs font-medium">
+						<div className="h-5 w-5 rounded bg-muted flex items-center justify-center text-xs font-medium shrink-0">
 							{appName.charAt(0).toUpperCase()}
 						</div>
 					)}
-					<span className="font-medium text-muted-foreground">
+					<span className="font-medium text-muted-foreground truncate">
 						{appMetadata?.displayName || appName}
 					</span>
 				</div>
@@ -102,7 +104,11 @@ export const createRunsColumns = (
 		),
 		cell: ({ row }) => {
 			const toolName = row.getValue("toolName") as string;
-			return <div className="font-medium">{toolName}</div>;
+			return (
+				<div className="font-medium max-w-[120px] truncate" title={toolName}>
+					{toolName}
+				</div>
+			);
 		},
 		enableColumnFilter: false,
 		enableSorting: true,
@@ -155,7 +161,7 @@ export const createRunsColumns = (
 		cell: ({ row }) => {
 			const createdAt = row.getValue("createdAt") as Date;
 			return (
-				<div className="text-muted-foreground">
+				<div className="text-muted-foreground text-sm max-w-[100px] truncate">
 					{formatDistanceToNow(new Date(createdAt), { addSuffix: true })}
 				</div>
 			);
@@ -174,9 +180,10 @@ export const createRunsColumns = (
 					onClick={() => {
 						onShowRunDetails?.(row.original.id);
 					}}
+					className="h-8 w-8 p-0 sm:h-auto sm:w-auto sm:px-2"
 				>
 					<Eye className="h-4 w-4" />
-					View
+					<span className="hidden sm:inline ml-1">View</span>
 				</Button>
 			);
 		},

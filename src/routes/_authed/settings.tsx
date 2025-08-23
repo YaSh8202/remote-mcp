@@ -126,7 +126,7 @@ function RouteComponent() {
 	});
 
 	return (
-		<div className="max-w-4xl mx-2 space-y-8">
+		<div className="max-w-4xl mx-auto px-4 md:px-2 space-y-8">
 			<div className="space-y-2">
 				<p className="text-muted-foreground">
 					{tSettings("description")}
@@ -145,7 +145,7 @@ function RouteComponent() {
 					</p>
 				</div>
 
-				<div className="flex items-center gap-4">
+				<div className="flex flex-wrap items-center gap-4">
 					<Avatar className="h-[5.5rem] w-[5.5rem]">
 						<AvatarImage src={user.image || ""} alt={user.name} />
 						<AvatarFallback className="text-lg">

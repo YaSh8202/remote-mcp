@@ -10,6 +10,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
 	Select,
 	SelectContent,
@@ -179,7 +180,7 @@ export function AddAppDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl">
+			<DialogContent className=" max-w-11/12 md:max-w-2xl">
 				{step === "select-app" && (
 					<>
 						<DialogHeader>
@@ -206,7 +207,7 @@ export function AddAppDialog({
 									</div>
 								</div>
 							) : (
-								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+								<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 h-[50vh] overflow-auto space-y-2">
 									{availableAppsToInstall?.map((app: McpAppMetadata) => (
 										<div
 											key={app.name}
