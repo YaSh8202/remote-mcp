@@ -126,7 +126,7 @@ function RouteComponent() {
 	});
 
 	return (
-		<div className="max-w-4xl mx-auto px-4 md:px-2 space-y-8">
+		<div className=" max-w-4xl px-4 md:px-2 space-y-8">
 			<div className="space-y-2">
 				<p className="text-muted-foreground">
 					{tSettings("description")}
