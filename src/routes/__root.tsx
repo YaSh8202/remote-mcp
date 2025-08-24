@@ -54,18 +54,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 		],
 	}),
 
-	component: () => (
-		<RootDocument>
-			<Outlet />
-
-			<TanStackRouterDevtools />
-
-			<TanStackQueryLayout />
-		</RootDocument>
-	),
+	shellComponent: RootDocument,
 });
 
-function RootDocument({ children }: { children: React.ReactNode }) {
+function RootDocument() {
 	return (
 		<html suppressHydrationWarning lang="en">
 			<head>
@@ -80,7 +72,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						storageKey="mcp-one-theme"
 						enableColorScheme
 					>
-						<TooltipProvider>{children}</TooltipProvider>
+						<TooltipProvider>
+							<Outlet />
+							<TanStackRouterDevtools />
+							<TanStackQueryLayout />
+						</TooltipProvider>
 					</ThemeProvider>
 				</I18nProvider>
 				<Toaster />

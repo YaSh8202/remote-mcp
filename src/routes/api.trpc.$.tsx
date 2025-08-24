@@ -1,6 +1,6 @@
 import { createContext } from "@/integrations/trpc/init";
 import { trpcRouter } from "@/integrations/trpc/router";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
+import { createServerFileRoute } from "@tanstack/react-start/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
 async function handler({ request }: { request: Request }) {
@@ -18,7 +18,7 @@ async function handler({ request }: { request: Request }) {
 	});
 }
 
-export const APIRoute = createAPIFileRoute("/api/trpc/$")({
+export const ServerRoute = createServerFileRoute("/api/trpc/$").methods({
 	GET: handler,
 	POST: handler,
 });

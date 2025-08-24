@@ -7,8 +7,7 @@ import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
-import { createAPIFileRoute } from "@tanstack/react-start/api";
-import { getEvent } from "vinxi/http";
+import { createServerFileRoute, getEvent, getRouterParam } from "@tanstack/react-start/server";
 
 const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 	switch (connection.value.type) {
@@ -20,7 +19,7 @@ const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 	}
 };
 
-export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
+export const ServerRoute = createServerFileRoute("/api/mcp/$id" as any).methods({
 	GET: async () => {
 		return json(
 			{
@@ -48,12 +47,25 @@ export const APIRoute = createAPIFileRoute("/api/mcp/$id")({
 		);
 	},
 
-	// @ts-expect-error
-	POST: async ({ request, params }) => {
+	POST: async ({ request }) => {
 		const body = await request.json();
 		const req = getEvent().node.req;
 		const res = getEvent().node.res;
-		const mcpTokenId = params.id;
+		const mcpTokenId = getRouterParam("id");
+		
+		if (!mcpTokenId) {
+			return json(
+				{
+					jsonrpc: "2.0",
+					error: {
+						code: -32602,
+						message: "Invalid parameters - missing id.",
+					},
+					id: null,
+				},
+				{ status: 400 },
+			);
+		}
 
 		try {
 			const server = new McpServer({

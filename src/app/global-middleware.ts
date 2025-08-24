@@ -6,6 +6,6 @@ import {
 
 registerGlobalMiddleware({
 	middleware: [
-		createMiddleware().server(Sentry.sentryGlobalServerMiddlewareHandler()),
+		createMiddleware({ type: "function" }).server(Sentry.sentryGlobalServerMiddlewareHandler()),
 	],
 });
