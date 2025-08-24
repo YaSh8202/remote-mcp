@@ -67,17 +67,21 @@ export const firecrawlDeepResearchTool = createParameterizedTool({
 
 			if (data.sources && data.sources.length > 0) {
 				researchText += "**Sources:**\n";
-				data.sources.forEach((source: { url: string; title?: string }, index: number) => {
-					researchText += `${index + 1}. ${source.title || source.url}\n   ${source.url}\n`;
-				});
+				data.sources.forEach(
+					(source: { url: string; title?: string }, index: number) => {
+						researchText += `${index + 1}. ${source.title || source.url}\n   ${source.url}\n`;
+					},
+				);
 				researchText += "\n";
 			}
 
 			if (data.activities && data.activities.length > 0) {
 				researchText += "**Research Activities:**\n";
-				data.activities.forEach((activity: { type: string; description?: string }, index: number) => {
-					researchText += `${index + 1}. ${activity.type}: ${activity.description || "No description"}\n`;
-				});
+				data.activities.forEach(
+					(activity: { type: string; description?: string }, index: number) => {
+						researchText += `${index + 1}. ${activity.type}: ${activity.description || "No description"}\n`;
+					},
+				);
 			}
 
 			return {

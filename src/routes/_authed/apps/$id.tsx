@@ -119,11 +119,7 @@ function ToolCard({ tool, onViewDetails }: ToolCardProps) {
 						)}
 					</div>
 					{(tool.paramsSchema || tool.annotations) && (
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={onViewDetails}
-						>
+						<Button variant="ghost" size="sm" onClick={onViewDetails}>
 							View Details
 						</Button>
 					)}
@@ -282,12 +278,12 @@ function RouteComponent() {
 							appName={app.displayName}
 							className="h-20 w-20 rounded-lg flex-shrink-0"
 						/>
-							<div className="flex-1 min-w-0 space-y-4">
+						<div className="flex-1 min-w-0 space-y-4">
 							<div>
-									<h1 className="text-2xl md:text-3xl font-bold break-words">
-										{app.displayName}
-									</h1>
-									<p className="text-base md:text-lg text-muted-foreground mt-2">
+								<h1 className="text-2xl md:text-3xl font-bold break-words">
+									{app.displayName}
+								</h1>
+								<p className="text-base md:text-lg text-muted-foreground mt-2">
 									{app.description}
 								</p>
 							</div>
@@ -375,9 +371,9 @@ function RouteComponent() {
 				) : (
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 						{app.tools.map((tool, index) => (
-							<ToolCard 
-								key={`${tool.name}-${index}`} 
-								tool={tool} 
+							<ToolCard
+								key={`${tool.name}-${index}`}
+								tool={tool}
 								onViewDetails={() => handleViewToolDetails(tool)}
 							/>
 						))}
@@ -413,7 +409,12 @@ function RouteComponent() {
 						{selectedTool?.annotations && (
 							<div>
 								<h5 className="text-sm font-medium mb-2">Annotations</h5>
-								<JsonViewer data={selectedTool.annotations} className="rounded-md" maxHeight={260} collapsed={1} />
+								<JsonViewer
+									data={selectedTool.annotations}
+									className="rounded-md"
+									maxHeight={260}
+									collapsed={1}
+								/>
 							</div>
 						)}
 					</div>

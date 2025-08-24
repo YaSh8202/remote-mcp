@@ -3,7 +3,9 @@ import { z } from "zod";
 import { firecrawlAuth } from "../common";
 
 const extractSchema = {
-	urls: z.array(z.string()).describe("Array of URLs to extract information from"),
+	urls: z
+		.array(z.string())
+		.describe("Array of URLs to extract information from"),
 	prompt: z.string().describe("Custom prompt for the LLM extraction"),
 	systemPrompt: z
 		.string()

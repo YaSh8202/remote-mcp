@@ -27,7 +27,10 @@ function HeaderBreadcrumb() {
 						{breadcrumbs.map((item, index) => (
 							<BreadcrumbItem key={`${item.label}-${index}`}>
 								{item.href ? (
-									<BreadcrumbLink href={item.href} className="max-w-[120px] sm:max-w-[150px] truncate">
+									<BreadcrumbLink
+										href={item.href}
+										className="max-w-[120px] sm:max-w-[150px] truncate"
+									>
 										{item.label}
 									</BreadcrumbLink>
 								) : (
@@ -46,7 +49,10 @@ function HeaderBreadcrumb() {
 					<>
 						<BreadcrumbSeparator className="hidden sm:block" />
 						{typeof title === "string" ? (
-							<h1 className="truncate text-base font-semibold md:text-lg max-w-[150px] sm:max-w-[200px] md:max-w-none" title={title}>
+							<h1
+								className="truncate text-base font-semibold md:text-lg max-w-[150px] sm:max-w-[200px] md:max-w-none"
+								title={title}
+							>
 								{title}
 							</h1>
 						) : (
@@ -71,7 +77,9 @@ function HeaderBreadcrumb() {
 								disabled={action.disabled}
 								className="h-8"
 							>
-								{action.icon && <span className="mr-1 sm:mr-2">{action.icon}</span>}
+								{action.icon && (
+									<span className="mr-1 sm:mr-2">{action.icon}</span>
+								)}
 								<span className="hidden md:inline text-sm">{action.label}</span>
 								<span className="md:hidden sr-only">{action.label}</span>
 							</Button>
@@ -81,7 +89,12 @@ function HeaderBreadcrumb() {
 					<div className="sm:hidden">
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="icon" className="h-8 w-8" aria-label="Open actions">
+								<Button
+									variant="outline"
+									size="icon"
+									className="h-8 w-8"
+									aria-label="Open actions"
+								>
 									<MoreHorizontal className="size-4" />
 								</Button>
 							</DropdownMenuTrigger>

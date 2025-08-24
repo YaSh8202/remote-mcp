@@ -13,10 +13,7 @@ const crawlSchema = {
 		.optional()
 		.describe("Only crawl these URL paths"),
 	maxDepth: z.number().optional().describe("Maximum link depth to crawl"),
-	ignoreSitemap: z
-		.boolean()
-		.optional()
-		.describe("Skip sitemap.xml discovery"),
+	ignoreSitemap: z.boolean().optional().describe("Skip sitemap.xml discovery"),
 	limit: z.number().optional().describe("Maximum number of pages to crawl"),
 	allowBackwardLinks: z
 		.boolean()

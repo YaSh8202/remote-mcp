@@ -53,17 +53,26 @@ export const firecrawlCheckCrawlStatusTool = createParameterizedTool({
 			// If completed, show the results
 			if (data.status === "completed" && data.data) {
 				statusText += "\n**Results:**\n";
-				data.data.forEach((item: { url: string; markdown?: string; metadata?: { title?: string } }, index: number) => {
-					statusText += `\n--- Page ${index + 1}: ${item.url} ---\n`;
-					if (item.markdown) {
-						statusText += `${item.markdown.substring(0, 500)}${
-							item.markdown.length > 500 ? "..." : ""
-						}\n`;
-					}
-					if (item.metadata?.title) {
-						statusText += `Title: ${item.metadata.title}\n`;
-					}
-				});
+				data.data.forEach(
+					(
+						item: {
+							url: string;
+							markdown?: string;
+							metadata?: { title?: string };
+						},
+						index: number,
+					) => {
+						statusText += `\n--- Page ${index + 1}: ${item.url} ---\n`;
+						if (item.markdown) {
+							statusText += `${item.markdown.substring(0, 500)}${
+								item.markdown.length > 500 ? "..." : ""
+							}\n`;
+						}
+						if (item.metadata?.title) {
+							statusText += `Title: ${item.metadata.title}\n`;
+						}
+					},
+				);
 			}
 
 			return {

@@ -4,10 +4,7 @@ import { firecrawlAuth } from "../common";
 
 const mapSchema = {
 	url: z.string().describe("Starting URL for URL discovery"),
-	search: z
-		.string()
-		.optional()
-		.describe("Optional search term to filter URLs"),
+	search: z.string().optional().describe("Optional search term to filter URLs"),
 	ignoreSitemap: z
 		.boolean()
 		.optional()
@@ -20,10 +17,7 @@ const mapSchema = {
 		.boolean()
 		.optional()
 		.describe("Include URLs from subdomains in results"),
-	limit: z
-		.number()
-		.optional()
-		.describe("Maximum number of URLs to return"),
+	limit: z.number().optional().describe("Maximum number of URLs to return"),
 };
 
 export const firecrawlMapTool = createParameterizedTool({
@@ -69,7 +63,7 @@ export const firecrawlMapTool = createParameterizedTool({
 			}
 
 			const links = result.links || [];
-			
+
 			if (links.length === 0) {
 				return {
 					content: [

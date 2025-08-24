@@ -28,14 +28,8 @@ const scrapeSchema = {
 		.number()
 		.optional()
 		.describe("Timeout for the scraping operation (in milliseconds)"),
-	mobile: z
-		.boolean()
-		.optional()
-		.describe("Use mobile user agent"),
-	skipTlsVerification: z
-		.boolean()
-		.optional()
-		.describe("Skip TLS verification"),
+	mobile: z.boolean().optional().describe("Use mobile user agent"),
+	skipTlsVerification: z.boolean().optional().describe("Skip TLS verification"),
 	headers: z
 		.record(z.string())
 		.optional()

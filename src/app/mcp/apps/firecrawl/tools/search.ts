@@ -22,10 +22,7 @@ const searchSchema = {
 		.string()
 		.optional()
 		.describe("Location for localized search results"),
-	tbs: z
-		.string()
-		.optional()
-		.describe("Time-based search parameter"),
+	tbs: z.string().optional().describe("Time-based search parameter"),
 	scrapeOptions: z
 		.object({
 			formats: z
@@ -94,19 +91,29 @@ export const firecrawlSearchTool = createParameterizedTool({
 			}
 
 			const formattedResults = searchResults
-				.map((item: { url: string; title?: string; description?: string; markdown?: string }, index: number) => {
-					let resultText = `**${index + 1}. ${item.title || "No title"}**\n`;
-					resultText += `URL: ${item.url}\n`;
-					if (item.description) {
-						resultText += `Description: ${item.description}\n`;
-					}
-					if (item.markdown) {
-						resultText += `Content:\n${item.markdown.substring(0, 300)}${
-							item.markdown.length > 300 ? "..." : ""
-						}\n`;
-					}
-					return resultText;
-				})
+				.map(
+					(
+						item: {
+							url: string;
+							title?: string;
+							description?: string;
+							markdown?: string;
+						},
+						index: number,
+					) => {
+						let resultText = `**${index + 1}. ${item.title || "No title"}**\n`;
+						resultText += `URL: ${item.url}\n`;
+						if (item.description) {
+							resultText += `Description: ${item.description}\n`;
+						}
+						if (item.markdown) {
+							resultText += `Content:\n${item.markdown.substring(0, 300)}${
+								item.markdown.length > 300 ? "..." : ""
+							}\n`;
+						}
+						return resultText;
+					},
+				)
 				.join("\n");
 
 			return {

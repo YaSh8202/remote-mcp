@@ -28,14 +28,8 @@ const batchScrapeSchema = {
 		.number()
 		.optional()
 		.describe("Timeout for the scraping operation (in milliseconds)"),
-	mobile: z
-		.boolean()
-		.optional()
-		.describe("Use mobile user agent"),
-	skipTlsVerification: z
-		.boolean()
-		.optional()
-		.describe("Skip TLS verification"),
+	mobile: z.boolean().optional().describe("Use mobile user agent"),
+	skipTlsVerification: z.boolean().optional().describe("Skip TLS verification"),
 	headers: z
 		.record(z.string())
 		.optional()
@@ -55,25 +49,28 @@ export const firecrawlBatchScrapeTool = createParameterizedTool({
 				throw new Error("Firecrawl API key is required");
 			}
 
-			const response = await fetch("https://api.firecrawl.dev/v1/batch/scrape", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${apiKey}`,
+			const response = await fetch(
+				"https://api.firecrawl.dev/v1/batch/scrape",
+				{
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${apiKey}`,
+					},
+					body: JSON.stringify({
+						urls: args.urls,
+						formats: args.formats || ["markdown"],
+						onlyMainContent: args.onlyMainContent,
+						includeTags: args.includeTags,
+						excludeTags: args.excludeTags,
+						waitFor: args.waitFor,
+						timeout: args.timeout,
+						mobile: args.mobile,
+						skipTlsVerification: args.skipTlsVerification,
+						headers: args.headers,
+					}),
 				},
-				body: JSON.stringify({
-					urls: args.urls,
-					formats: args.formats || ["markdown"],
-					onlyMainContent: args.onlyMainContent,
-					includeTags: args.includeTags,
-					excludeTags: args.excludeTags,
-					waitFor: args.waitFor,
-					timeout: args.timeout,
-					mobile: args.mobile,
-					skipTlsVerification: args.skipTlsVerification,
-					headers: args.headers,
-				}),
-			});
+			);
 
 			if (!response.ok) {
 				const errorData = await response.json().catch(() => ({}));
