@@ -19,7 +19,7 @@ i18n
     fallbackLng: 'en',
     
     // Debug mode for development
-    debug: import.meta.env.DEV,
+    debug: false,
     
     // Common namespace used around the full app
     ns: ['common', 'settings'],

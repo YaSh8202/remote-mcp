@@ -16,3 +16,5 @@ yarn.lock
 
 # TanStack Router temporary files
 app.config.timestamp_*.js
+.nitro
+.tanstack

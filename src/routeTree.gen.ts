@@ -8,201 +8,97 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { createServerRootRoute } from '@tanstack/react-start/server'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as RedirectImport } from './routes/redirect'
-import { Route as LoginImport } from './routes/login'
-import { Route as AuthedImport } from './routes/_authed'
-import { Route as AuthedIndexImport } from './routes/_authed/index'
-import { Route as AuthedSettingsImport } from './routes/_authed/settings'
-import { Route as AuthedRunsImport } from './routes/_authed/runs'
-import { Route as AuthedServersIndexImport } from './routes/_authed/servers/index'
-import { Route as AuthedConnectionsIndexImport } from './routes/_authed/connections/index'
-import { Route as AuthedAppsIndexImport } from './routes/_authed/apps/index'
-import { Route as AuthedServersIdImport } from './routes/_authed/servers/$id'
-import { Route as AuthedAppsIdImport } from './routes/_authed/apps/$id'
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as RedirectRouteImport } from './routes/redirect'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
+import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
+import { Route as AuthedRunsRouteImport } from './routes/_authed/runs'
+import { Route as AuthedServersIndexRouteImport } from './routes/_authed/servers/index'
+import { Route as AuthedConnectionsIndexRouteImport } from './routes/_authed/connections/index'
+import { Route as AuthedAppsIndexRouteImport } from './routes/_authed/apps/index'
+import { Route as AuthedServersIdRouteImport } from './routes/_authed/servers/$id'
+import { Route as AuthedAppsIdRouteImport } from './routes/_authed/apps/$id'
+import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
+import { ServerRoute as ApiMcpIdServerRouteImport } from './routes/api.mcp.$id'
+import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api.auth.$'
 
-// Create/Update Routes
+const rootServerRouteImport = createServerRootRoute()
 
-const RedirectRoute = RedirectImport.update({
+const RedirectRoute = RedirectRouteImport.update({
   id: '/redirect',
   path: '/redirect',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LoginRoute = LoginImport.update({
+const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthedRoute = AuthedImport.update({
+const AuthedRoute = AuthedRouteImport.update({
   id: '/_authed',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const AuthedIndexRoute = AuthedIndexImport.update({
+const AuthedIndexRoute = AuthedIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedSettingsRoute = AuthedSettingsImport.update({
+const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedRunsRoute = AuthedRunsImport.update({
+const AuthedRunsRoute = AuthedRunsRouteImport.update({
   id: '/runs',
   path: '/runs',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedServersIndexRoute = AuthedServersIndexImport.update({
+const AuthedServersIndexRoute = AuthedServersIndexRouteImport.update({
   id: '/servers/',
   path: '/servers/',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedConnectionsIndexRoute = AuthedConnectionsIndexImport.update({
+const AuthedConnectionsIndexRoute = AuthedConnectionsIndexRouteImport.update({
   id: '/connections/',
   path: '/connections/',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedAppsIndexRoute = AuthedAppsIndexImport.update({
+const AuthedAppsIndexRoute = AuthedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedServersIdRoute = AuthedServersIdImport.update({
+const AuthedServersIdRoute = AuthedServersIdRouteImport.update({
   id: '/servers/$id',
   path: '/servers/$id',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-const AuthedAppsIdRoute = AuthedAppsIdImport.update({
+const AuthedAppsIdRoute = AuthedAppsIdRouteImport.update({
   id: '/apps/$id',
   path: '/apps/$id',
   getParentRoute: () => AuthedRoute,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/_authed': {
-      id: '/_authed'
-      path: ''
-      fullPath: ''
-      preLoaderRoute: typeof AuthedImport
-      parentRoute: typeof rootRoute
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/redirect': {
-      id: '/redirect'
-      path: '/redirect'
-      fullPath: '/redirect'
-      preLoaderRoute: typeof RedirectImport
-      parentRoute: typeof rootRoute
-    }
-    '/_authed/runs': {
-      id: '/_authed/runs'
-      path: '/runs'
-      fullPath: '/runs'
-      preLoaderRoute: typeof AuthedRunsImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/settings': {
-      id: '/_authed/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AuthedSettingsImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/': {
-      id: '/_authed/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof AuthedIndexImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/apps/$id': {
-      id: '/_authed/apps/$id'
-      path: '/apps/$id'
-      fullPath: '/apps/$id'
-      preLoaderRoute: typeof AuthedAppsIdImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/servers/$id': {
-      id: '/_authed/servers/$id'
-      path: '/servers/$id'
-      fullPath: '/servers/$id'
-      preLoaderRoute: typeof AuthedServersIdImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/apps/': {
-      id: '/_authed/apps/'
-      path: '/apps'
-      fullPath: '/apps'
-      preLoaderRoute: typeof AuthedAppsIndexImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/connections/': {
-      id: '/_authed/connections/'
-      path: '/connections'
-      fullPath: '/connections'
-      preLoaderRoute: typeof AuthedConnectionsIndexImport
-      parentRoute: typeof AuthedImport
-    }
-    '/_authed/servers/': {
-      id: '/_authed/servers/'
-      path: '/servers'
-      fullPath: '/servers'
-      preLoaderRoute: typeof AuthedServersIndexImport
-      parentRoute: typeof AuthedImport
-    }
-  }
-}
-
-// Create and export the route tree
-
-interface AuthedRouteChildren {
-  AuthedRunsRoute: typeof AuthedRunsRoute
-  AuthedSettingsRoute: typeof AuthedSettingsRoute
-  AuthedIndexRoute: typeof AuthedIndexRoute
-  AuthedAppsIdRoute: typeof AuthedAppsIdRoute
-  AuthedServersIdRoute: typeof AuthedServersIdRoute
-  AuthedAppsIndexRoute: typeof AuthedAppsIndexRoute
-  AuthedConnectionsIndexRoute: typeof AuthedConnectionsIndexRoute
-  AuthedServersIndexRoute: typeof AuthedServersIndexRoute
-}
-
-const AuthedRouteChildren: AuthedRouteChildren = {
-  AuthedRunsRoute: AuthedRunsRoute,
-  AuthedSettingsRoute: AuthedSettingsRoute,
-  AuthedIndexRoute: AuthedIndexRoute,
-  AuthedAppsIdRoute: AuthedAppsIdRoute,
-  AuthedServersIdRoute: AuthedServersIdRoute,
-  AuthedAppsIndexRoute: AuthedAppsIndexRoute,
-  AuthedConnectionsIndexRoute: AuthedConnectionsIndexRoute,
-  AuthedServersIndexRoute: AuthedServersIndexRoute,
-}
-
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiMcpIdServerRoute = ApiMcpIdServerRouteImport.update({
+  id: '/api/mcp/$id',
+  path: '/api/mcp/$id',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
+const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  '': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/runs': typeof AuthedRunsRoute
@@ -214,7 +110,6 @@ export interface FileRoutesByFullPath {
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -227,9 +122,8 @@ export interface FileRoutesByTo {
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -242,11 +136,9 @@ export interface FileRoutesById {
   '/_authed/connections/': typeof AuthedConnectionsIndexRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | ''
     | '/login'
     | '/redirect'
     | '/runs'
@@ -284,85 +176,186 @@ export interface FileRouteTypes {
     | '/_authed/servers/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   AuthedRoute: typeof AuthedRouteWithChildren
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
 }
+export interface FileServerRoutesByFullPath {
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/mcp/$id': typeof ApiMcpIdServerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
+}
+export interface FileServerRoutesByTo {
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/mcp/$id': typeof ApiMcpIdServerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
+}
+export interface FileServerRoutesById {
+  __root__: typeof rootServerRouteImport
+  '/api/auth/$': typeof ApiAuthSplatServerRoute
+  '/api/mcp/$id': typeof ApiMcpIdServerRoute
+  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
+}
+export interface FileServerRouteTypes {
+  fileServerRoutesByFullPath: FileServerRoutesByFullPath
+  fullPaths: '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  fileServerRoutesByTo: FileServerRoutesByTo
+  to: '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  id: '__root__' | '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  fileServerRoutesById: FileServerRoutesById
+}
+export interface RootServerRouteChildren {
+  ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
+  ApiMcpIdServerRoute: typeof ApiMcpIdServerRoute
+  ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/redirect': {
+      id: '/redirect'
+      path: '/redirect'
+      fullPath: '/redirect'
+      preLoaderRoute: typeof RedirectRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed/': {
+      id: '/_authed/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/settings': {
+      id: '/_authed/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthedSettingsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/runs': {
+      id: '/_authed/runs'
+      path: '/runs'
+      fullPath: '/runs'
+      preLoaderRoute: typeof AuthedRunsRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/servers/': {
+      id: '/_authed/servers/'
+      path: '/servers'
+      fullPath: '/servers'
+      preLoaderRoute: typeof AuthedServersIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/connections/': {
+      id: '/_authed/connections/'
+      path: '/connections'
+      fullPath: '/connections'
+      preLoaderRoute: typeof AuthedConnectionsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/apps/': {
+      id: '/_authed/apps/'
+      path: '/apps'
+      fullPath: '/apps'
+      preLoaderRoute: typeof AuthedAppsIndexRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/servers/$id': {
+      id: '/_authed/servers/$id'
+      path: '/servers/$id'
+      fullPath: '/servers/$id'
+      preLoaderRoute: typeof AuthedServersIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+    '/_authed/apps/$id': {
+      id: '/_authed/apps/$id'
+      path: '/apps/$id'
+      fullPath: '/apps/$id'
+      preLoaderRoute: typeof AuthedAppsIdRouteImport
+      parentRoute: typeof AuthedRoute
+    }
+  }
+}
+declare module '@tanstack/react-start/server' {
+  interface ServerFileRoutesByPath {
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
+      preLoaderRoute: typeof ApiTrpcSplatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/mcp/$id': {
+      id: '/api/mcp/$id'
+      path: '/api/mcp/$id'
+      fullPath: '/api/mcp/$id'
+      preLoaderRoute: typeof ApiMcpIdServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
+  }
+}
+
+interface AuthedRouteChildren {
+  AuthedRunsRoute: typeof AuthedRunsRoute
+  AuthedSettingsRoute: typeof AuthedSettingsRoute
+  AuthedIndexRoute: typeof AuthedIndexRoute
+  AuthedAppsIdRoute: typeof AuthedAppsIdRoute
+  AuthedServersIdRoute: typeof AuthedServersIdRoute
+  AuthedAppsIndexRoute: typeof AuthedAppsIndexRoute
+  AuthedConnectionsIndexRoute: typeof AuthedConnectionsIndexRoute
+  AuthedServersIndexRoute: typeof AuthedServersIndexRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedRunsRoute: AuthedRunsRoute,
+  AuthedSettingsRoute: AuthedSettingsRoute,
+  AuthedIndexRoute: AuthedIndexRoute,
+  AuthedAppsIdRoute: AuthedAppsIdRoute,
+  AuthedServersIdRoute: AuthedServersIdRoute,
+  AuthedAppsIndexRoute: AuthedAppsIndexRoute,
+  AuthedConnectionsIndexRoute: AuthedConnectionsIndexRoute,
+  AuthedServersIndexRoute: AuthedServersIndexRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/_authed",
-        "/login",
-        "/redirect"
-      ]
-    },
-    "/_authed": {
-      "filePath": "_authed.tsx",
-      "children": [
-        "/_authed/runs",
-        "/_authed/settings",
-        "/_authed/",
-        "/_authed/apps/$id",
-        "/_authed/servers/$id",
-        "/_authed/apps/",
-        "/_authed/connections/",
-        "/_authed/servers/"
-      ]
-    },
-    "/login": {
-      "filePath": "login.tsx"
-    },
-    "/redirect": {
-      "filePath": "redirect.tsx"
-    },
-    "/_authed/runs": {
-      "filePath": "_authed/runs.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/settings": {
-      "filePath": "_authed/settings.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/": {
-      "filePath": "_authed/index.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/apps/$id": {
-      "filePath": "_authed/apps/$id.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/servers/$id": {
-      "filePath": "_authed/servers/$id.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/apps/": {
-      "filePath": "_authed/apps/index.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/connections/": {
-      "filePath": "_authed/connections/index.tsx",
-      "parent": "/_authed"
-    },
-    "/_authed/servers/": {
-      "filePath": "_authed/servers/index.tsx",
-      "parent": "/_authed"
-    }
-  }
+const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
+  ApiMcpIdServerRoute: ApiMcpIdServerRoute,
+  ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
 }
-ROUTE_MANIFEST_END */
+export const serverRouteTree = rootServerRouteImport
+  ._addFileChildren(rootServerRouteChildren)
+  ._addFileTypes<FileServerRouteTypes>()
