@@ -26,10 +26,7 @@ export function DataTable<TData>({
 	...props
 }: DataTableProps<TData>) {
 	return (
-		<div
-			className={cn("flex w-full flex-col gap-2.5", className)}
-			{...props}
-		>
+		<div className={cn("flex w-full flex-col gap-2.5", className)} {...props}>
 			{children}
 			<div className="overflow-x-auto rounded-md border">
 				<Table className="min-w-full">

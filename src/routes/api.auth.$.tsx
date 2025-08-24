@@ -13,7 +13,7 @@ async function authHandler({ request }: { request: Request }) {
 	}
 }
 
-export const ServerRoute = createServerFileRoute("/api/auth/$" as any).methods({
+export const ServerRoute = createServerFileRoute("/api/auth/$").methods({
 	GET: authHandler,
 	POST: authHandler,
 });

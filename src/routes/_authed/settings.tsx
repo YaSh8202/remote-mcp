@@ -21,7 +21,10 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useUserSession } from "@/hooks/auth";
-import { useCommonTranslation, useSettingsTranslation } from "@/hooks/use-translation";
+import {
+	useCommonTranslation,
+	useSettingsTranslation,
+} from "@/hooks/use-translation";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -128,9 +131,7 @@ function RouteComponent() {
 	return (
 		<div className=" max-w-4xl px-4 md:px-2 space-y-8">
 			<div className="space-y-2">
-				<p className="text-muted-foreground">
-					{tSettings("description")}
-				</p>
+				<p className="text-muted-foreground">{tSettings("description")}</p>
 			</div>
 
 			{/* Profile Section */}
@@ -138,7 +139,9 @@ function RouteComponent() {
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">
 						<User className="h-5 w-5" />
-						<h2 className="text-xl font-semibold">{tSettings("profile.title")}</h2>
+						<h2 className="text-xl font-semibold">
+							{tSettings("profile.title")}
+						</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
 						{tSettings("profile.description")}
@@ -166,7 +169,9 @@ function RouteComponent() {
 				<div className="space-y-2">
 					<div className="flex items-center gap-2">
 						<Monitor className="h-5 w-5" />
-						<h2 className="text-xl font-semibold">{tSettings("general.title")}</h2>
+						<h2 className="text-xl font-semibold">
+							{tSettings("general.title")}
+						</h2>
 					</div>
 					<p className="text-sm text-muted-foreground">
 						{tSettings("general.description")}
@@ -175,7 +180,9 @@ function RouteComponent() {
 
 				<Card>
 					<CardHeader>
-						<CardTitle>{tSettings("general.interface_preferences.title")}</CardTitle>
+						<CardTitle>
+							{tSettings("general.interface_preferences.title")}
+						</CardTitle>
 						<CardDescription>
 							{tSettings("general.interface_preferences.description")}
 						</CardDescription>
@@ -301,7 +308,9 @@ function RouteComponent() {
 							<>
 								<div className="flex items-center justify-between">
 									<div className="space-y-1">
-										<Label className="text-base">{tSettings("mcp.enable_logging.title")}</Label>
+										<Label className="text-base">
+											{tSettings("mcp.enable_logging.title")}
+										</Label>
 										<p className="text-sm text-muted-foreground">
 											{tSettings("mcp.enable_logging.description")}
 										</p>
@@ -360,7 +369,9 @@ function RouteComponent() {
 
 				<Card className="border-destructive/50">
 					<CardHeader>
-						<CardTitle className="text-destructive">{tSettings("danger_zone.delete_account.title")}</CardTitle>
+						<CardTitle className="text-destructive">
+							{tSettings("danger_zone.delete_account.title")}
+						</CardTitle>
 						<CardDescription>
 							{tSettings("danger_zone.delete_account.description")}
 						</CardDescription>
@@ -409,7 +420,9 @@ export function StorageSection() {
 			<div className="space-y-2">
 				<div className="flex items-center gap-2">
 					<Database className="h-5 w-5" />
-					<h2 className="text-xl font-semibold">{tSettings("storage.title")}</h2>
+					<h2 className="text-xl font-semibold">
+						{tSettings("storage.title")}
+					</h2>
 				</div>
 				<p className="text-sm text-muted-foreground">
 					{tSettings("storage.description")}
@@ -427,7 +440,9 @@ export function StorageSection() {
 					{/* Servers */}
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
-							<span className="font-medium">{tSettings("storage.servers")}</span>
+							<span className="font-medium">
+								{tSettings("storage.servers")}
+							</span>
 							{isServerCountLoading ? (
 								<Skeleton className="h-4 w-16" />
 							) : (
@@ -451,7 +466,9 @@ export function StorageSection() {
 					{/* Connections */}
 					<div className="space-y-3">
 						<div className="flex justify-between text-sm">
-							<span className="font-medium">{tSettings("storage.connections")}</span>
+							<span className="font-medium">
+								{tSettings("storage.connections")}
+							</span>
 							{isConnectionCountLoading ? (
 								<Skeleton className="h-4 w-16" />
 							) : (

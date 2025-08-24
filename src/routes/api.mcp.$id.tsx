@@ -7,7 +7,11 @@ import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
-import { createServerFileRoute, getEvent, getRouterParam } from "@tanstack/react-start/server";
+import {
+	createServerFileRoute,
+	getEvent,
+	getRouterParam,
+} from "@tanstack/react-start/server";
 
 const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 	switch (connection.value.type) {
@@ -19,7 +23,7 @@ const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 	}
 };
 
-export const ServerRoute = createServerFileRoute("/api/mcp/$id" as any).methods({
+export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 	GET: async () => {
 		return json(
 			{
@@ -52,7 +56,7 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id" as any).methods(
 		const req = getEvent().node.req;
 		const res = getEvent().node.res;
 		const mcpTokenId = getRouterParam("id");
-		
+
 		if (!mcpTokenId) {
 			return json(
 				{
