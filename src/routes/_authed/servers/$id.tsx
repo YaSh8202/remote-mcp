@@ -2,6 +2,7 @@ import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import EditableText from "@/components/ui/editable-text";
 import { useTRPC } from "@/integrations/trpc/react";
+import { mcpServerQueries } from "@/services/queries";
 import { usePageHeader } from "@/store/header-store";
 import {
 	useMutation,
@@ -25,11 +26,7 @@ export const Route = createFileRoute("/_authed/servers/$id")({
 			throw notFound();
 		}
 
-		context.queryClient.ensureQueryData(
-			context.trpc.mcpServer.findOrThrow.queryOptions({
-				id: params.id,
-			}),
-		);
+		context.queryClient.ensureQueryData(mcpServerQueries.getOne(params.id));
 	},
 });
 
@@ -43,9 +40,7 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const { data: server, refetch: refetchServer } = useSuspenseQuery(
-		trpc.mcpServer.findOrThrow.queryOptions({
-			id: serverId,
-		}),
+		mcpServerQueries.getOne(serverId),
 	);
 
 	const { data: appsMetadata = [] } = useSuspenseQuery(
