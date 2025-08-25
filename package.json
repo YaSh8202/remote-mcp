@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
-    "start": "node .output/server/index.mjs",
+    "start": "node .output/server/index.mjs --env-file .env",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",

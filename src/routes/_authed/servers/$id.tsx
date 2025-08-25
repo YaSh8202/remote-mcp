@@ -9,8 +9,8 @@ import {
 	useQueryClient,
 	useSuspenseQuery,
 } from "@tanstack/react-query";
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Trash2, Zap } from "lucide-react";
 import { useState } from "react";
 import {
 	ConnectedApps,
@@ -18,16 +18,8 @@ import {
 	ServerDetails,
 	ServerStatsCards,
 } from "./-components";
-
 export const Route = createFileRoute("/_authed/servers/$id")({
 	component: RouteComponent,
-	beforeLoad: async ({ context, params }) => {
-		if (!params.id) {
-			throw notFound();
-		}
-
-		context.queryClient.ensureQueryData(mcpServerQueries.getOne(params.id));
-	},
 });
 
 function RouteComponent() {
@@ -126,6 +118,20 @@ function RouteComponent() {
 			/>
 		),
 		actions: [
+			{
+				id: "runs",
+				label: "Runs",
+				icon: <Zap className="h-4 w-4" />,
+				onClick: () => {
+					navigate({
+						to: "/runs",
+						search: {
+							server: [serverId],
+						},
+					});
+				},
+				variant: "outline",
+			},
 			{
 				id: "delete-server",
 				label: "Delete",
