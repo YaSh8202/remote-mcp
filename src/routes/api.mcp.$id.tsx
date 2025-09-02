@@ -7,11 +7,15 @@ import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { json } from "@tanstack/react-start";
-import {
-	createServerFileRoute,
-	getEvent,
-	getRouterParam,
-} from "@tanstack/react-start/server";
+import { createServerFileRoute } from "@tanstack/react-start/server";
+import { toFetchResponse, toReqRes } from "fetch-to-node";
+
+class McpNotFoundError extends Error {
+	constructor(message = "MCP server not found") {
+		super(message);
+		this.name = "McpNotFoundError";
+	}
+}
 
 const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 	switch (connection.value.type) {
@@ -21,6 +25,63 @@ const getConnectionValue = (connection: AppConnection): ConnectionValue => {
 		default:
 			return connection.value;
 	}
+};
+
+const buildMcpServer = async (token: string): Promise<McpServer> => {
+	const server = new McpServer({
+		name: "remote-mcp-server",
+		version: "1.0.0",
+	});
+
+	const mcpServer = await db.query.mcpServer.findFirst({
+		where: (mcpServer, { eq }) => eq(mcpServer.token, token),
+		with: {
+			apps: true,
+		},
+	});
+
+	if (!mcpServer) {
+		throw new McpNotFoundError("MCP server not found.");
+	}
+
+	const userSettings = await userSettingsService.getOrCreateUserSettings(
+		mcpServer.ownerId,
+	);
+
+	const apps = mcpServer?.apps || [];
+
+	for (const app of apps) {
+		let connection: Awaited<
+			ReturnType<typeof appConnectionService.getOne>
+		> | null = null;
+
+		if (app.connectionId) {
+			connection = await appConnectionService.getOne({
+				id: app.connectionId,
+				ownerId: mcpServer.ownerId,
+			});
+		}
+
+		const authValue = connection ? getConnectionValue(connection) : undefined;
+
+		const mcpApp = mcpApps.find((a) => a.name === app.appName);
+		if (!mcpApp) {
+			console.warn(`MCP app ${app.appName} not found.`);
+			continue;
+		}
+
+		// Register tools with logging context
+		await mcpApp.registerTools(server, authValue, app.tools, {
+			enabled: userSettings.enableLogging ?? true,
+			serverId: mcpServer.id,
+			appId: app.id,
+			appName: app.appName,
+			ownerId: mcpServer.ownerId,
+			maxRetries: userSettings.autoRetry ? 1 : 0, // Use 1 for auto-retry, 0 for no retries
+		});
+	}
+
+	return server;
 };
 
 export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
@@ -51,11 +112,10 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 		);
 	},
 
-	POST: async ({ request }) => {
+	POST: async ({ request, params }) => {
 		const body = await request.json();
-		const req = getEvent().node.req;
-		const res = getEvent().node.res;
-		const mcpTokenId = getRouterParam("id");
+		const { req, res } = toReqRes(request);
+		const mcpTokenId = params.id;
 
 		if (!mcpTokenId) {
 			return json(
@@ -72,19 +132,29 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 		}
 
 		try {
-			const server = new McpServer({
-				name: "remote-mcp-server",
-				version: "1.0.0",
+			const transport = new StreamableHTTPServerTransport({
+				sessionIdGenerator: undefined,
 			});
 
-			const mcpServer = await db.query.mcpServer.findFirst({
-				where: (mcpServer, { eq }) => eq(mcpServer.token, mcpTokenId),
-				with: {
-					apps: true,
-				},
+			const server = await buildMcpServer(mcpTokenId);
+
+			res.on("close", async () => {
+				await transport.close();
+				await server.close();
 			});
 
-			if (!mcpServer) {
+			// Connect to the MCP server
+			await server.connect(transport);
+
+			// Handle the request
+			await transport.handleRequest(req, res, body);
+
+			return toFetchResponse(res);
+		} catch (error) {
+			console.error("Error handling MCP request:", error);
+			
+			// Handle MCP not found error specifically
+			if (error instanceof McpNotFoundError) {
 				return json(
 					{
 						jsonrpc: "2.0",
@@ -97,63 +167,7 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 					{ status: 404 },
 				);
 			}
-
-			const userSettings = await userSettingsService.getOrCreateUserSettings(
-				mcpServer.ownerId,
-			);
-
-			const apps = mcpServer?.apps || [];
-
-			for (const app of apps) {
-				let connection: Awaited<
-					ReturnType<typeof appConnectionService.getOne>
-				> | null = null;
-
-				if (app.connectionId) {
-					connection = await appConnectionService.getOne({
-						id: app.connectionId,
-						ownerId: mcpServer.ownerId,
-					});
-				}
-
-				const authValue = connection
-					? getConnectionValue(connection)
-					: undefined;
-
-				const mcpApp = mcpApps.find((a) => a.name === app.appName);
-				if (!mcpApp) {
-					console.warn(`MCP app ${app.appName} not found.`);
-					continue;
-				}
-
-				// Register tools with logging context
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-				await mcpApp.registerTools(server, authValue as any, app.tools, {
-					enabled: userSettings.enableLogging ?? true,
-					serverId: mcpServer.id,
-					appId: app.id,
-					appName: app.appName,
-					ownerId: mcpServer.ownerId,
-					maxRetries: userSettings.autoRetry ? 1 : 0, // Use 1 for auto-retry, 0 for no retries
-				});
-			}
-
-			const transport = new StreamableHTTPServerTransport({
-				sessionIdGenerator: undefined,
-			});
-
-			res.on("close", async () => {
-				await transport.close();
-				await server.close();
-			});
-
-			// Connect to the MCP server
-			await server.connect(transport);
-
-			// Handle the request
-			await transport.handleRequest(req, res, body);
-		} catch (error) {
-			console.error("Error handling MCP request:", error);
+			
 			if (!res.headersSent) {
 				return json(
 					{
