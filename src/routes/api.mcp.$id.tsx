@@ -152,7 +152,7 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 			return toFetchResponse(res);
 		} catch (error) {
 			console.error("Error handling MCP request:", error);
-			
+
 			// Handle MCP not found error specifically
 			if (error instanceof McpNotFoundError) {
 				return json(
@@ -167,7 +167,7 @@ export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
 					{ status: 404 },
 				);
 			}
-			
+
 			if (!res.headersSent) {
 				return json(
 					{

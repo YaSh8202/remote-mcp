@@ -17,11 +17,13 @@ import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as AuthedIndexRouteImport } from './routes/_authed/index'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedRunsRouteImport } from './routes/_authed/runs'
+import { Route as AuthedChatRouteImport } from './routes/_authed/chat'
 import { Route as AuthedServersIndexRouteImport } from './routes/_authed/servers/index'
 import { Route as AuthedConnectionsIndexRouteImport } from './routes/_authed/connections/index'
 import { Route as AuthedAppsIndexRouteImport } from './routes/_authed/apps/index'
 import { Route as AuthedServersIdRouteImport } from './routes/_authed/servers/$id'
 import { Route as AuthedAppsIdRouteImport } from './routes/_authed/apps/$id'
+import { ServerRoute as ApiChatServerRouteImport } from './routes/api.chat'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 import { ServerRoute as ApiMcpIdServerRouteImport } from './routes/api.mcp.$id'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api.auth.$'
@@ -57,6 +59,11 @@ const AuthedRunsRoute = AuthedRunsRouteImport.update({
   path: '/runs',
   getParentRoute: () => AuthedRoute,
 } as any)
+const AuthedChatRoute = AuthedChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthedRoute,
+} as any)
 const AuthedServersIndexRoute = AuthedServersIndexRouteImport.update({
   id: '/servers/',
   path: '/servers/',
@@ -82,6 +89,11 @@ const AuthedAppsIdRoute = AuthedAppsIdRouteImport.update({
   path: '/apps/$id',
   getParentRoute: () => AuthedRoute,
 } as any)
+const ApiChatServerRoute = ApiChatServerRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -101,6 +113,7 @@ const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/chat': typeof AuthedChatRoute
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
   '/': typeof AuthedIndexRoute
@@ -113,6 +126,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/chat': typeof AuthedChatRoute
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
   '/': typeof AuthedIndexRoute
@@ -127,6 +141,7 @@ export interface FileRoutesById {
   '/_authed': typeof AuthedRouteWithChildren
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/_authed/chat': typeof AuthedChatRoute
   '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/settings': typeof AuthedSettingsRoute
   '/_authed/': typeof AuthedIndexRoute
@@ -141,6 +156,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/login'
     | '/redirect'
+    | '/chat'
     | '/runs'
     | '/settings'
     | '/'
@@ -153,6 +169,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/redirect'
+    | '/chat'
     | '/runs'
     | '/settings'
     | '/'
@@ -166,6 +183,7 @@ export interface FileRouteTypes {
     | '/_authed'
     | '/login'
     | '/redirect'
+    | '/_authed/chat'
     | '/_authed/runs'
     | '/_authed/settings'
     | '/_authed/'
@@ -182,30 +200,34 @@ export interface RootRouteChildren {
   RedirectRoute: typeof RedirectRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/chat': typeof ApiChatServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/chat': typeof ApiChatServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/chat': typeof ApiChatServerRoute
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  fullPaths: '/api/chat' | '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
-  id: '__root__' | '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  to: '/api/chat' | '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
+  id: '__root__' | '/api/chat' | '/api/auth/$' | '/api/mcp/$id' | '/api/trpc/$'
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiChatServerRoute: typeof ApiChatServerRoute
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
   ApiMcpIdServerRoute: typeof ApiMcpIdServerRoute
   ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
@@ -255,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedRunsRouteImport
       parentRoute: typeof AuthedRoute
     }
+    '/_authed/chat': {
+      id: '/_authed/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof AuthedChatRouteImport
+      parentRoute: typeof AuthedRoute
+    }
     '/_authed/servers/': {
       id: '/_authed/servers/'
       path: '/servers'
@@ -294,6 +323,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -319,6 +355,7 @@ declare module '@tanstack/react-start/server' {
 }
 
 interface AuthedRouteChildren {
+  AuthedChatRoute: typeof AuthedChatRoute
   AuthedRunsRoute: typeof AuthedRunsRoute
   AuthedSettingsRoute: typeof AuthedSettingsRoute
   AuthedIndexRoute: typeof AuthedIndexRoute
@@ -330,6 +367,7 @@ interface AuthedRouteChildren {
 }
 
 const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedChatRoute: AuthedChatRoute,
   AuthedRunsRoute: AuthedRunsRoute,
   AuthedSettingsRoute: AuthedSettingsRoute,
   AuthedIndexRoute: AuthedIndexRoute,
@@ -352,6 +390,7 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiChatServerRoute: ApiChatServerRoute,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
   ApiMcpIdServerRoute: ApiMcpIdServerRoute,
   ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,

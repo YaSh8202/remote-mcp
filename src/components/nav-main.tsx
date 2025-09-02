@@ -5,9 +5,14 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { Activity, AppWindow, Link2, Server, Settings2 } from "lucide-react";
+import { Activity, AppWindow, Link2, MessageSquare, Server, Settings2 } from "lucide-react";
 
 const items = [
+	{
+		title: "Chat",
+		url: "/chat",
+		icon: MessageSquare,
+	},
 	{
 		title: "Servers",
 		url: "/servers",
