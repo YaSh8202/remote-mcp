@@ -1,6 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import CryptoJS from "crypto-js";
+import * as crypto from "crypto";
 
 import { db } from "@/db";
 import {
@@ -21,23 +21,40 @@ export class LLMProviderService {
 	}
 
 	private static encryptApiKey(apiKey: string): EncryptedObject {
-		const key = this.getEncryptionKey();
-		const iv = CryptoJS.lib.WordArray.random(16).toString();
-		const encrypted = CryptoJS.AES.encrypt(apiKey, key, { iv: CryptoJS.enc.Hex.parse(iv) });
-		
+		const secret = this.getEncryptionKey();
+		// Generate random salt (16 bytes)
+		const salt = crypto.randomBytes(16);
+		// PBKDF2 derives a key from secret and salt
+		const key = crypto.pbkdf2Sync(secret, salt, 100_000, 32, 'sha256'); // 100k rounds
+		const iv = crypto.randomBytes(12); // AES-GCM standard IV size
+		const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
+		const encrypted = Buffer.concat([
+			cipher.update(apiKey, 'utf8'),
+			cipher.final()
+		]);
+		const tag = cipher.getAuthTag();
 		return {
-			iv,
-			data: encrypted.toString(),
-		};
+			iv: iv.toString('hex'),
+			data: encrypted.toString('hex'),
+			salt: salt.toString('hex'),
+			tag: tag.toString('hex'),
+		} as EncryptedObject;
 	}
 
 	private static decryptApiKey(encryptedData: EncryptedObject): string {
-		const key = this.getEncryptionKey();
-		const decrypted = CryptoJS.AES.decrypt(encryptedData.data, key, {
-			iv: CryptoJS.enc.Hex.parse(encryptedData.iv),
-		});
-		
-		return decrypted.toString(CryptoJS.enc.Utf8);
+		const secret = this.getEncryptionKey();
+		const salt = Buffer.from(encryptedData.salt, 'hex');
+		const key = crypto.pbkdf2Sync(secret, salt, 100_000, 32, 'sha256');
+		const iv = Buffer.from(encryptedData.iv, 'hex');
+		const encrypted = Buffer.from(encryptedData.data, 'hex');
+		const tag = Buffer.from(encryptedData.tag, 'hex');
+		const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+		decipher.setAuthTag(tag);
+		const decrypted = Buffer.concat([
+			decipher.update(encrypted),
+			decipher.final()
+		]);
+		return decrypted.toString('utf8');
 	}
 
 	static async createProvider(
