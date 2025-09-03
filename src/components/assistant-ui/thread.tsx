@@ -30,13 +30,13 @@ import { ToolFallback } from "./tool-fallback";
 export const Thread: FC = () => {
 	return (
 		<ThreadPrimitive.Root
-			className="bg-background flex h-full flex-col"
+			className="bg-background flex h-full flex-col overflow-hidden relative"
 			style={{
 				["--thread-max-width" as string]: "48rem",
 				["--thread-padding-x" as string]: "1rem",
 			}}
 		>
-			<ThreadPrimitive.Viewport className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-scroll">
+			<ThreadPrimitive.Viewport className="relative flex min-w-0 flex-1 flex-col gap-6 overflow-y-auto pb-32">
 				<ThreadWelcome />
 
 				<ThreadPrimitive.Messages
@@ -52,7 +52,9 @@ export const Thread: FC = () => {
 				</ThreadPrimitive.If>
 			</ThreadPrimitive.Viewport>
 
-			<Composer />
+			<div className="absolute bottom-0 left-0 right-0 bg-background">
+				<Composer />
+			</div>
 		</ThreadPrimitive.Root>
 	);
 };

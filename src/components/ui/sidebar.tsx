@@ -22,6 +22,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import {
+	AssistantChatTransport,
+	useChatRuntime,
+} from "@assistant-ui/react-ai-sdk";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -124,6 +129,12 @@ function SidebarProvider({
 		[state, open, setOpen, isMobile, openMobile, toggleSidebar],
 	);
 
+	const runtime = useChatRuntime({
+		transport: new AssistantChatTransport({
+			api: "/api/chat",
+		}),
+	});
+
 	return (
 		<SidebarContext.Provider value={contextValue}>
 			<TooltipProvider delayDuration={0}>
@@ -142,7 +153,9 @@ function SidebarProvider({
 					)}
 					{...props}
 				>
-					{children}
+					<AssistantRuntimeProvider runtime={runtime}>
+						{children}
+					</AssistantRuntimeProvider>
 				</div>
 			</TooltipProvider>
 		</SidebarContext.Provider>
