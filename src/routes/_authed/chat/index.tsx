@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
+
 import { ChatSidebar } from "@/components/chat-sidebar";
 
-export const Route = createFileRoute("/_authed/chat")({
-	component: ChatPage,
+export const Route = createFileRoute("/_authed/chat/")({
+	component: ChatIndexPage,
 });
 
-function ChatPage() {
+function ChatIndexPage() {
 	return (
 		<div className="flex h-full">
 			<ChatSidebar />

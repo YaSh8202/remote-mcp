@@ -207,6 +207,12 @@ export type McpApp = typeof mcpApps.$inferSelect;
 export type NewMcpApp = typeof mcpApps.$inferInsert;
 export type McpRun = typeof mcpRuns.$inferSelect;
 export type NewMcpRun = typeof mcpRuns.$inferInsert;
+export type LLMProvider = typeof llmProviders.$inferSelect;
+export type NewLLMProvider = typeof llmProviders.$inferInsert;
+export type Chat = typeof chats.$inferSelect;
+export type NewChat = typeof chats.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;
 
 // Database Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -215,6 +221,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 	appConnections: many(appConnections),
 	mcpServers: many(mcpServer),
 	mcpRuns: many(mcpRuns),
+	llmProviders: many(llmProviders),
+	chats: many(chats),
 	settings: one(userSettings, {
 		fields: [users.id],
 		references: [userSettings.userId],
@@ -282,5 +290,108 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 	user: one(users, {
 		fields: [accounts.userId],
 		references: [users.id],
+	}),
+}));
+
+// LLM Provider Types
+export enum LLMProviderType {
+	OPENAI = "OPENAI",
+	CLAUDE = "CLAUDE",
+	OPENROUTER = "OPENROUTER",
+	GEMINI = "GEMINI",
+}
+
+// Message roles
+export enum MessageRole {
+	USER = "USER",
+	ASSISTANT = "ASSISTANT",
+	SYSTEM = "SYSTEM",
+	TOOL = "TOOL",
+}
+
+// LLM Providers table for storing API keys securely
+export const llmProviders = pgTable("llm_providers", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	providerType: text("provider_type").$type<LLMProviderType>().notNull(),
+	displayName: text("display_name").notNull(),
+	apiKey: jsonb("api_key").$type<EncryptedObject>().notNull(),
+	isActive: boolean("is_active").notNull().default(true),
+	config: jsonb("config").$type<Record<string, any>>(), // For provider-specific settings
+});
+
+// Chats table
+export const chats = pgTable("chats", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	title: text("title").notNull().default("New Chat"),
+	llmProviderId: text("llm_provider_id").references(() => llmProviders.id, {
+		onDelete: "set null",
+	}),
+	systemPrompt: text("system_prompt"),
+	isArchived: boolean("is_archived").notNull().default(false),
+	mcpServerIds: jsonb("mcp_server_ids").$type<string[]>().notNull().default([]),
+});
+
+// Messages table
+export const messages = pgTable("messages", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	chatId: text("chat_id")
+		.notNull()
+		.references(() => chats.id, { onDelete: "cascade" }),
+	role: text("role").$type<MessageRole>().notNull(),
+	content: text("content").notNull(),
+	metadata: jsonb("metadata").$type<Record<string, any>>(), // For tool calls, attachments, etc.
+	toolCalls: jsonb("tool_calls").$type<any[]>(), // For storing tool call information
+	toolResults: jsonb("tool_results").$type<any[]>(), // For storing tool results
+});
+
+// New table relations
+export const llmProvidersRelations = relations(llmProviders, ({ one, many }) => ({
+	user: one(users, {
+		fields: [llmProviders.userId],
+		references: [users.id],
+	}),
+	chats: many(chats),
+}));
+
+export const chatsRelations = relations(chats, ({ one, many }) => ({
+	user: one(users, {
+		fields: [chats.userId],
+		references: [users.id],
+	}),
+	llmProvider: one(llmProviders, {
+		fields: [chats.llmProviderId],
+		references: [llmProviders.id],
+	}),
+	messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one }) => ({
+	chat: one(chats, {
+		fields: [messages.chatId],
+		references: [chats.id],
 	}),
 }));

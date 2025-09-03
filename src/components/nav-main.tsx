@@ -5,7 +5,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Link } from "@tanstack/react-router";
-import { Activity, AppWindow, Link2, MessageSquare, Server, Settings2 } from "lucide-react";
+import { Activity, AppWindow, Link2, MessageSquare, Server, Settings2, KeyIcon } from "lucide-react";
 
 const items = [
 	{
@@ -28,11 +28,15 @@ const items = [
 		url: "/runs",
 		icon: Activity,
 	},
-
 	{
 		title: "Connections",
 		url: "/connections",
 		icon: Link2,
+	},
+	{
+		title: "LLM Providers",
+		url: "/settings/llm-providers",
+		icon: KeyIcon,
 	},
 	{
 		title: "Settings",

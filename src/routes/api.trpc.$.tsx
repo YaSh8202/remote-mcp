@@ -1,5 +1,5 @@
 import { createContext } from "@/integrations/trpc/init";
-import { trpcRouter } from "@/integrations/trpc/router";
+import { trpcRouter } from "@/integrations/trpc/router/index";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 
