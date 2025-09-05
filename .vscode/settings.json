@@ -24,7 +24,7 @@
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"[jsonc]": {
-		"editor.defaultFormatter": "biomejs.biome"
+		"editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
 	},
 	"[css]": {
 		"editor.defaultFormatter": "biomejs.biome"
