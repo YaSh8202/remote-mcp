@@ -34,7 +34,6 @@ async function chatHandler({ request }: { request: Request }) {
 		}
 
 		const body = await request.json();
-		console.log("🚀 ~ chatHandler ~ body:", body)
 
 		// Default: Handle chat streaming
 		const {

@@ -12,6 +12,7 @@ export const LLMProviderSchema = z.nativeEnum(LLMProvider);
 export const ProviderSchema = z.object({
 	id: LLMProviderSchema,
 	displayName: z.string(),
+	defaultModelId: z.string(),
 });
 
 // Meta schema for model metadata

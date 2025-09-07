@@ -20,16 +20,15 @@ import {
 	RefreshCwIcon,
 	StopCircleIcon,
 } from "lucide-react";
-import { type FC, useEffect, useState } from "react";
+import { type FC, useState } from "react";
 
 import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ModelSelector } from "@/components/model-selector";
 import { Button } from "@/components/ui/button";
-import { useChatContext } from "@/contexts/chat-context";
-import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
+import { useChatStore } from "@/store/chat-store";
 import { motion } from "framer-motion";
 import { MarkdownText } from "./markdown-text";
 import { ToolFallback } from "./tool-fallback";
@@ -166,7 +165,7 @@ const ThreadWelcomeSuggestions: FC = () => {
 };
 
 const Composer: FC = () => {
-	const { selectedModel, setSelectedModel } = useChatContext();
+	const { selectedModel, setSelectedModel } = useChatStore();
 	const trpc = useTRPC();
 	const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
 
@@ -174,25 +173,23 @@ const Composer: FC = () => {
 		trpc.llmProvider.getKeys.queryOptions({}),
 	);
 
-	const { models } = useModels();
-
 	const validKeys = keys.filter((key) => key.isValid === true);
 	const hasValidKeys = validKeys.length > 0;
 	const existingProviders = validKeys.map((key) => key.provider);
 
 	// Auto-select first available model if none selected
-	useEffect(() => {
-		if (!selectedModel && validKeys.length > 0) {
-			const firstKey = validKeys[0];
-			const providerModels = models.filter(
-				(m) => m.meta.provider === firstKey?.provider,
-			);
+	// useEffect(() => {
+	// 	if (!selectedModel && validKeys.length > 0) {
+	// 		const firstKey = validKeys[0];
+	// 		const providerModels = models.filter(
+	// 			(m) => m.meta.provider === firstKey?.provider,
+	// 		);
 
-			if (providerModels.length > 0) {
-				setSelectedModel(providerModels[0].meta.id, firstKey.provider);
-			}
-		}
-	}, [validKeys, selectedModel, setSelectedModel, models]);
+	// 		if (providerModels.length > 0) {
+	// 			setSelectedModel(providerModels[0].meta.id, firstKey.provider);
+	// 		}
+	// 	}
+	// }, [validKeys, selectedModel, setSelectedModel, models]);
 
 	return (
 		<div className="bg-background relative mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 px-[var(--thread-padding-x)] pb-4 md:pb-6">

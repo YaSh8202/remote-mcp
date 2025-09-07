@@ -2,15 +2,18 @@
   "providers": [
     {
       "id": "openai",
-      "displayName": "OpenAI"
+      "displayName": "OpenAI",
+      "defaultModelId": "openai:gpt-5-mini"
     },
     {
       "id": "anthropic",
-      "displayName": "Anthropic"
+      "displayName": "Anthropic",
+      "defaultModelId": "anthropic:claude-sonnet-4"
     },
     {
       "id": "google",
-      "displayName": "Google (Gemini)"
+      "displayName": "Google (Gemini)",
+      "defaultModelId": "google:gemini-2.5-flash"
     }
   ],
   "models": [

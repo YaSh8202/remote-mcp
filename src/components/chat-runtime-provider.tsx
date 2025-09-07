@@ -1,7 +1,7 @@
-import { useChatContext } from "@/contexts/chat-context";
 import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { findModelById } from "@/lib/models";
+import { useChatStore } from "@/store/chat-store";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import {
 	AssistantChatTransport,
@@ -22,7 +22,7 @@ export function ChatRuntimeProvider({
 	chatId,
 	messages,
 }: ChatRuntimeProviderProps) {
-	const { selectedModel, selectedProvider } = useChatContext();
+	const { selectedModel, selectedProvider } = useChatStore();
 	const modelsData = useModels();
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
