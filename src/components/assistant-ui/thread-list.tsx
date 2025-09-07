@@ -1,13 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { ArchiveIcon, EditIcon, MoreVertical, PlusIcon, TrashIcon } from "lucide-react";
+import { Link, useParams } from "@tanstack/react-router";
+import {
+	ArchiveIcon,
+	EditIcon,
+	MoreVertical,
+	PlusIcon,
+	TrashIcon,
+} from "lucide-react";
 import type { FC } from "react";
 import { useState } from "react";
 
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { 
+import {
+	Dialog,
+	DialogContent,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
@@ -16,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
+import { cn } from "@/lib/utils";
 
 interface Chat {
 	id: string;
@@ -26,13 +38,13 @@ interface Chat {
 
 export const ThreadList: FC = () => {
 	const trpc = useTRPC();
-	
+
 	const { data: chats = [], isLoading } = useQuery(
 		trpc.chat.list.queryOptions({
 			archived: false,
 			limit: 50,
 			offset: 0,
-		})
+		}),
 	);
 
 	if (isLoading) {
@@ -125,21 +137,25 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 
 	return (
 		<>
-			<div className="data-active:bg-muted hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring flex items-center gap-2 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2">
-				<Link
-					to="/chat/$chatId"
-					params={{ chatId: chat.id }}
-					className="flex-grow px-3 py-2 text-start min-w-0"
-				>
-					<p className="text-sm truncate">{chat.title || "New Chat"}</p>
-				</Link>
-				
+			<Link
+				to="/chat/$chatId"
+				params={{ chatId: chat.id }}
+				activeProps={{
+					"data-active": true,
+				}}
+				className="data-active:bg-muted hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring flex items-center gap-2 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2"
+			>
+				<span className="flex-grow px-3 py-2 text-start min-w-0">
+					<p className={cn("text-sm truncate")}>{chat.title || "New Chat"}</p>
+				</span>
+
 				<DropdownMenu>
 					<DropdownMenuTrigger asChild>
-						<Button 
-							variant="ghost" 
+						<Button
+							variant="ghost"
 							size="sm"
 							className="hover:text-foreground/60 text-foreground h-8 w-8 p-0"
+							onClick={(e) => e.preventDefault()}
 						>
 							<MoreVertical className="h-4 w-4" />
 						</Button>
@@ -153,13 +169,16 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 							<ArchiveIcon className="mr-2 h-4 w-4" />
 							Archive
 						</DropdownMenuItem>
-						<DropdownMenuItem onClick={() => setDeleteDialogOpen(true)} className="text-destructive">
+						<DropdownMenuItem
+							onClick={() => setDeleteDialogOpen(true)}
+							className="text-destructive"
+						>
 							<TrashIcon className="mr-2 h-4 w-4" />
 							Delete
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
-			</div>
+			</Link>
 
 			<Dialog open={renameDialogOpen} onOpenChange={setRenameDialogOpen}>
 				<DialogContent>
@@ -178,10 +197,13 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 							}}
 						/>
 						<div className="flex justify-end gap-2">
-							<Button variant="outline" onClick={() => setRenameDialogOpen(false)}>
+							<Button
+								variant="outline"
+								onClick={() => setRenameDialogOpen(false)}
+							>
 								Cancel
 							</Button>
-							<Button 
+							<Button
 								onClick={handleRename}
 								disabled={updateChatMutation.isPending || !newTitle.trim()}
 							>
@@ -218,5 +240,3 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 		</>
 	);
 };
-
-
