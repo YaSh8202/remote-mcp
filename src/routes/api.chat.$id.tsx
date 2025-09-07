@@ -1,6 +1,6 @@
 import { auth } from "@/lib/auth";
 import { generateMessageId } from "@/lib/chat-utils";
-import { createChat, loadChat, saveChat } from "@/services/chat-service";
+import { loadChat, saveChat } from "@/services/chat-service";
 import {
 	getDefaultLLMProviderKey,
 	hasValidLLMProviderKey,
@@ -8,7 +8,6 @@ import {
 import { LLMProvider } from "@/types/models";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
-import { redirect } from "@tanstack/react-router";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
 	type UIMessage,
@@ -79,18 +78,13 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			}
 
 			// Get or create chat ID
-			let currentChatId = requestChatId;
+			const currentChatId = requestChatId;
 
-			// If no chat ID provided, create new chat
-			if (!requestChatId) {
-				currentChatId = await createChat(session.user.id);
-				if (!requestChatId)
-					throw redirect({
-						to: "/chat/$chatId",
-						params: { chatId: currentChatId },
-					});
+			if ((message.metadata as { status: string })?.status === "pending") {
+				message.metadata = {
+					status: "done",
+				};
 			}
-
 			// If we have a chat ID but only one message, we need to load existing messages
 			// and append the new one (this handles the prepareSendMessagesRequest pattern)
 			let allMessages = [message];
@@ -112,12 +106,12 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			}
 
 			// Save the new message to the database
+
 			saveChat({
 				chatId: currentChatId,
 				userId: session.user.id,
 				messages: allMessages,
 			});
-
 			// Convert UI messages to model messages format (AI SDK v5)
 			const modelMessages = convertToModelMessages(allMessages);
 

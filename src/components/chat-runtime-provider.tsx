@@ -2,14 +2,15 @@ import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { findModelById } from "@/lib/models";
 import { useChatStore } from "@/store/chat-store";
+import { useChat } from "@ai-sdk/react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import {
 	AssistantChatTransport,
-	useChatRuntime,
+	useAISDKRuntime,
 } from "@assistant-ui/react-ai-sdk";
 import { useQueryClient } from "@tanstack/react-query";
 import type { UIMessage } from "ai";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 interface ChatRuntimeProviderProps {
 	children: React.ReactNode;
@@ -32,7 +33,7 @@ export function ChatRuntimeProvider({
 		return modelInfo?.meta.name ?? selectedModel;
 	}, [modelsData, selectedModel]);
 
-	const runtime = useChatRuntime({
+	const chat = useChat({
 		id: `${chatId}-${selectedProvider}-${model}`,
 		transport: new AssistantChatTransport({
 			prepareSendMessagesRequest: ({ id, messages }) => {
@@ -54,6 +55,20 @@ export function ChatRuntimeProvider({
 			});
 		},
 	});
+
+	const isFirstMessageSendRef = useRef(false);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: chat doesn't need to be in dep array
+	useEffect(() => {
+		if (messages.length !== 1 || isFirstMessageSendRef.current) return;
+		const message = messages[0] as UIMessage<{ status: string }>;
+		if (message.role === "user" && message.metadata?.status === "pending") {
+			chat.sendMessage();
+			isFirstMessageSendRef.current = true;
+		}
+	}, [messages]);
+
+	const runtime = useAISDKRuntime(chat);
 
 	return (
 		<AssistantRuntimeProvider runtime={runtime}>

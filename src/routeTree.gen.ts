@@ -25,6 +25,7 @@ import { Route as AuthedAppsIndexRouteImport } from './routes/_authed/apps/index
 import { Route as AuthedServersIdRouteImport } from './routes/_authed/servers/$id'
 import { Route as AuthedChatChatIdRouteImport } from './routes/_authed/chat/$chatId'
 import { Route as AuthedAppsIdRouteImport } from './routes/_authed/apps/$id'
+import { ServerRoute as ApiChatServerRouteImport } from './routes/api.chat'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api.trpc.$'
 import { ServerRoute as ApiMcpIdServerRouteImport } from './routes/api.mcp.$id'
 import { ServerRoute as ApiChatIdServerRouteImport } from './routes/api.chat.$id'
@@ -101,6 +102,11 @@ const AuthedAppsIdRoute = AuthedAppsIdRouteImport.update({
   path: '/apps/$id',
   getParentRoute: () => AuthedRoute,
 } as any)
+const ApiChatServerRoute = ApiChatServerRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootServerRouteImport,
+} as any)
 const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
   id: '/api/trpc/$',
   path: '/api/trpc/$',
@@ -112,9 +118,9 @@ const ApiMcpIdServerRoute = ApiMcpIdServerRouteImport.update({
   getParentRoute: () => rootServerRouteImport,
 } as any)
 const ApiChatIdServerRoute = ApiChatIdServerRouteImport.update({
-  id: '/api/chat/$id',
-  path: '/api/chat/$id',
-  getParentRoute: () => rootServerRouteImport,
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => ApiChatServerRoute,
 } as any)
 const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
   id: '/api/auth/$',
@@ -222,12 +228,14 @@ export interface RootRouteChildren {
   RedirectRoute: typeof RedirectRoute
 }
 export interface FileServerRoutesByFullPath {
+  '/api/chat': typeof ApiChatServerRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/chat/$id': typeof ApiChatIdServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
   '/api/trpc/$': typeof ApiTrpcSplatServerRoute
 }
 export interface FileServerRoutesByTo {
+  '/api/chat': typeof ApiChatServerRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/chat/$id': typeof ApiChatIdServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
@@ -235,6 +243,7 @@ export interface FileServerRoutesByTo {
 }
 export interface FileServerRoutesById {
   __root__: typeof rootServerRouteImport
+  '/api/chat': typeof ApiChatServerRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatServerRoute
   '/api/chat/$id': typeof ApiChatIdServerRoute
   '/api/mcp/$id': typeof ApiMcpIdServerRoute
@@ -242,11 +251,22 @@ export interface FileServerRoutesById {
 }
 export interface FileServerRouteTypes {
   fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/auth/$' | '/api/chat/$id' | '/api/mcp/$id' | '/api/trpc/$'
+  fullPaths:
+    | '/api/chat'
+    | '/api/auth/$'
+    | '/api/chat/$id'
+    | '/api/mcp/$id'
+    | '/api/trpc/$'
   fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/auth/$' | '/api/chat/$id' | '/api/mcp/$id' | '/api/trpc/$'
+  to:
+    | '/api/chat'
+    | '/api/auth/$'
+    | '/api/chat/$id'
+    | '/api/mcp/$id'
+    | '/api/trpc/$'
   id:
     | '__root__'
+    | '/api/chat'
     | '/api/auth/$'
     | '/api/chat/$id'
     | '/api/mcp/$id'
@@ -254,8 +274,8 @@ export interface FileServerRouteTypes {
   fileServerRoutesById: FileServerRoutesById
 }
 export interface RootServerRouteChildren {
+  ApiChatServerRoute: typeof ApiChatServerRouteWithChildren
   ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
-  ApiChatIdServerRoute: typeof ApiChatIdServerRoute
   ApiMcpIdServerRoute: typeof ApiMcpIdServerRoute
   ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
 }
@@ -364,6 +384,13 @@ declare module '@tanstack/react-router' {
 }
 declare module '@tanstack/react-start/server' {
   interface ServerFileRoutesByPath {
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatServerRouteImport
+      parentRoute: typeof rootServerRouteImport
+    }
     '/api/trpc/$': {
       id: '/api/trpc/$'
       path: '/api/trpc/$'
@@ -380,10 +407,10 @@ declare module '@tanstack/react-start/server' {
     }
     '/api/chat/$id': {
       id: '/api/chat/$id'
-      path: '/api/chat/$id'
+      path: '/$id'
       fullPath: '/api/chat/$id'
       preLoaderRoute: typeof ApiChatIdServerRouteImport
-      parentRoute: typeof rootServerRouteImport
+      parentRoute: typeof ApiChatServerRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -436,6 +463,18 @@ const AuthedRouteChildren: AuthedRouteChildren = {
 const AuthedRouteWithChildren =
   AuthedRoute._addFileChildren(AuthedRouteChildren)
 
+interface ApiChatServerRouteChildren {
+  ApiChatIdServerRoute: typeof ApiChatIdServerRoute
+}
+
+const ApiChatServerRouteChildren: ApiChatServerRouteChildren = {
+  ApiChatIdServerRoute: ApiChatIdServerRoute,
+}
+
+const ApiChatServerRouteWithChildren = ApiChatServerRoute._addFileChildren(
+  ApiChatServerRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   AuthedRoute: AuthedRouteWithChildren,
   LoginRoute: LoginRoute,
@@ -445,8 +484,8 @@ export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
 const rootServerRouteChildren: RootServerRouteChildren = {
+  ApiChatServerRoute: ApiChatServerRouteWithChildren,
   ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
-  ApiChatIdServerRoute: ApiChatIdServerRoute,
   ApiMcpIdServerRoute: ApiMcpIdServerRoute,
   ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
 }

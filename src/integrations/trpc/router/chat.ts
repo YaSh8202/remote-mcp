@@ -5,12 +5,15 @@ import { z } from "zod";
 
 import { db } from "@/db";
 import { MessageRole, MessageStatus, chats, messages } from "@/db/schema";
+import { saveChat } from "@/services/chat-service";
+import type { UIMessage } from "ai";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 // Zod schemas for input validation
 const createChatSchema = z.object({
 	title: z.string().optional(),
 	metadata: z.record(z.unknown()).optional(),
+	messages: z.array(z.custom<UIMessage>(() => true)),
 });
 
 const updateChatSchema = z.object({
@@ -46,11 +49,13 @@ const createMessageSchema = z.object({
 	status: z.nativeEnum(MessageStatus).optional(),
 	parentId: z.string().optional(),
 	branchIndex: z.string().optional(),
-	tokenUsage: z.object({
-		promptTokens: z.number().optional(),
-		completionTokens: z.number().optional(),
-		totalTokens: z.number().optional(),
-	}).optional(),
+	tokenUsage: z
+		.object({
+			promptTokens: z.number().optional(),
+			completionTokens: z.number().optional(),
+			totalTokens: z.number().optional(),
+		})
+		.optional(),
 	metadata: z.record(z.unknown()).optional(),
 });
 
@@ -58,26 +63,32 @@ const updateMessageSchema = z.object({
 	id: z.string(),
 	content: z.array(messagePartSchema).optional(),
 	status: z.nativeEnum(MessageStatus).optional(),
-	tokenUsage: z.object({
-		promptTokens: z.number().optional(),
-		completionTokens: z.number().optional(),
-		totalTokens: z.number().optional(),
-	}).optional(),
+	tokenUsage: z
+		.object({
+			promptTokens: z.number().optional(),
+			completionTokens: z.number().optional(),
+			totalTokens: z.number().optional(),
+		})
+		.optional(),
 	metadata: z.record(z.unknown()).optional(),
 });
 
 export const chatRouter = createTRPCRouter({
 	// Get all chats for the authenticated user
 	list: protectedProcedure
-		.input(z.object({
-			archived: z.boolean().optional(),
-			limit: z.number().min(1).max(100).default(50),
-			offset: z.number().min(0).default(0),
-		}))
+		.input(
+			z.object({
+				archived: z.boolean().optional(),
+				limit: z.number().min(1).max(100).default(50),
+				offset: z.number().min(0).default(0),
+			}),
+		)
 		.query(async ({ ctx, input }) => {
 			const where = and(
 				eq(chats.ownerId, ctx.user.id),
-				input.archived !== undefined ? eq(chats.archived, input.archived) : undefined
+				input.archived !== undefined
+					? eq(chats.archived, input.archived)
+					: undefined,
 			);
 
 			return await db
@@ -114,7 +125,7 @@ export const chatRouter = createTRPCRouter({
 		.input(createChatSchema)
 		.mutation(async ({ ctx, input }) => {
 			const chatId = generateId();
-			
+
 			const newChat = await db
 				.insert(chats)
 				.values({
@@ -124,6 +135,18 @@ export const chatRouter = createTRPCRouter({
 					metadata: input.metadata || {},
 				})
 				.returning();
+
+			const messages = input.messages as UIMessage[] | undefined;
+
+			if (messages && messages?.length > 0) {
+				const chat = newChat[0];
+
+				await saveChat({
+					chatId: chat.id,
+					messages: messages,
+					userId: ctx.user.id,
+				});
+			}
 
 			return newChat[0];
 		}),
@@ -178,21 +201,21 @@ export const chatRouter = createTRPCRouter({
 				});
 			}
 
-			await db
-				.delete(chats)
-				.where(eq(chats.id, input.id));
+			await db.delete(chats).where(eq(chats.id, input.id));
 
 			return { success: true };
 		}),
 
 	// Get messages for a specific chat
 	getMessages: protectedProcedure
-		.input(z.object({
-			chatId: z.string(),
-			limit: z.number().min(1).max(100).default(50),
-			offset: z.number().min(0).default(0),
-			parentId: z.string().optional(),
-		}))
+		.input(
+			z.object({
+				chatId: z.string(),
+				limit: z.number().min(1).max(100).default(50),
+				offset: z.number().min(0).default(0),
+				parentId: z.string().optional(),
+			}),
+		)
 		.query(async ({ ctx, input }) => {
 			// Verify chat ownership first
 			const chat = await db
@@ -210,9 +233,9 @@ export const chatRouter = createTRPCRouter({
 
 			const where = and(
 				eq(messages.chatId, input.chatId),
-				input.parentId 
+				input.parentId
 					? eq(messages.parentId, input.parentId)
-					: isNull(messages.parentId)
+					: isNull(messages.parentId),
 			);
 
 			return await db
@@ -285,7 +308,10 @@ export const chatRouter = createTRPCRouter({
 				.where(eq(messages.id, id))
 				.limit(1);
 
-			if (!messageWithChat[0] || messageWithChat[0].chat?.ownerId !== ctx.user.id) {
+			if (
+				!messageWithChat[0] ||
+				messageWithChat[0].chat?.ownerId !== ctx.user.id
+			) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
 					message: "Message not found",
@@ -319,26 +345,29 @@ export const chatRouter = createTRPCRouter({
 				.where(eq(messages.id, input.id))
 				.limit(1);
 
-			if (!messageWithChat[0] || messageWithChat[0].chat?.ownerId !== ctx.user.id) {
+			if (
+				!messageWithChat[0] ||
+				messageWithChat[0].chat?.ownerId !== ctx.user.id
+			) {
 				throw new TRPCError({
 					code: "NOT_FOUND",
 					message: "Message not found",
 				});
 			}
 
-			await db
-				.delete(messages)
-				.where(eq(messages.id, input.id));
+			await db.delete(messages).where(eq(messages.id, input.id));
 
 			return { success: true };
 		}),
 
 	// Get chat with its messages (convenience method)
 	getWithMessages: protectedProcedure
-		.input(z.object({ 
-			chatId: z.string(),
-			messageLimit: z.number().min(1).max(100).default(50),
-		}))
+		.input(
+			z.object({
+				chatId: z.string(),
+				messageLimit: z.number().min(1).max(100).default(50),
+			}),
+		)
 		.query(async ({ ctx, input }) => {
 			// Get chat
 			const chat = await db
@@ -358,10 +387,12 @@ export const chatRouter = createTRPCRouter({
 			const chatMessages = await db
 				.select()
 				.from(messages)
-				.where(and(
-					eq(messages.chatId, input.chatId),
-					isNull(messages.parentId) // Only get root messages for now
-				))
+				.where(
+					and(
+						eq(messages.chatId, input.chatId),
+						isNull(messages.parentId), // Only get root messages for now
+					),
+				)
 				.orderBy(messages.createdAt)
 				.limit(input.messageLimit);
 

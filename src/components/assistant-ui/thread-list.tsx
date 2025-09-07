@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import {
 	ArchiveIcon,
 	EditIcon,
@@ -96,6 +96,7 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 	const [newTitle, setNewTitle] = useState(chat.title || "");
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
 	const updateChatMutation = useMutation({
 		mutationFn: trpc.chat.update.mutationOptions().mutationFn,
@@ -133,6 +134,7 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 
 	const handleDelete = async () => {
 		await deleteChatMutation.mutateAsync({ id: chat.id });
+		navigate({ to: "/chat" });
 	};
 
 	return (
