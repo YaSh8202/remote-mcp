@@ -1,0 +1,1 @@
+ALTER TABLE "chats" ADD COLUMN "last_messaged_at" timestamp with time zone DEFAULT now() NOT NULL;

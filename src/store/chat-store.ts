@@ -14,17 +14,19 @@ const customStorage = createJSONStorage(() => ({
 		// Try to get from new format first
 		const newFormatValue = localStorage.getItem(name);
 		if (newFormatValue) return newFormatValue;
-		
+
 		// Fall back to old format
 		const modelValue = localStorage.getItem("remotemcp:model");
 		const providerValue = localStorage.getItem("remotemcp:provider");
-		
+
 		if (!modelValue && !providerValue) return null;
-		
+
 		return JSON.stringify({
 			state: {
 				selectedModel: modelValue ? JSON.parse(modelValue) : "",
-				selectedProvider: providerValue ? JSON.parse(providerValue) : LLMProvider.OPENAI,
+				selectedProvider: providerValue
+					? JSON.parse(providerValue)
+					: LLMProvider.OPENAI,
 			},
 			version: 0,
 		});
@@ -32,13 +34,19 @@ const customStorage = createJSONStorage(() => ({
 	setItem: (name: string, value: string) => {
 		// Store in new format
 		localStorage.setItem(name, value);
-		
+
 		// Also maintain the old format for compatibility
 		try {
 			const parsed = JSON.parse(value);
 			if (parsed.state) {
-				localStorage.setItem("remotemcp:model", JSON.stringify(parsed.state.selectedModel));
-				localStorage.setItem("remotemcp:provider", JSON.stringify(parsed.state.selectedProvider));
+				localStorage.setItem(
+					"remotemcp:model",
+					JSON.stringify(parsed.state.selectedModel),
+				);
+				localStorage.setItem(
+					"remotemcp:provider",
+					JSON.stringify(parsed.state.selectedProvider),
+				);
 			}
 		} catch (e) {
 			// If parsing fails, just store in new format

@@ -95,7 +95,7 @@ export const chatRouter = createTRPCRouter({
 				.select()
 				.from(chats)
 				.where(where)
-				.orderBy(desc(chats.updatedAt))
+				.orderBy(desc(chats.lastMessagedAt))
 				.limit(input.limit)
 				.offset(input.offset);
 		}),
@@ -282,10 +282,13 @@ export const chatRouter = createTRPCRouter({
 				})
 				.returning();
 
-			// Update chat's updatedAt timestamp
+			// Update chat's updatedAt and lastMessagedAt timestamp
 			await db
 				.update(chats)
-				.set({ updatedAt: new Date() })
+				.set({
+					updatedAt: new Date(),
+					lastMessagedAt: new Date(),
+				})
 				.where(eq(chats.id, input.chatId));
 
 			return newMessage[0];

@@ -218,6 +218,9 @@ export const chats = pgTable("chats", {
 	updatedAt: timestamp("updated_at", { withTimezone: true })
 		.notNull()
 		.defaultNow(),
+	lastMessagedAt: timestamp("last_messaged_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
 	title: text("title"),
 	archived: boolean("archived").notNull().default(false),
 	ownerId: text("owner_id")

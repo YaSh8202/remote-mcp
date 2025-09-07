@@ -1,6 +1,6 @@
 {
-	"id": "47daaed2-7830-4d35-b79f-79a62c525d74",
-	"prevId": "e7ceb44d-8d9e-4f19-a34d-f6d3736ee34a",
+	"id": "e712747c-9006-407c-9222-a0f7621270da",
+	"prevId": "47daaed2-7830-4d35-b79f-79a62c525d74",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -212,6 +212,13 @@
 				},
 				"updated_at": {
 					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"last_messaged_at": {
+					"name": "last_messaged_at",
 					"type": "timestamp with time zone",
 					"primaryKey": false,
 					"notNull": true,

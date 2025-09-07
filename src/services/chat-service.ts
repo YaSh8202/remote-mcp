@@ -116,14 +116,16 @@ export async function saveChat({
 
 		await db
 			.update(chats)
-			.set({ title, updatedAt: new Date() })
+			.set({ title, updatedAt: new Date(), lastMessagedAt: new Date() })
 			.where(eq(chats.id, chatId));
 	} else {
-		// Just update the updatedAt timestamp
-		await db
-			.update(chats)
-			.set({ updatedAt: new Date() })
-			.where(eq(chats.id, chatId));
+		// Just update the updatedAt and lastMessagedAt timestamp when new messages are added
+		if (newMessages.length > 0) {
+			await db
+				.update(chats)
+				.set({ updatedAt: new Date(), lastMessagedAt: new Date() })
+				.where(eq(chats.id, chatId));
+		}
 	}
 }
 
@@ -142,6 +144,7 @@ export async function getUserChats(
 		id: string;
 		title: string | null;
 		updatedAt: Date;
+		lastMessagedAt: Date;
 		archived: boolean;
 	}>
 > {
@@ -154,11 +157,12 @@ export async function getUserChats(
 			id: chats.id,
 			title: chats.title,
 			updatedAt: chats.updatedAt,
+			lastMessagedAt: chats.lastMessagedAt,
 			archived: chats.archived,
 		})
 		.from(chats)
 		.where(where)
-		.orderBy(desc(chats.updatedAt))
+		.orderBy(desc(chats.lastMessagedAt))
 		.limit(limit)
 		.offset(offset);
 }
