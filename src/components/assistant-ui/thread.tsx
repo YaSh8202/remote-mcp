@@ -6,6 +6,7 @@ import {
 	MessagePrimitive,
 	ThreadPrimitive,
 } from "@assistant-ui/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
@@ -13,15 +14,21 @@ import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	CopyIcon,
+	KeyIcon,
+	PaperclipIcon,
 	PencilIcon,
-	PlusIcon,
 	RefreshCwIcon,
-	Square,
+	StopCircleIcon,
 } from "lucide-react";
-import type { FC } from "react";
+import { type FC, useEffect, useState } from "react";
 
+import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { ModelSelector } from "@/components/model-selector";
 import { Button } from "@/components/ui/button";
+import { useChatContext } from "@/contexts/chat-context";
+import { useModels } from "@/hooks/use-models";
+import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { MarkdownText } from "./markdown-text";
@@ -159,40 +166,128 @@ const ThreadWelcomeSuggestions: FC = () => {
 };
 
 const Composer: FC = () => {
+	const { selectedModel, setSelectedModel } = useChatContext();
+	const trpc = useTRPC();
+	const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
+
+	const { data: keys = [] } = useSuspenseQuery(
+		trpc.llmProvider.getKeys.queryOptions({}),
+	);
+
+	const { models } = useModels();
+
+	const validKeys = keys.filter((key) => key.isValid === true);
+	const hasValidKeys = validKeys.length > 0;
+	const existingProviders = validKeys.map((key) => key.provider);
+
+	// Auto-select first available model if none selected
+	useEffect(() => {
+		if (!selectedModel && validKeys.length > 0) {
+			const firstKey = validKeys[0];
+			const providerModels = models.filter(
+				(m) => m.meta.provider === firstKey?.provider,
+			);
+
+			if (providerModels.length > 0) {
+				setSelectedModel(providerModels[0].meta.id, firstKey.provider);
+			}
+		}
+	}, [validKeys, selectedModel, setSelectedModel, models]);
+
 	return (
 		<div className="bg-background relative mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 px-[var(--thread-padding-x)] pb-4 md:pb-6">
 			<ThreadScrollToBottom />
 			<ThreadPrimitive.Empty>
 				<ThreadWelcomeSuggestions />
 			</ThreadPrimitive.Empty>
-			<ComposerPrimitive.Root className="relative flex w-full flex-col rounded-2xl focus-within:ring-2 focus-within:ring-black focus-within:ring-offset-2 dark:focus-within:ring-white">
-				<ComposerPrimitive.Input
-					placeholder="Send a message..."
-					className="bg-muted border-border dark:border-muted-foreground/15 focus:outline-primary placeholder:text-muted-foreground max-h-[calc(50dvh)] min-h-16 w-full resize-none rounded-t-2xl border-x border-t px-4 pb-3 pt-2 text-base outline-none"
-					rows={1}
-					autoFocus
-					aria-label="Message input"
+			<div className="relative">
+				<ComposerPrimitive.Root className="group relative flex w-full flex-col rounded-3xl border border-border bg-background shadow-sm transition-all duration-200 focus-within:border-primary focus-within:shadow-md focus-within:shadow-primary/10">
+					<div className="p-4">
+						<ComposerPrimitive.Input
+							placeholder="Type your message here..."
+							className="placeholder:text-muted-foreground/60 max-h-32 min-h-12 w-full resize-none border-0 bg-transparent px-0 py-2 text-base outline-none focus:ring-0 focus-visible:ring-0"
+							rows={1}
+							autoFocus
+							aria-label="Message input"
+						/>
+					</div>
+
+					{/* Action Bar */}
+					{!hasValidKeys ? (
+						<div className="border-t border-border/50 bg-muted/30 px-4 py-3">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-3">
+									<div className="flex size-8 items-center justify-center rounded-full bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+										<KeyIcon className="size-4" />
+									</div>
+									<div>
+										<div className="text-sm font-medium text-foreground">
+											No API Keys Configured
+										</div>
+										<div className="text-xs text-muted-foreground">
+											Add an API key to start chatting with AI models
+										</div>
+									</div>
+								</div>
+								<Button
+									variant="default"
+									size="sm"
+									onClick={() => setShowAddKeyDialog(true)}
+									className="rounded-xl"
+								>
+									<KeyIcon className="mr-2 size-4" />
+									Add API Key
+								</Button>
+							</div>
+						</div>
+					) : (
+						<div className="border-t border-border/50 px-4 py-3">
+							<div className="flex items-center justify-between">
+								<div className="flex items-center gap-1">
+									<ModelSelector
+										selectedModel={selectedModel}
+										onModelSelect={setSelectedModel}
+										disabled={!hasValidKeys}
+									/>
+									<AttachmentButton />
+								</div>
+								<div className="flex items-center gap-2">
+									<SendButton />
+								</div>
+							</div>
+						</div>
+					)}
+				</ComposerPrimitive.Root>
+
+				<AddLLMKeyDialog
+					open={showAddKeyDialog}
+					onOpenChange={setShowAddKeyDialog}
+					existingProviders={existingProviders}
 				/>
-				<ComposerAction />
-			</ComposerPrimitive.Root>
+			</div>
 		</div>
 	);
 };
 
-const ComposerAction: FC = () => {
+const AttachmentButton: FC = () => {
 	return (
-		<div className="bg-muted border-border dark:border-muted-foreground/15 relative flex items-center justify-between rounded-b-2xl border-x border-b p-2">
-			<TooltipIconButton
-				tooltip="Attach file"
-				variant="ghost"
-				className="hover:bg-foreground/15 dark:hover:bg-background/50 scale-115 p-3.5"
-				onClick={() => {
-					console.log("Attachment clicked - not implemented");
-				}}
-			>
-				<PlusIcon />
-			</TooltipIconButton>
+		<TooltipIconButton
+			tooltip="Attach file"
+			variant="ghost"
+			size="icon"
+			className="hover:bg-accent text-muted-foreground hover:text-foreground transition-colors"
+			onClick={() => {
+				console.log("Attachment clicked - not implemented");
+			}}
+		>
+			<PaperclipIcon className="size-4" />
+		</TooltipIconButton>
+	);
+};
 
+const SendButton: FC = () => {
+	return (
+		<>
 			<ThreadPrimitive.If running={false}>
 				<ComposerPrimitive.Send asChild>
 					<Button
@@ -210,15 +305,17 @@ const ComposerAction: FC = () => {
 				<ComposerPrimitive.Cancel asChild>
 					<Button
 						type="button"
-						variant="default"
-						className="dark:border-muted-foreground/90 border-muted-foreground/60 hover:bg-primary/75 size-8 rounded-full border"
+						variant="outline"
+						size="sm"
+						className="rounded-2xl px-4 transition-all duration-200"
 						aria-label="Stop generating"
 					>
-						<Square className="size-3.5 fill-white dark:size-4 dark:fill-black" />
+						<StopCircleIcon className="size-4" />
+						<span className="ml-2 hidden sm:inline">Stop</span>
 					</Button>
 				</ComposerPrimitive.Cancel>
 			</ThreadPrimitive.If>
-		</div>
+		</>
 	);
 };
 

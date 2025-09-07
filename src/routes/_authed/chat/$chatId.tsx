@@ -98,7 +98,6 @@ function ChatPageWithId() {
 		if (!messages) return [];
 		return messages.map(dbMessageToUIMessage);
 	}, [messages]);
-	console.log("🚀 ~ ChatIdPage ~ messages:", uiMessages);
 
 	usePageHeader({
 		breadcrumbs: [

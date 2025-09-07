@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite dev --port 3000",
-    "start": "node .output/server/index.mjs --env-file .env",
+    "start": "node .output/server/index.mjs",
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
@@ -16,8 +16,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^2.0.12",
     "@ai-sdk/openai": "^2.0.23",
-    "@ai-sdk/react": "^2.0.29",
+    "@ai-sdk/react": "^2.0.34",
     "@assistant-ui/react": "^0.10.45",
     "@assistant-ui/react-ai-sdk": "^1.0.5",
     "@assistant-ui/react-markdown": "^0.10.9",

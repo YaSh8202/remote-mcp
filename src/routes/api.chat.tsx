@@ -6,7 +6,13 @@ import {
 	loadChat,
 	saveChat,
 } from "@/services/chat-service";
-import { openai } from "@ai-sdk/openai";
+import {
+	getDefaultLLMProviderKey,
+	hasValidLLMProviderKey,
+} from "@/services/llm-provider-service";
+import { LLMProvider } from "@/types/models";
+import { createAnthropic } from "@ai-sdk/anthropic";
+import { createOpenAI } from "@ai-sdk/openai";
 import { redirect } from "@tanstack/react-router";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
@@ -28,27 +34,49 @@ async function chatHandler({ request }: { request: Request }) {
 		}
 
 		const body = await request.json();
+		console.log("🚀 ~ chatHandler ~ body:", body)
 
 		// Default: Handle chat streaming
 		const {
 			messages,
 			system,
 			chatId: requestChatId,
+			provider = LLMProvider.OPENAI, // Default to OpenAI
+			model,
 		}: {
 			messages: UIMessage[];
 			system?: string;
 			chatId?: string;
+			provider?: LLMProvider;
+			model?: string;
 		} = body;
 
-		// Validate that we have an OpenAI API key
-		if (!process.env.OPENAI_API_KEY) {
+		// Check if user has valid API keys for any provider
+		const hasAnyValidKey = await hasValidLLMProviderKey(session.user.id);
+		if (!hasAnyValidKey) {
 			return new Response(
 				JSON.stringify({
 					error:
-						"OpenAI API key not configured. Please add OPENAI_API_KEY to your environment variables.",
+						"No valid API keys found. Please add an API key in settings to use the chat feature.",
+					code: "NO_API_KEYS",
 				}),
 				{
-					status: 500,
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+		}
+
+		// Get the user's API key for the specified provider
+		const apiKey = await getDefaultLLMProviderKey(session.user.id, provider);
+		if (!apiKey) {
+			return new Response(
+				JSON.stringify({
+					error: `No valid ${provider} API key found. Please add a ${provider} API key in settings.`,
+					code: "NO_PROVIDER_KEY",
+				}),
+				{
+					status: 400,
 					headers: { "Content-Type": "application/json" },
 				},
 			);
@@ -97,13 +125,46 @@ async function chatHandler({ request }: { request: Request }) {
 		// Convert UI messages to model messages format (AI SDK v5)
 		const modelMessages = convertToModelMessages(allMessages);
 
-		// Use OpenAI with streaming
-		const result = streamText({
-			model: openai("gpt-4.1-mini"),
-			system,
-			messages: modelMessages,
-			temperature: 0.7,
-		});
+		// Select the appropriate model and API
+		let result: ReturnType<typeof streamText>;
+		switch (provider) {
+			case LLMProvider.OPENAI: {
+				// Create OpenAI provider with user's API key
+				const openaiProvider = createOpenAI({
+					apiKey: apiKey,
+				});
+				result = streamText({
+					model: openaiProvider(model || "gpt-4o-mini"),
+					system,
+					messages: modelMessages,
+					temperature: 0.7,
+				});
+				break;
+			}
+			case LLMProvider.ANTHROPIC: {
+				// Create Anthropic provider with user's API key
+				const anthropicProvider = createAnthropic({
+					apiKey: apiKey,
+				});
+				result = streamText({
+					model: anthropicProvider(model || "claude-3-haiku-20240307"),
+					system,
+					messages: modelMessages,
+					temperature: 0.7,
+				});
+				break;
+			}
+			default:
+				return new Response(
+					JSON.stringify({
+						error: `Provider ${provider} is not supported yet.`,
+					}),
+					{
+						status: 400,
+						headers: { "Content-Type": "application/json" },
+					},
+				);
+		}
 
 		result.consumeStream();
 

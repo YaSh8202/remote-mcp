@@ -311,7 +311,7 @@ export function ConfigureAppDialog({
 			</Dialog>
 
 			{/* New Connection Dialog */}
-			{appMetadata && (
+			{appMetadata?.auth && (
 				<NewConnectionDialog
 					open={newConnectionDialogOpen}
 					onOpenChange={setNewConnectionDialogOpen}
