@@ -35,12 +35,17 @@ export function ChatRuntimeProvider({
 	const runtime = useChatRuntime({
 		id: `${chatId}-${selectedProvider}-${model}`,
 		transport: new AssistantChatTransport({
-			api: "/api/chat",
-			body: {
-				chatId,
-				provider: selectedProvider,
-				model,
+			prepareSendMessagesRequest: ({ id, messages }) => {
+				return {
+					body: {
+						id,
+						message: messages[messages.length - 1],
+						provider: selectedProvider,
+						model,
+					},
+				};
 			},
+			api: `/api/chat/${chatId}`,
 		}),
 		messages: messages,
 		onFinish: () => {
