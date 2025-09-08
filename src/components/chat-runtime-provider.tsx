@@ -1,5 +1,6 @@
 import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
+import { compositeAdapter } from "@/lib/chat-adapters";
 import { findModelById } from "@/lib/models";
 import { useChatStore } from "@/store/chat-store";
 import { useChat } from "@ai-sdk/react";
@@ -68,7 +69,11 @@ export function ChatRuntimeProvider({
 		}
 	}, [messages]);
 
-	const runtime = useAISDKRuntime(chat);
+	const runtime = useAISDKRuntime(chat, {
+		adapters: {
+			attachments: compositeAdapter,
+		},
+	});
 
 	return (
 		<AssistantRuntimeProvider runtime={runtime}>
