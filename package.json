@@ -94,6 +94,7 @@
     "react-hook-form": "^7.58.1",
     "react-i18next": "^15.6.1",
     "react-markdown": "^10.1.0",
+    "react-shiki": "^0.8.0",
     "remark-gfm": "^4.0.1",
     "sonner": "^2.0.5",
     "superjson": "^2.2.2",
