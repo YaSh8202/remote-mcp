@@ -97,12 +97,72 @@ export async function validateClaudeKey(
 	}
 }
 
+export async function validateGoogleKey(
+	apiKey: string,
+): Promise<{ isValid: boolean; models?: string[]; error?: string }> {
+	try {
+		// Use the list models endpoint to validate the key and get available models
+		const response = await fetch(
+			`https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`,
+			{
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			},
+		);
+
+		if (response.ok) {
+			const data = await response.json();
+			const models = data.models
+				? data.models.map(
+						(model: { name: string }) =>
+							// Extract model ID from full name (e.g., "models/gemini-pro" -> "gemini-pro")
+							model.name.split("/").pop() || model.name,
+					)
+				: [];
+			return { isValid: true, models };
+		}
+
+		if (response.status === 400) {
+			const errorData = await response.json().catch(() => ({}));
+			return {
+				isValid: false,
+				error: errorData.error?.message || "Invalid API key format",
+			};
+		}
+
+		if (response.status === 403) {
+			return {
+				isValid: false,
+				error: "API key not authorized or quota exceeded",
+			};
+		}
+
+		const errorData = await response.json().catch(() => ({}));
+		return {
+			isValid: false,
+			error:
+				errorData.error?.message ||
+				errorData.message ||
+				`HTTP ${response.status}`,
+		};
+	} catch (error) {
+		return {
+			isValid: false,
+			error: error instanceof Error ? error.message : "Network error",
+		};
+	}
+}
+
 export async function validateApiKey(provider: LLMProvider, apiKey: string) {
 	switch (provider) {
 		case LLMProvider.OPENAI:
 			return await validateOpenAIKey(apiKey);
 		case LLMProvider.ANTHROPIC:
 			return await validateClaudeKey(apiKey);
+		case LLMProvider.GOOGLE:
+			return await validateGoogleKey(apiKey);
 		default:
 			return { isValid: false, error: "Unsupported provider" };
 	}

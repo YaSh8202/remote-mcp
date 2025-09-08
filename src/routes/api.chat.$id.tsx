@@ -7,6 +7,7 @@ import {
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
 import { createAnthropic } from "@ai-sdk/anthropic";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
@@ -115,46 +116,14 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			// Convert UI messages to model messages format (AI SDK v5)
 			const modelMessages = convertToModelMessages(allMessages);
 
-			// Select the appropriate model and API
-			let result: ReturnType<typeof streamText>;
-			switch (provider) {
-				case LLMProvider.OPENAI: {
-					// Create OpenAI provider with user's API key
-					const openaiProvider = createOpenAI({
-						apiKey: apiKey,
-					});
-					result = streamText({
-						model: openaiProvider(model || "gpt-4o-mini"),
-						system,
-						messages: modelMessages,
-						temperature: 0.7,
-					});
-					break;
-				}
-				case LLMProvider.ANTHROPIC: {
-					// Create Anthropic provider with user's API key
-					const anthropicProvider = createAnthropic({
-						apiKey: apiKey,
-					});
-					result = streamText({
-						model: anthropicProvider(model || "claude-3-haiku-20240307"),
-						system,
-						messages: modelMessages,
-						temperature: 0.7,
-					});
-					break;
-				}
-				default:
-					return new Response(
-						JSON.stringify({
-							error: `Provider ${provider} is not supported yet.`,
-						}),
-						{
-							status: 400,
-							headers: { "Content-Type": "application/json" },
-						},
-					);
-			}
+			const aiSdkModel = getAIModel(provider, model, apiKey);
+
+			const result = streamText({
+				model: aiSdkModel,
+				system,
+				messages: modelMessages,
+				temperature: 0.7,
+			});
 
 			result.consumeStream();
 
@@ -163,6 +132,7 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				headers: {
 					"X-Chat-ID": currentChatId, // Include chat ID for frontend navigation
 				},
+				sendReasoning: true,
 				onFinish: async ({ messages }) => {
 					await saveChat({
 						chatId: currentChatId,
@@ -186,3 +156,26 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 		}
 	},
 });
+
+function getAIModel(
+	provider: LLMProvider,
+	model: string | undefined,
+	apiKey: string,
+) {
+	switch (provider) {
+		case LLMProvider.OPENAI:
+			return createOpenAI({
+				apiKey: apiKey,
+			})(model || "gpt-5-mini");
+		case LLMProvider.ANTHROPIC:
+			return createAnthropic({
+				apiKey: apiKey,
+			})(model || "claude-3.5-haiku");
+		case LLMProvider.GOOGLE:
+			return createGoogleGenerativeAI({
+				apiKey: apiKey,
+			})(model || "gemini-2.5-flash");
+		default:
+			throw new Error(`Unsupported provider: ${provider}`);
+	}
+}
