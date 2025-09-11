@@ -211,10 +211,7 @@ export function DataTableSortList<TData>({
 					</div>
 					{sorting.length > 0 && (
 						<SortableContent asChild>
-							<div
-								role="list"
-								className="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1"
-							>
+							<ul className="flex max-h-[300px] flex-col gap-2 overflow-y-auto p-1">
 								{sorting.map((sort) => (
 									<DataTableSortItem
 										key={sort.id}
@@ -226,7 +223,7 @@ export function DataTableSortList<TData>({
 										onSortRemove={onSortRemove}
 									/>
 								))}
-							</div>
+							</ul>
 						</SortableContent>
 					)}
 					<div className="flex w-full items-center gap-2">
@@ -313,7 +310,6 @@ function DataTableSortItem({
 	return (
 		<SortableItem value={sort.id} asChild>
 			<div
-				role="listitem"
 				id={sortItemId}
 				tabIndex={-1}
 				className="flex items-center gap-2"

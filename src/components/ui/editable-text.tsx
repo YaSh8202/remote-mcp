@@ -85,6 +85,16 @@ const EditableText = ({
 								setIsEditing(true);
 							}
 						}}
+						onKeyUp={(event) => {
+							if (
+								event.key === "Enter" &&
+								!isEditing &&
+								!readonly &&
+								!disallowEditingOnClick
+							) {
+								setIsEditing(true);
+							}
+						}}
 						ref={editableTextRef}
 						key={"viewed"}
 						className={`${className} truncate `}
@@ -108,6 +118,16 @@ const EditableText = ({
 			<div
 				onClick={() => {
 					if (!isEditing && !readonly && !disallowEditingOnClick) {
+						setIsEditing(true);
+					}
+				}}
+				onKeyUp={(event) => {
+					if (
+						event.key === "Enter" &&
+						!isEditing &&
+						!readonly &&
+						!disallowEditingOnClick
+					) {
 						setIsEditing(true);
 					}
 				}}
