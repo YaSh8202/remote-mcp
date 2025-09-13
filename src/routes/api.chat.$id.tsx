@@ -36,7 +36,6 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			const {
 				message,
 				system,
-
 				provider = LLMProvider.OPENAI, // Default to OpenAI
 				model,
 			}: {
@@ -45,6 +44,7 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				chatId?: string;
 				provider?: LLMProvider;
 				model?: string;
+				trigger?: "submit-message" | "regenerate-message";
 			} = body;
 
 			// Check if user has valid API keys for any provider

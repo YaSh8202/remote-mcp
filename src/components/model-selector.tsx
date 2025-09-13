@@ -17,10 +17,12 @@ import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import type { LLMProvider } from "@/types/models";
+import { LLMProvider as LLMProviderEnum } from "@/types/models";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Check, ChevronDown } from "lucide-react";
+import { Bot, Check, ChevronDown, Plus } from "lucide-react";
 import { Eye as Vision } from "lucide-react";
 import { useMemo, useState } from "react";
+import { AddLLMKeyDialog } from "./add-llm-key-dialog";
 import { llmProviderIcons } from "./icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
@@ -43,6 +45,7 @@ export function ModelSelector({
 	disabled,
 }: ModelSelectorProps) {
 	const [open, setOpen] = useState(false);
+	const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
 	const trpc = useTRPC();
 
 	const { data: keys = [] } = useQuery(
@@ -84,17 +87,51 @@ export function ModelSelector({
 		return groups;
 	}, [availableModels]);
 
+	// Calculate providers that don't have valid keys
+	const existingProviders = validKeys.map((key) => key.provider as LLMProvider);
+	const missingProviders = Object.values(LLMProviderEnum).filter(
+		(provider) => !existingProviders.includes(provider),
+	);
+	const canAddMoreKeys = missingProviders.length > 0;
+
+	// Debug logging
+	console.log("Debug ModelSelector:", {
+		validKeys: validKeys.length,
+		existingProviders,
+		missingProviders,
+		canAddMoreKeys,
+		allProviders: Object.values(LLMProviderEnum)
+	});
+
 	if (validKeys.length === 0) {
 		return (
-			<div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border-destructive/50">
-				<Bot className="h-4 w-4 text-destructive" />
-				<span className="text-sm text-destructive">No API keys configured</span>
-			</div>
+			<>
+				<div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border-destructive/50">
+					<Bot className="h-4 w-4 text-destructive" />
+					<span className="text-sm text-destructive flex-1">No API keys configured</span>
+					<Button
+						variant="outline"
+						size="sm"
+						onClick={() => setIsAddKeyDialogOpen(true)}
+						className="h-6 px-2 text-xs"
+					>
+						<Plus className="h-3 w-3 mr-1" />
+						Add Key
+					</Button>
+				</div>
+				
+				<AddLLMKeyDialog
+					open={isAddKeyDialogOpen}
+					onOpenChange={setIsAddKeyDialogOpen}
+					existingProviders={[]}
+				/>
+			</>
 		);
 	}
 
 	return (
-		<Popover open={open} onOpenChange={setOpen}>
+		<>
+			<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="ghost"
@@ -199,9 +236,32 @@ export function ModelSelector({
 								</CommandGroup>
 							))}
 						</div>
+						{canAddMoreKeys && (
+							<div className="border-t p-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => {
+										setIsAddKeyDialogOpen(true);
+										setOpen(false);
+									}}
+									className="w-full justify-start text-muted-foreground hover:text-foreground"
+								>
+									<Plus className="h-4 w-4 mr-2" />
+									Add API key for more providers ({missingProviders.length} available)
+								</Button>
+							</div>
+						)}
 					</CommandList>
 				</Command>
 			</PopoverContent>
 		</Popover>
+
+		<AddLLMKeyDialog
+			open={isAddKeyDialogOpen}
+			onOpenChange={setIsAddKeyDialogOpen}
+			existingProviders={existingProviders}
+		/>
+	</>
 	);
 }
