@@ -1,4 +1,5 @@
 import { DeleteAccountDialog } from "@/components/delete-account-dialog";
+import { LLMProviderSettings } from "@/components/llm-provider-settings";
 import { useTheme } from "@/components/theme-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -345,6 +346,11 @@ function RouteComponent() {
 					</CardContent>
 				</Card>
 			</section>
+
+			<Separator />
+
+			{/* LLM Provider Section */}
+			<LLMProviderSettings />
 
 			<Separator />
 

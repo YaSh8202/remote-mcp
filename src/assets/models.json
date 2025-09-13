@@ -1,0 +1,2334 @@
+{
+	"providers": [
+		{
+			"id": "openai",
+			"displayName": "OpenAI",
+			"defaultModelId": "openai:gpt-5-mini"
+		},
+		{
+			"id": "anthropic",
+			"displayName": "Anthropic",
+			"defaultModelId": "anthropic:claude-sonnet-4"
+		},
+		{
+			"id": "google",
+			"displayName": "Google (Gemini)",
+			"defaultModelId": "google:gemini-2.5-flash"
+		}
+	],
+	"models": [
+		{
+			"meta": {
+				"id": "google:gemini-2.5-flash-image-preview",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-flash-image-preview",
+				"displayName": "Google: Gemini 2.5 Flash Image Preview",
+				"description": "Gemini 2.5 Flash Image Preview is a state of the art image generation model with contextual understanding. It is capable of image generation, edits, and multi-turn conversations.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text"],
+					"output": ["image", "text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 32768,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.3,
+				"outputPerMTokUSD": 2.5,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-audio-preview",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-audio-preview",
+				"displayName": "OpenAI: GPT-4o Audio",
+				"description": "The gpt-4o-audio-preview model adds support for audio inputs as prompts. This enhancement allows the model to detect nuances within audio recordings and add depth to generated user experiences. Audio outputs are currently not supported. Audio tokens are priced at $40 per million input audio tokens.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["audio", "text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2.5,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-5-chat",
+				"provider": "openai",
+				"name": "gpt-5-chat",
+				"displayName": "OpenAI: GPT-5 Chat",
+				"description": "GPT-5 Chat is designed for advanced, natural, multimodal, and context-aware conversations for enterprise applications.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-5",
+				"provider": "openai",
+				"name": "gpt-5",
+				"displayName": "OpenAI: GPT-5",
+				"description": "GPT-5 is OpenAI’s most advanced model, offering major improvements in reasoning, code quality, and user experience. It is optimized for complex tasks that require step-by-step reasoning, instruction following, and accuracy in high-stakes use cases. It supports test-time routing features and advanced prompt understanding, including user-specified intent like \"think hard about this.\" Improvements include reductions in hallucination, sycophancy, and better performance in coding, writing, and health-related tasks.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 400000,
+				"maxOutputTokens": 128000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-5-mini",
+				"provider": "openai",
+				"name": "gpt-5-mini",
+				"displayName": "OpenAI: GPT-5 Mini",
+				"description": "GPT-5 Mini is a compact version of GPT-5, designed to handle lighter-weight reasoning tasks. It provides the same instruction-following and safety-tuning benefits as GPT-5, but with reduced latency and cost. GPT-5 Mini is the successor to OpenAI's o4-mini model.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 400000,
+				"maxOutputTokens": 128000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.25,
+				"outputPerMTokUSD": 2,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-5-nano",
+				"provider": "openai",
+				"name": "gpt-5-nano",
+				"displayName": "OpenAI: GPT-5 Nano",
+				"description": "GPT-5-Nano is the smallest and fastest variant in the GPT-5 system, optimized for developer tools, rapid interactions, and ultra-low latency environments. While limited in reasoning depth compared to its larger counterparts, it retains key instruction-following and safety features. It is the successor to GPT-4.1-nano and offers a lightweight option for cost-sensitive or real-time applications.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 400000,
+				"maxOutputTokens": 128000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.049999999999999996,
+				"outputPerMTokUSD": 0.39999999999999997,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-opus-4.1",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-opus-4.1",
+				"displayName": "Anthropic: Claude Opus 4.1",
+				"description": "Claude Opus 4.1 is an updated version of Anthropic’s flagship model, offering improved performance in coding, reasoning, and agentic tasks. It achieves 74.5% on SWE-bench Verified and shows notable gains in multi-file code refactoring, debugging precision, and detail-oriented reasoning. The model supports extended thinking up to 64K tokens and is optimized for tasks involving research, data analysis, and tool-assisted reasoning.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 32000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 15,
+				"outputPerMTokUSD": 75,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-flash-lite",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-flash-lite",
+				"displayName": "Google: Gemini 2.5 Flash Lite",
+				"description": "Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cost efficiency. It offers improved throughput, faster token generation, and better performance across common benchmarks compared to earlier Flash models.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65535
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.09999999999999999,
+				"outputPerMTokUSD": 0.39999999999999997,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-flash-lite-preview-06-17",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-flash-lite-preview-06-17",
+				"displayName": "Google: Gemini 2.5 Flash Lite Preview 06-17",
+				"description": "Gemini 2.5 Flash-Lite is a lightweight reasoning model in the Gemini 2.5 family, optimized for ultra-low latency and cost efficiency. It offers improved throughput, faster token generation, and better performance across common benchmarks compared to earlier Flash models.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65535
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.09999999999999999,
+				"outputPerMTokUSD": 0.39999999999999997,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-flash",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-flash",
+				"displayName": "Google: Gemini 2.5 Flash",
+				"description": "Gemini 2.5 Flash is Google's state-of-the-art workhorse model, specifically designed for advanced reasoning, coding, mathematics, and scientific tasks. It includes built-in \"thinking\" capabilities, enabling it to provide responses with greater accuracy and nuanced context handling.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65535
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.3,
+				"outputPerMTokUSD": 2.5,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-pro",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-pro",
+				"displayName": "Google: Gemini 2.5 Pro",
+				"description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65536
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o3-pro",
+				"provider": "openai",
+				"name": "o3-pro",
+				"displayName": "OpenAI: o3 Pro",
+				"description": "The o-series of models are trained with reinforcement learning to think before they answer and perform complex reasoning. The o3-pro model uses more compute to think harder and provide consistently better answers.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "file", "image"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 20,
+				"outputPerMTokUSD": 80,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-pro-preview",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-pro-preview",
+				"displayName": "Google: Gemini 2.5 Pro Preview 06-05",
+				"description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.\n",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["file", "image", "text", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65536
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-opus-4",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-opus-4",
+				"displayName": "Anthropic: Claude Opus 4",
+				"description": "Claude Opus 4 is benchmarked as the world’s best coding model, at time of release, bringing sustained performance on complex, long-running tasks and agent workflows. It sets new benchmarks in software engineering, achieving leading results on SWE-bench (72.5%) and Terminal-bench (43.2%). Opus 4 supports extended, agentic workflows, handling thousands of task steps continuously for hours without degradation. \n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-4)",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 32000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 15,
+				"outputPerMTokUSD": 75,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-sonnet-4",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-sonnet-4",
+				"displayName": "Anthropic: Claude Sonnet 4",
+				"description": "Claude Sonnet 4 significantly enhances the capabilities of its predecessor, Sonnet 3.7, excelling in both coding and reasoning tasks with improved precision and controllability. Achieving state-of-the-art performance on SWE-bench (72.7%), Sonnet 4 balances capability and computational efficiency, making it suitable for a broad range of applications from routine coding tasks to complex software development projects. Key enhancements include improved autonomous codebase navigation, reduced error rates in agent-driven workflows, and increased reliability in following intricate instructions. Sonnet 4 is optimized for practical everyday use, providing advanced reasoning capabilities while maintaining efficiency and responsiveness in diverse internal and external scenarios.\n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-4)",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 1000000,
+				"maxOutputTokens": 64000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 3,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:codex-mini",
+				"provider": "openai",
+				"name": "codex-mini",
+				"displayName": "OpenAI: Codex Mini",
+				"description": "codex-mini-latest is a fine-tuned version of o4-mini specifically for use in Codex CLI. For direct use in the API, we recommend starting with gpt-4.1.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.5,
+				"outputPerMTokUSD": 6,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-pro-preview-05-06",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-pro-preview-05-06",
+				"displayName": "Google: Gemini 2.5 Pro Preview 05-06",
+				"description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65535
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o4-mini-high",
+				"provider": "openai",
+				"name": "o4-mini-high",
+				"displayName": "OpenAI: o4 Mini High",
+				"description": "OpenAI o4-mini-high is the same model as [o4-mini](/openai/o4-mini) with reasoning_effort set to high. \n\nOpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retaining strong multimodal and agentic capabilities. It supports tool use and demonstrates competitive reasoning and coding performance across benchmarks like AIME (99.5% with Python) and SWE-bench, outperforming its predecessor o3-mini and even approaching o3 in some domains.\n\nDespite its smaller size, o4-mini exhibits high accuracy in STEM tasks, visual problem solving (e.g., MathVista, MMMU), and code editing. It is especially well-suited for high-throughput scenarios where latency or cost is critical. Thanks to its efficient architecture and refined reinforcement learning training, o4-mini can chain tools, generate structured outputs, and solve multi-step tasks with minimal delay—often in under a minute.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o3",
+				"provider": "openai",
+				"name": "o3",
+				"displayName": "OpenAI: o3",
+				"description": "o3 is a well-rounded and powerful model across domains. It sets a new standard for math, science, coding, and visual reasoning tasks. It also excels at technical writing and instruction-following. Use it to think through multi-step problems that involve analysis across text, code, and images. ",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2,
+				"outputPerMTokUSD": 8,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o4-mini",
+				"provider": "openai",
+				"name": "o4-mini",
+				"displayName": "OpenAI: o4 Mini",
+				"description": "OpenAI o4-mini is a compact reasoning model in the o-series, optimized for fast, cost-efficient performance while retaining strong multimodal and agentic capabilities. It supports tool use and demonstrates competitive reasoning and coding performance across benchmarks like AIME (99.5% with Python) and SWE-bench, outperforming its predecessor o3-mini and even approaching o3 in some domains.\n\nDespite its smaller size, o4-mini exhibits high accuracy in STEM tasks, visual problem solving (e.g., MathVista, MMMU), and code editing. It is especially well-suited for high-throughput scenarios where latency or cost is critical. Thanks to its efficient architecture and refined reinforcement learning training, o4-mini can chain tools, generate structured outputs, and solve multi-step tasks with minimal delay—often in under a minute.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4.1",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4.1",
+				"displayName": "OpenAI: GPT-4.1",
+				"description": "GPT-4.1 is a flagship large language model optimized for advanced instruction following, real-world software engineering, and long-context reasoning. It supports a 1 million token context window and outperforms GPT-4o and GPT-4.5 across coding (54.6% SWE-bench Verified), instruction compliance (87.4% IFEval), and multimodal understanding benchmarks. It is tuned for precise code diffs, agent reliability, and high recall in large document contexts, making it ideal for agents, IDE tooling, and enterprise knowledge retrieval.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1047576,
+				"maxOutputTokens": 32768
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2,
+				"outputPerMTokUSD": 8,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4.1-mini",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4.1-mini",
+				"displayName": "OpenAI: GPT-4.1 Mini",
+				"description": "GPT-4.1 Mini is a mid-sized model delivering performance competitive with GPT-4o at substantially lower latency and cost. It retains a 1 million token context window and scores 45.1% on hard instruction evals, 35.8% on MultiChallenge, and 84.1% on IFEval. Mini also shows strong coding ability (e.g., 31.6% on Aider’s polyglot diff benchmark) and vision understanding, making it suitable for interactive applications with tight performance constraints.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1047576,
+				"maxOutputTokens": 32768
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.39999999999999997,
+				"outputPerMTokUSD": 1.5999999999999999,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4.1-nano",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4.1-nano",
+				"displayName": "OpenAI: GPT-4.1 Nano",
+				"description": "For tasks that demand low latency, GPT‑4.1 nano is the fastest and cheapest model in the GPT-4.1 series. It delivers exceptional performance at a small size with its 1 million token context window, and scores 80.1% on MMLU, 50.3% on GPQA, and 9.8% on Aider polyglot coding – even higher than GPT‑4o mini. It’s ideal for tasks like classification or autocompletion.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["image", "text", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1047576,
+				"maxOutputTokens": 32768
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.09999999999999999,
+				"outputPerMTokUSD": 0.39999999999999997,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.5-pro-exp-03-25",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.5-pro-exp-03-25",
+				"displayName": "Google: Gemini 2.5 Pro Experimental",
+				"description": "This model has been deprecated by Google in favor of the (paid Preview model)[google/gemini-2.5-pro-preview]\n \nGemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 65535
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0,
+				"outputPerMTokUSD": 0,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o1-pro",
+				"provider": "openai",
+				"name": "o1-pro",
+				"displayName": "OpenAI: o1-pro",
+				"description": "The o1 series of models are trained with reinforcement learning to think before they answer and perform complex reasoning. The o1-pro model uses more compute to think harder and provide consistently better answers.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 150,
+				"outputPerMTokUSD": 600,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-mini-search-preview",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-mini-search-preview",
+				"displayName": "OpenAI: GPT-4o-mini Search Preview",
+				"description": "GPT-4o mini Search Preview is a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.15,
+				"outputPerMTokUSD": 0.6,
+				"perRequestUSD": 0.0275
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-search-preview",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-search-preview",
+				"displayName": "OpenAI: GPT-4o Search Preview",
+				"description": "GPT-4o Search Previewis a specialized model for web search in Chat Completions. It is trained to understand and execute web search queries.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2.5,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0.035
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.0-flash-lite-001",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.0-flash-lite-001",
+				"displayName": "Google: Gemini 2.0 Flash Lite",
+				"description": "Gemini 2.0 Flash Lite offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/google/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro 1.5](/google/gemini-pro-1.5), all at extremely economical token prices.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.075,
+				"outputPerMTokUSD": 0.3,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-3.7-sonnet",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3.7-sonnet",
+				"displayName": "Anthropic: Claude 3.7 Sonnet",
+				"description": "Claude 3.7 Sonnet is an advanced large language model with improved reasoning, coding, and problem-solving capabilities. It introduces a hybrid reasoning approach, allowing users to choose between rapid responses and extended, step-by-step processing for complex tasks. The model demonstrates notable improvements in coding, particularly in front-end development and full-stack updates, and excels in agentic workflows, where it can autonomously navigate multi-step processes. \n\nClaude 3.7 Sonnet maintains performance parity with its predecessor in standard mode while offering an extended reasoning mode for enhanced accuracy in math, coding, and instruction-following tasks.\n\nRead more at the [blog post here](https://www.anthropic.com/news/claude-3-7-sonnet)",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 64000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 3,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o3-mini-high",
+				"provider": "openai",
+				"name": "o3-mini-high",
+				"displayName": "OpenAI: o3 Mini High",
+				"description": "OpenAI o3-mini-high is the same model as [o3-mini](/openai/o3-mini) with reasoning_effort set to high. \n\no3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding. The model features three adjustable reasoning effort levels and supports key developer capabilities including function calling, structured outputs, and streaming, though it does not include vision processing capabilities.\n\nThe model demonstrates significant improvements over its predecessor, with expert testers preferring its responses 56% of the time and noting a 39% reduction in major errors on complex questions. With medium reasoning effort settings, o3-mini matches the performance of the larger o1 model on challenging reasoning evaluations like AIME and GPQA, while maintaining lower latency and cost.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.0-flash-001",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.0-flash-001",
+				"displayName": "Google: Gemini 2.0 Flash",
+				"description": "Gemini Flash 2.0 offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/google/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro 1.5](/google/gemini-pro-1.5). It introduces notable enhancements in multimodal understanding, coding capabilities, complex instruction following, and function calling. These advancements come together to deliver more seamless and robust agentic experiences.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file", "audio"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.09999999999999999,
+				"outputPerMTokUSD": 0.39999999999999997,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o3-mini",
+				"provider": "openai",
+				"name": "o3-mini",
+				"displayName": "OpenAI: o3 Mini",
+				"description": "OpenAI o3-mini is a cost-efficient language model optimized for STEM reasoning tasks, particularly excelling in science, mathematics, and coding.\n\nThis model supports the `reasoning_effort` parameter, which can be set to \"high\", \"medium\", or \"low\" to control the thinking time of the model. The default is \"medium\". OpenRouter also offers the model slug `openai/o3-mini-high` to default the parameter to \"high\".\n\nThe model features three adjustable reasoning effort levels and supports key developer capabilities including function calling, structured outputs, and streaming, though it does not include vision processing capabilities.\n\nThe model demonstrates significant improvements over its predecessor, with expert testers preferring its responses 56% of the time and noting a 39% reduction in major errors on complex questions. With medium reasoning effort settings, o3-mini matches the performance of the larger o1 model on challenging reasoning evaluations like AIME and GPQA, while maintaining lower latency and cost.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o1",
+				"provider": "openai",
+				"name": "o1",
+				"displayName": "OpenAI: o1",
+				"description": "The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding. The o1 model series is trained with large-scale reinforcement learning to reason using chain of thought. \n\nThe o1 models are optimized for math, science, programming, and other STEM-related tasks. They consistently exhibit PhD-level accuracy on benchmarks in physics, chemistry, and biology. Learn more in the [launch announcement](https://openai.com/o1).\n",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 100000
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 15,
+				"outputPerMTokUSD": 60,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-2.0-flash-exp",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-2.0-flash-exp",
+				"displayName": "Google: Gemini 2.0 Flash Experimental (free)",
+				"description": "Gemini Flash 2.0 offers a significantly faster time to first token (TTFT) compared to [Gemini Flash 1.5](/google/gemini-flash-1.5), while maintaining quality on par with larger models like [Gemini Pro 1.5](/google/gemini-pro-1.5). It introduces notable enhancements in multimodal understanding, coding capabilities, complex instruction following, and function calling. These advancements come together to deliver more seamless and robust agentic experiences.",
+				"tags": ["vision", "free"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1048576,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0,
+				"outputPerMTokUSD": 0,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-2024-11-20",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-2024-11-20",
+				"displayName": "OpenAI: GPT-4o (2024-11-20)",
+				"description": "The 2024-11-20 version of GPT-4o offers a leveled-up creative writing ability with more natural, engaging, and tailored writing to improve relevance & readability. It’s also better at working with uploaded files, providing deeper insights & more thorough responses.\n\nGPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2.5,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-3.5-haiku-20241022",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3-5-haiku-20241022",
+				"displayName": "Anthropic: Claude 3.5 Haiku",
+				"description": "Claude 3.5 Haiku features enhancements across all skill sets including coding, tool use, and reasoning. As the fastest model in the Anthropic lineup, it offers rapid response times suitable for applications that require high interactivity and low latency, such as user-facing chatbots and on-the-fly code completions. It also excels in specialized tasks like data extraction and real-time content moderation, making it a versatile tool for a broad range of industries.\n\nIt does not support image inputs.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/3-5-models-and-computer-use)",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.7999999999999999,
+				"outputPerMTokUSD": 4,
+				"perRequestUSD": 0
+			}
+		},
+
+		{
+			"meta": {
+				"id": "anthropic:claude-3.5-sonnet",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3.5-sonnet",
+				"displayName": "Anthropic: Claude 3.5 Sonnet",
+				"description": "New Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at:\n\n- Coding: Scores ~49% on SWE-Bench Verified, higher than the last best score, and without any fancy prompt scaffolding\n- Data science: Augments human data science expertise; navigates unstructured data while using multiple tools for insights\n- Visual processing: excelling at interpreting charts, graphs, and images, accurately transcribing text to derive insights beyond just the text alone\n- Agentic tasks: exceptional tool use, making it great at agentic tasks (i.e. complex, multi-step problem solving tasks that require engaging with other systems)\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 3,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-flash-1.5-8b",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-flash-1.5-8b",
+				"displayName": "Google: Gemini 1.5 Flash 8B",
+				"description": "Gemini Flash 1.5 8B is optimized for speed and efficiency, offering enhanced performance in small prompt tasks like chat, transcription, and translation. With reduced latency, it is highly effective for real-time and large-scale operations. This model focuses on cost-effective solutions while maintaining high-quality results.\n\n[Click here to learn more about this model](https://developers.googleblog.com/en/gemini-15-flash-8b-is-now-generally-available-for-use/).\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1000000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.0375,
+				"outputPerMTokUSD": 0.15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o1-mini-2024-09-12",
+				"provider": "openai",
+				"name": "o1-mini-2024-09-12",
+				"displayName": "OpenAI: o1-mini (2024-09-12)",
+				"description": "The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding.\n\nThe o1 models are optimized for math, science, programming, and other STEM-related tasks. They consistently exhibit PhD-level accuracy on benchmarks in physics, chemistry, and biology. Learn more in the [launch announcement](https://openai.com/o1).\n\nNote: This model is currently experimental and not suitable for production use-cases, and may be heavily rate-limited.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 65536
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:o1-mini",
+				"provider": "openai",
+				"name": "o1-mini",
+				"displayName": "OpenAI: o1-mini",
+				"description": "The latest and strongest model family from OpenAI, o1 is designed to spend more time thinking before responding.\n\nThe o1 models are optimized for math, science, programming, and other STEM-related tasks. They consistently exhibit PhD-level accuracy on benchmarks in physics, chemistry, and biology. Learn more in the [launch announcement](https://openai.com/o1).\n\nNote: This model is currently experimental and not suitable for production use-cases, and may be heavily rate-limited.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 65536
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.1,
+				"outputPerMTokUSD": 4.4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:chatgpt-4o-latest",
+				"provider": "openai",
+				"name": "chatgpt-4o-latest",
+				"displayName": "OpenAI: ChatGPT-4o",
+				"description": "OpenAI ChatGPT 4o is continually updated by OpenAI to point to the current version of GPT-4o used by ChatGPT. It therefore differs slightly from the API version of [GPT-4o](/models/openai/gpt-4o) in that it has additional RLHF. It is intended for research and evaluation.\n\nOpenAI notes that this model is not suited for production use-cases as it may be removed or redirected to another model in the future.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 5,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-2024-08-06",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-2024-08-06",
+				"displayName": "OpenAI: GPT-4o (2024-08-06)",
+				"description": "The 2024-08-06 version of GPT-4o offers improved performance in structured outputs, with the ability to supply a JSON schema in the respone_format. Read more [here](https://openai.com/index/introducing-structured-outputs-in-the-api/).\n\nGPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2.5,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-mini",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-mini",
+				"displayName": "OpenAI: GPT-4o-mini",
+				"description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs.\n\nAs their most advanced small model, it is many multiples more affordable than other recent frontier models, and more than 60% cheaper than [GPT-3.5 Turbo](/models/openai/gpt-3.5-turbo). It maintains SOTA intelligence, while being significantly more cost-effective.\n\nGPT-4o mini achieves an 82% score on MMLU and presently ranks higher than GPT-4 on chat preferences [common leaderboards](https://arena.lmsys.org/).\n\nCheck out the [launch announcement](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/) to learn more.\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.15,
+				"outputPerMTokUSD": 0.6,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-mini-2024-07-18",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-mini-2024-07-18",
+				"displayName": "OpenAI: GPT-4o-mini (2024-07-18)",
+				"description": "GPT-4o mini is OpenAI's newest model after [GPT-4 Omni](/models/openai/gpt-4o), supporting both text and image inputs with text outputs.\n\nAs their most advanced small model, it is many multiples more affordable than other recent frontier models, and more than 60% cheaper than [GPT-3.5 Turbo](/models/openai/gpt-3.5-turbo). It maintains SOTA intelligence, while being significantly more cost-effective.\n\nGPT-4o mini achieves an 82% score on MMLU and presently ranks higher than GPT-4 on chat preferences [common leaderboards](https://arena.lmsys.org/).\n\nCheck out the [launch announcement](https://openai.com/index/gpt-4o-mini-advancing-cost-efficient-intelligence/) to learn more.\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.15,
+				"outputPerMTokUSD": 0.6,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-3.5-sonnet-20240620",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3.5-sonnet-20240620",
+				"displayName": "Anthropic: Claude 3.5 Sonnet (2024-06-20)",
+				"description": "Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at:\n\n- Coding: Autonomously writes, edits, and runs code with reasoning and troubleshooting\n- Data science: Augments human data science expertise; navigates unstructured data while using multiple tools for insights\n- Visual processing: excelling at interpreting charts, graphs, and images, accurately transcribing text to derive insights beyond just the text alone\n- Agentic tasks: exceptional tool use, making it great at agentic tasks (i.e. complex, multi-step problem solving tasks that require engaging with other systems)\n\nFor the latest version (2024-10-23), check out [Claude 3.5 Sonnet](/anthropic/claude-3.5-sonnet).\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 3,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-flash-1.5",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-flash-1.5",
+				"displayName": "Google: Gemini 1.5 Flash ",
+				"description": "Gemini 1.5 Flash is a foundation model that performs well at a variety of multimodal tasks such as visual understanding, classification, summarization, and creating content from image, audio and video. It's adept at processing visual and text inputs such as photographs, documents, infographics, and screenshots.\n\nGemini 1.5 Flash is designed for high-volume, high-frequency tasks where cost and latency matter. On most common tasks, Flash achieves comparable quality to other Gemini Pro models at a significantly reduced cost. Flash is well-suited for applications like chat assistants and on-demand content generation where speed and scale matter.\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 1000000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.075,
+				"outputPerMTokUSD": 0.3,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o-2024-05-13",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o-2024-05-13",
+				"displayName": "OpenAI: GPT-4o (2024-05-13)",
+				"description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 5,
+				"outputPerMTokUSD": 15,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4o",
+				"provider": "openai",
+				"family": "gpt-4o",
+				"name": "gpt-4o",
+				"displayName": "OpenAI: GPT-4o",
+				"description": "GPT-4o (\"o\" for \"omni\") is OpenAI's latest AI model, supporting both text and image inputs with text outputs. It maintains the intelligence level of [GPT-4 Turbo](/models/openai/gpt-4-turbo) while being twice as fast and 50% more cost-effective. GPT-4o also offers improved performance in processing non-English languages and enhanced visual capabilities.\n\nFor benchmarking against other models, it was briefly called [\"im-also-a-good-gpt2-chatbot\"](https://twitter.com/LiamFedus/status/1790064963966370209)\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image", "file"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 16384
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 2.5,
+				"outputPerMTokUSD": 10,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4-turbo",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4-turbo",
+				"displayName": "OpenAI: GPT-4 Turbo",
+				"description": "The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling.\n\nTraining data: up to December 2023.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 10,
+				"outputPerMTokUSD": 30,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "google:gemini-pro-1.5",
+				"provider": "google",
+				"family": "gemini",
+				"name": "gemini-pro-1.5",
+				"displayName": "Google: Gemini 1.5 Pro",
+				"description": "Google's latest multimodal model, supports image and video[0] in text or chat prompts.\n\nOptimized for language tasks including:\n\n- Code generation\n- Text generation\n- Text editing\n- Problem solving\n- Recommendations\n- Information extraction\n- Data extraction or generation\n- AI agents\n\nUsage of Gemini is subject to Google's [Gemini Terms of Use](https://ai.google.dev/terms).\n\n* [0]: Video input is not available through OpenRouter at this time.",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 2000000,
+				"maxOutputTokens": 8192
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.25,
+				"outputPerMTokUSD": 5,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-3-haiku",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3-haiku",
+				"displayName": "Anthropic: Claude 3 Haiku",
+				"description": "Claude 3 Haiku is Anthropic's fastest and most compact model for\nnear-instant responsiveness. Quick and accurate targeted performance.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-haiku)\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.25,
+				"outputPerMTokUSD": 1.25,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "anthropic:claude-3-opus",
+				"provider": "anthropic",
+				"family": "claude",
+				"name": "claude-3-opus",
+				"displayName": "Anthropic: Claude 3 Opus",
+				"description": "Claude 3 Opus is Anthropic's most powerful model for highly complex tasks. It boasts top-level performance, intelligence, fluency, and understanding.\n\nSee the launch announcement and benchmark results [here](https://www.anthropic.com/news/claude-3-family)\n\n#multimodal",
+				"tags": ["vision"]
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text", "image"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "tool_use", "function_calling"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto"
+				}
+			},
+			"limits": {
+				"contextWindow": 200000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 15,
+				"outputPerMTokUSD": 75,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4-turbo-preview",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4-turbo-preview",
+				"displayName": "OpenAI: GPT-4 Turbo Preview",
+				"description": "The preview GPT-4 model with improved instruction following, JSON mode, reproducible outputs, parallel function calling, and more. Training data: up to Dec 2023.\n\n**Note:** heavily rate limited by OpenAI while in preview.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 10,
+				"outputPerMTokUSD": 30,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-3.5-turbo-0613",
+				"provider": "openai",
+				"family": "gpt-3.5",
+				"name": "gpt-3.5-turbo-0613",
+				"displayName": "OpenAI: GPT-3.5 Turbo (older v0613)",
+				"description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 4095,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1,
+				"outputPerMTokUSD": 2,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4-1106-preview",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4-1106-preview",
+				"displayName": "OpenAI: GPT-4 Turbo (older v1106)",
+				"description": "The latest GPT-4 Turbo model with vision capabilities. Vision requests can now use JSON mode and function calling.\n\nTraining data: up to April 2023.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 128000,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 10,
+				"outputPerMTokUSD": 30,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-3.5-turbo-instruct",
+				"provider": "openai",
+				"family": "gpt-3.5",
+				"name": "gpt-3.5-turbo-instruct",
+				"displayName": "OpenAI: GPT-3.5 Turbo Instruct",
+				"description": "This model is a variant of GPT-3.5 Turbo tuned for instructional prompts and omitting chat-related optimizations. Training data: up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": ["chat", "structured_output", "json_mode"],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": false,
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 4095,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 1.5,
+				"outputPerMTokUSD": 2,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-3.5-turbo-16k",
+				"provider": "openai",
+				"family": "gpt-3.5",
+				"name": "gpt-3.5-turbo-16k",
+				"displayName": "OpenAI: GPT-3.5 Turbo 16k",
+				"description": "This model offers four times the context length of gpt-3.5-turbo, allowing it to support approximately 20 pages of text in a single request at a higher cost. Training data: up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 16385,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 3,
+				"outputPerMTokUSD": 4,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4-0314",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4-0314",
+				"displayName": "OpenAI: GPT-4 (older v0314)",
+				"description": "GPT-4-0314 is the first version of GPT-4 released, with a context length of 8,192 tokens, and was supported until June 14. Training data: up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 8191,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 30,
+				"outputPerMTokUSD": 60,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-4",
+				"provider": "openai",
+				"family": "gpt-4",
+				"name": "gpt-4",
+				"displayName": "OpenAI: GPT-4",
+				"description": "OpenAI's flagship model, GPT-4 is a large-scale multimodal language model capable of solving difficult problems with greater accuracy than previous models due to its broader general knowledge and advanced reasoning capabilities. Training data: up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 8191,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 30,
+				"outputPerMTokUSD": 60,
+				"perRequestUSD": 0
+			}
+		},
+		{
+			"meta": {
+				"id": "openai:gpt-3.5-turbo",
+				"provider": "openai",
+				"family": "gpt-3.5",
+				"name": "gpt-3.5-turbo",
+				"displayName": "OpenAI: GPT-3.5 Turbo",
+				"description": "GPT-3.5 Turbo is OpenAI's fastest model. It can understand and generate natural language or code, and is optimized for chat and traditional completion tasks.\n\nTraining data up to Sep 2021.",
+				"tags": []
+			},
+			"capabilities": {
+				"modalities": {
+					"input": ["text"],
+					"output": ["text"]
+				},
+				"tasks": [
+					"chat",
+					"tool_use",
+					"function_calling",
+					"structured_output",
+					"json_mode"
+				],
+				"supports": {
+					"streaming": true,
+					"systemPrompt": true,
+					"parallelToolCalls": true,
+					"toolChoice": "auto",
+					"responseFormat": ["json_schema", "json"]
+				}
+			},
+			"limits": {
+				"contextWindow": 16385,
+				"maxOutputTokens": 4096
+			},
+			"pricing": {
+				"currency": "USD",
+				"inputPerMTokUSD": 0.5,
+				"outputPerMTokUSD": 1.5,
+				"perRequestUSD": 0
+			}
+		}
+	],
+	"version": "1.0.0",
+	"generatedAt": "2025-09-06T12:52:08.854Z"
+}

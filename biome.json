@@ -23,6 +23,10 @@
 			"recommended": true,
 			"suspicious": {
 				"noArrayIndexKey": "off"
+			},
+			"a11y": {
+				"useKeyWithClickEvents": "off",
+				"useSemanticElements": "off"
 			}
 		}
 	},

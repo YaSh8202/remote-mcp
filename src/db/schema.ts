@@ -1,3 +1,4 @@
+import type { LLMProvider } from "@/types/models";
 import { relations } from "drizzle-orm";
 import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
@@ -208,6 +209,166 @@ export type NewMcpApp = typeof mcpApps.$inferInsert;
 export type McpRun = typeof mcpRuns.$inferSelect;
 export type NewMcpRun = typeof mcpRuns.$inferInsert;
 
+// Chat and Message Schemas
+export const chats = pgTable("chats", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	lastMessagedAt: timestamp("last_messaged_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	title: text("title"),
+	archived: boolean("archived").notNull().default(false),
+	ownerId: text("owner_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	// Additional metadata for the chat session
+	metadata: jsonb("metadata")
+		.$type<{
+			model?: string;
+			system?: string;
+			temperature?: number;
+			maxTokens?: number;
+			[key: string]: unknown;
+		}>()
+		.default({}),
+});
+
+export enum MessageRole {
+	USER = "user",
+	ASSISTANT = "assistant",
+	SYSTEM = "system",
+	TOOL = "tool",
+}
+
+export enum MessageStatus {
+	IN_PROGRESS = "in_progress",
+	COMPLETE = "complete",
+	CANCELLED = "cancelled",
+	ERROR = "error",
+}
+
+export const messages = pgTable("messages", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	chatId: text("chat_id")
+		.notNull()
+		.references(() => chats.id, { onDelete: "cascade" }),
+	role: text("role").$type<MessageRole>().notNull(),
+	// Store the complete message content as per AI SDK v5 spec
+	// This includes parts array with text, tool-call, tool-result, file, image, etc.
+	content: jsonb("content")
+		.$type<
+			Array<{
+				type: string;
+				text?: string;
+				// Tool call parts
+				toolCallId?: string;
+				toolName?: string;
+				input?: Record<string, unknown>;
+				output?: Record<string, unknown>;
+				result?: Record<string, unknown>;
+				isError?: boolean;
+				// File/image parts
+				data?: string;
+				url?: string;
+				mediaType?: string;
+				filename?: string;
+				// Reasoning parts
+				reasoning?: string;
+				// Custom data parts
+				[key: string]: unknown;
+			}>
+		>()
+		.notNull(),
+	// Status for assistant messages (streaming, completion, etc.)
+	status: text("status").$type<MessageStatus>().default(MessageStatus.COMPLETE),
+	// Parent message ID for branching conversations
+	parentId: text("parent_id"),
+	// Branch index for multiple response variants
+	branchIndex: text("branch_index").default("0"),
+	// Token usage tracking
+	tokenUsage: jsonb("token_usage").$type<{
+		promptTokens?: number;
+		completionTokens?: number;
+		totalTokens?: number;
+	}>(),
+	// Additional metadata compatible with assistant-ui
+	metadata: jsonb("metadata")
+		.$type<{
+			steps?: Array<{
+				type: string;
+				toolCallId?: string;
+				toolName?: string;
+				input?: Record<string, unknown>;
+				output?: Record<string, unknown>;
+				status?: string;
+			}>;
+			attachments?: Array<{
+				id: string;
+				name: string;
+				contentType: string;
+				size?: number;
+				url?: string;
+			}>;
+			custom?: Record<string, unknown>;
+			[key: string]: unknown;
+		}>()
+		.default({}),
+});
+
+export type Chat = typeof chats.$inferSelect;
+export type NewChat = typeof chats.$inferInsert;
+export type Message = typeof messages.$inferSelect;
+export type NewMessage = typeof messages.$inferInsert;
+
+export const llmProviderKeys = pgTable("llm_provider_keys", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	provider: text("provider").$type<LLMProvider>().notNull(),
+	// Encrypted API key
+	encryptedKey: jsonb("encrypted_key").$type<EncryptedObject>().notNull(),
+	// Whether this is the default key for this provider
+	isDefault: boolean("is_default").notNull().default(false),
+	// Key validation status
+	isValid: boolean("is_valid").notNull().default(true),
+	// Last validation timestamp
+	lastValidated: timestamp("last_validated", { withTimezone: true }),
+	// Key metadata (model access, rate limits, etc.)
+	metadata: jsonb("metadata")
+		.$type<{
+			models?: string[];
+			rateLimit?: number;
+			usage?: {
+				used: number;
+				limit: number;
+				resetDate?: string;
+			};
+			[key: string]: unknown;
+		}>()
+		.default({}),
+});
+
+export type LLMProviderKey = typeof llmProviderKeys.$inferSelect;
+export type NewLLMProviderKey = typeof llmProviderKeys.$inferInsert;
+
 // Database Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
 	sessions: many(sessions),
@@ -215,9 +376,34 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 	appConnections: many(appConnections),
 	mcpServers: many(mcpServer),
 	mcpRuns: many(mcpRuns),
+	chats: many(chats),
+	llmProviderKeys: many(llmProviderKeys),
 	settings: one(userSettings, {
 		fields: [users.id],
 		references: [userSettings.userId],
+	}),
+}));
+
+export const chatsRelations = relations(chats, ({ one, many }) => ({
+	owner: one(users, {
+		fields: [chats.ownerId],
+		references: [users.id],
+	}),
+	messages: many(messages),
+}));
+
+export const messagesRelations = relations(messages, ({ one, many }) => ({
+	chat: one(chats, {
+		fields: [messages.chatId],
+		references: [chats.id],
+	}),
+	parent: one(messages, {
+		fields: [messages.parentId],
+		references: [messages.id],
+		relationName: "message_children",
+	}),
+	children: many(messages, {
+		relationName: "message_children",
 	}),
 }));
 
@@ -284,3 +470,13 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 		references: [users.id],
 	}),
 }));
+
+export const llmProviderKeysRelations = relations(
+	llmProviderKeys,
+	({ one }) => ({
+		user: one(users, {
+			fields: [llmProviderKeys.userId],
+			references: [users.id],
+		}),
+	}),
+);

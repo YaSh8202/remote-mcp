@@ -1,0 +1,1 @@
+ALTER TABLE "llm_provider_keys" DROP COLUMN "display_name";
