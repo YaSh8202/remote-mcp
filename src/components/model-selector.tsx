@@ -94,21 +94,14 @@ export function ModelSelector({
 	);
 	const canAddMoreKeys = missingProviders.length > 0;
 
-	// Debug logging
-	console.log("Debug ModelSelector:", {
-		validKeys: validKeys.length,
-		existingProviders,
-		missingProviders,
-		canAddMoreKeys,
-		allProviders: Object.values(LLMProviderEnum)
-	});
-
 	if (validKeys.length === 0) {
 		return (
 			<>
 				<div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg border-destructive/50">
 					<Bot className="h-4 w-4 text-destructive" />
-					<span className="text-sm text-destructive flex-1">No API keys configured</span>
+					<span className="text-sm text-destructive flex-1">
+						No API keys configured
+					</span>
 					<Button
 						variant="outline"
 						size="sm"
@@ -119,7 +112,7 @@ export function ModelSelector({
 						Add Key
 					</Button>
 				</div>
-				
+
 				<AddLLMKeyDialog
 					open={isAddKeyDialogOpen}
 					onOpenChange={setIsAddKeyDialogOpen}
@@ -132,136 +125,137 @@ export function ModelSelector({
 	return (
 		<>
 			<Popover open={open} onOpenChange={setOpen}>
-			<PopoverTrigger asChild>
-				<Button
-					variant="ghost"
-					aria-expanded={open}
-					className="justify-between  max-w-[300px]"
-					disabled={disabled}
-				>
-					<div className="flex items-center gap-2 truncate">
-						{selectedModelInfo && (
-							<span className="text-sm">
-								<ProviderIcon provider={selectedModelInfo.meta.provider} />
+				<PopoverTrigger asChild>
+					<Button
+						variant="ghost"
+						aria-expanded={open}
+						className="justify-between  max-w-[300px]"
+						disabled={disabled}
+					>
+						<div className="flex items-center gap-2 truncate">
+							{selectedModelInfo && (
+								<span className="text-sm">
+									<ProviderIcon provider={selectedModelInfo.meta.provider} />
+								</span>
+							)}
+							<span className="truncate">
+								{selectedModelInfo
+									? selectedModelInfo.meta.displayName
+									: "Select model"}
 							</span>
-						)}
-						<span className="truncate">
-							{selectedModelInfo
-								? selectedModelInfo.meta.displayName
-								: "Select model"}
-						</span>
-					</div>
-					<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-				</Button>
-			</PopoverTrigger>
-			<PopoverContent className="w-[400px] p-0" align="start">
-				<Command>
-					<CommandInput placeholder="Search models..." className="h-9" />
-					<CommandList>
-						<CommandEmpty>No models found.</CommandEmpty>
-						<div className="max-h-[300px] overflow-auto">
-							{Object.entries(groupedModels).map(([provider, models]) => (
-								<CommandGroup
-									key={provider}
-									heading={
-										<div className="flex items-center gap-2">
-											<span>
-												<ProviderIcon provider={provider as LLMProvider} />
-											</span>
-											{getProviderDisplayName(provider as LLMProvider)}
-										</div>
-									}
-								>
-									{models.map((model) => (
-										<CommandItem
-											key={model.meta.id}
-											value={`${model.meta.displayName} ${model.meta.id} ${model.meta.name} ${model.meta.family || ""}`}
-											onSelect={() => {
-												onModelSelect(model.meta.id, model.meta.provider);
-												setOpen(false);
-											}}
-											className="py-3"
-										>
-											<Check
-												className={cn(
-													"mr-2 h-4 w-4",
-													selectedModel === model.meta.id
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-											<div className="flex-1 space-y-1">
-												<div className="flex items-center justify-between">
-													<span className="font-medium text-sm">
-														{model.meta.displayName.split(":")[1]}
-													</span>
-													<div className="flex gap-1">
-														{model.meta.tags.slice(0, 2).map((tag, index) => (
-															<Badge
-																key={index}
-																variant="secondary"
-																className="text-xs h-5 px-1.5"
-															>
-																{tag === "vision" ? (
-																	<Tooltip>
-																		<TooltipTrigger>
-																			<Vision className="h-3 w-3" />
-																		</TooltipTrigger>
-																		<TooltipContent>
-																			Supports image uploads and analysis
-																		</TooltipContent>
-																	</Tooltip>
-																) : (
-																	tag
-																)}
-															</Badge>
-														))}
+						</div>
+						<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+					</Button>
+				</PopoverTrigger>
+				<PopoverContent className="w-[400px] p-0" align="start">
+					<Command>
+						<CommandInput placeholder="Search models..." className="h-9" />
+						<CommandList>
+							<CommandEmpty>No models found.</CommandEmpty>
+							<div className="max-h-[300px] overflow-auto">
+								{Object.entries(groupedModels).map(([provider, models]) => (
+									<CommandGroup
+										key={provider}
+										heading={
+											<div className="flex items-center gap-2">
+												<span>
+													<ProviderIcon provider={provider as LLMProvider} />
+												</span>
+												{getProviderDisplayName(provider as LLMProvider)}
+											</div>
+										}
+									>
+										{models.map((model) => (
+											<CommandItem
+												key={model.meta.id}
+												value={`${model.meta.displayName} ${model.meta.id} ${model.meta.name} ${model.meta.family || ""}`}
+												onSelect={() => {
+													onModelSelect(model.meta.id, model.meta.provider);
+													setOpen(false);
+												}}
+												className="py-3"
+											>
+												<Check
+													className={cn(
+														"mr-2 h-4 w-4",
+														selectedModel === model.meta.id
+															? "opacity-100"
+															: "opacity-0",
+													)}
+												/>
+												<div className="flex-1 space-y-1">
+													<div className="flex items-center justify-between">
+														<span className="font-medium text-sm">
+															{model.meta.displayName.split(":")[1]}
+														</span>
+														<div className="flex gap-1">
+															{model.meta.tags.slice(0, 2).map((tag, index) => (
+																<Badge
+																	key={index}
+																	variant="secondary"
+																	className="text-xs h-5 px-1.5"
+																>
+																	{tag === "vision" ? (
+																		<Tooltip>
+																			<TooltipTrigger>
+																				<Vision className="h-3 w-3" />
+																			</TooltipTrigger>
+																			<TooltipContent>
+																				Supports image uploads and analysis
+																			</TooltipContent>
+																		</Tooltip>
+																	) : (
+																		tag
+																	)}
+																</Badge>
+															))}
+														</div>
+													</div>
+													<div className="flex items-center gap-2 text-xs text-muted-foreground">
+														<span>
+															Context:{" "}
+															{(model.limits.contextWindow / 1000).toFixed(0)}k
+														</span>
+														<span>•</span>
+														<span>
+															${model.pricing.inputPerMTokUSD.toFixed(2)}/ $
+															{model.pricing.outputPerMTokUSD.toFixed(2)} per 1M
+															tokens
+														</span>
 													</div>
 												</div>
-												<div className="flex items-center gap-2 text-xs text-muted-foreground">
-													<span>
-														Context:{" "}
-														{(model.limits.contextWindow / 1000).toFixed(0)}k
-													</span>
-													<span>•</span>
-													<span>
-														${model.pricing.inputPerMTokUSD.toFixed(2)}/ $
-														{model.pricing.outputPerMTokUSD.toFixed(2)} per 1M
-														tokens
-													</span>
-												</div>
-											</div>
-										</CommandItem>
-									))}
-								</CommandGroup>
-							))}
-						</div>
-						{canAddMoreKeys && (
-							<div className="border-t p-2">
-								<Button
-									variant="ghost"
-									size="sm"
-									onClick={() => {
-										setIsAddKeyDialogOpen(true);
-										setOpen(false);
-									}}
-									className="w-full justify-start text-muted-foreground hover:text-foreground"
-								>
-									<Plus className="h-4 w-4 mr-2" />
-									Add API key for more providers ({missingProviders.length} available)
-								</Button>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								))}
 							</div>
-						)}
-					</CommandList>
-				</Command>
-			</PopoverContent>
-		</Popover>
+							{canAddMoreKeys && (
+								<div className="border-t p-2">
+									<Button
+										variant="ghost"
+										size="sm"
+										onClick={() => {
+											setIsAddKeyDialogOpen(true);
+											setOpen(false);
+										}}
+										className="w-full justify-start text-muted-foreground hover:text-foreground"
+									>
+										<Plus className="h-4 w-4 mr-2" />
+										Add API key for more providers ({missingProviders.length}{" "}
+										available)
+									</Button>
+								</div>
+							)}
+						</CommandList>
+					</Command>
+				</PopoverContent>
+			</Popover>
 
-		<AddLLMKeyDialog
-			open={isAddKeyDialogOpen}
-			onOpenChange={setIsAddKeyDialogOpen}
-			existingProviders={existingProviders}
-		/>
-	</>
+			<AddLLMKeyDialog
+				open={isAddKeyDialogOpen}
+				onOpenChange={setIsAddKeyDialogOpen}
+				existingProviders={existingProviders}
+			/>
+		</>
 	);
 }

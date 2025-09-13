@@ -40,7 +40,7 @@ function ChatPage() {
 				status: string;
 			}>;
 			if (message.role !== "user") return;
-			
+
 			// this is to handle the case where user creates a new chat and sends a message, and we need to create the chat first before sending the message to model
 			// once chat/$chatId page is loaded, it will check for the first user messages with "pending" status and send them to model
 			message.metadata = {
