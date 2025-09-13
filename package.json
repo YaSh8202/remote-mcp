@@ -8,12 +8,13 @@
     "build": "vite build",
     "serve": "vite preview",
     "test": "vitest run",
-    "format": "biome format",
+    "format": "biome check --write",
     "lint": "biome lint",
     "check": "biome check",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.15",
@@ -131,6 +132,7 @@
     "@types/ws": "^8.18.1",
     "@vitejs/plugin-react": "^4.7.0",
     "drizzle-kit": "^0.31.4",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
     "typescript": "^5.9.2",
     "vite": "^6.3.5",

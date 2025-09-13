@@ -156,7 +156,6 @@ const AttachmentUI: FC = () => {
 								isComposer &&
 									"aui-attachment-tile-composer border-foreground/20",
 							)}
-							// biome-ignore lint/a11y/useSemanticElements: <explanation>
 							role="button"
 							tabIndex={0}
 							id="attachment-tile"
