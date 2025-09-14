@@ -369,6 +369,89 @@ export const llmProviderKeys = pgTable("llm_provider_keys", {
 export type LLMProviderKey = typeof llmProviderKeys.$inferSelect;
 export type NewLLMProviderKey = typeof llmProviderKeys.$inferInsert;
 
+// OAuth2 Schemas
+export enum OAuthClientGrant {
+	AUTHORIZATION_CODE = "authorization_code",
+	REFRESH_TOKEN = "refresh_token",
+}
+
+export enum OAuthClientScope {
+	READ = "read",
+	WRITE = "write",
+}
+
+export const oauthClients = pgTable("oauth_clients", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	deletedAt: timestamp("deleted_at", { withTimezone: true }),
+	name: text("name").notNull().default(""),
+	uri: text("uri").notNull().default(""),
+	secret: text("secret").notNull(),
+	redirectUris: jsonb("redirect_uris").$type<string[]>().notNull(),
+	grants: jsonb("grants").$type<OAuthClientGrant[]>().notNull(),
+	scope: jsonb("scope").$type<OAuthClientScope[]>().notNull(),
+	accessTokenLifetime: text("access_token_lifetime").notNull(),
+	refreshTokenLifetime: text("refresh_token_lifetime").notNull(),
+	userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+});
+
+export const oauthAuthorizationCodes = pgTable("oauth_authorization_codes", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	authorizationCode: text("authorization_code").notNull().unique(),
+	expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+	redirectUri: text("redirect_uri").notNull(),
+	scope: jsonb("scope").$type<string[]>().notNull(),
+	clientId: text("client_id")
+		.notNull()
+		.references(() => oauthClients.id, { onDelete: "cascade" }),
+	userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+	codeChallenge: text("code_challenge"),
+	codeChallengeMethod: text("code_challenge_method"),
+});
+
+export const oauthAccessTokens = pgTable("oauth_access_tokens", {
+	id: text("id").primaryKey(),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	accessToken: text("access_token").notNull().unique(),
+	accessTokenExpiresAt: timestamp("access_token_expires_at", {
+		withTimezone: true,
+	}).notNull(),
+	refreshToken: text("refresh_token").notNull(),
+	refreshTokenExpiresAt: timestamp("refresh_token_expires_at", {
+		withTimezone: true,
+	}).notNull(),
+	scope: jsonb("scope").$type<string[]>().notNull(),
+	clientId: text("client_id")
+		.notNull()
+		.references(() => oauthClients.id, { onDelete: "cascade" }),
+	userId: text("user_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+});
+
+export type OAuthClient = typeof oauthClients.$inferSelect;
+export type NewOAuthClient = typeof oauthClients.$inferInsert;
+export type OAuthAuthorizationCode = typeof oauthAuthorizationCodes.$inferSelect;
+export type NewOAuthAuthorizationCode = typeof oauthAuthorizationCodes.$inferInsert;
+export type OAuthAccessToken = typeof oauthAccessTokens.$inferSelect;
+export type NewOAuthAccessToken = typeof oauthAccessTokens.$inferInsert;
+
 // Database Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
 	sessions: many(sessions),
@@ -378,6 +461,9 @@ export const usersRelations = relations(users, ({ one, many }) => ({
 	mcpRuns: many(mcpRuns),
 	chats: many(chats),
 	llmProviderKeys: many(llmProviderKeys),
+	oauthClients: many(oauthClients),
+	oauthAuthorizationCodes: many(oauthAuthorizationCodes),
+	oauthAccessTokens: many(oauthAccessTokens),
 	settings: one(userSettings, {
 		fields: [users.id],
 		references: [userSettings.userId],
@@ -476,6 +562,43 @@ export const llmProviderKeysRelations = relations(
 	({ one }) => ({
 		user: one(users, {
 			fields: [llmProviderKeys.userId],
+			references: [users.id],
+		}),
+	}),
+);
+
+export const oauthClientsRelations = relations(oauthClients, ({ one, many }) => ({
+	user: one(users, {
+		fields: [oauthClients.userId],
+		references: [users.id],
+	}),
+	authorizationCodes: many(oauthAuthorizationCodes),
+	accessTokens: many(oauthAccessTokens),
+}));
+
+export const oauthAuthorizationCodesRelations = relations(
+	oauthAuthorizationCodes,
+	({ one }) => ({
+		client: one(oauthClients, {
+			fields: [oauthAuthorizationCodes.clientId],
+			references: [oauthClients.id],
+		}),
+		user: one(users, {
+			fields: [oauthAuthorizationCodes.userId],
+			references: [users.id],
+		}),
+	}),
+);
+
+export const oauthAccessTokensRelations = relations(
+	oauthAccessTokens,
+	({ one }) => ({
+		client: one(oauthClients, {
+			fields: [oauthAccessTokens.clientId],
+			references: [oauthClients.id],
+		}),
+		user: one(users, {
+			fields: [oauthAccessTokens.userId],
 			references: [users.id],
 		}),
 	}),
