@@ -1,3 +1,9 @@
+## Tanstack Router/Start
+This project uses Tanstack Router/Start for routing. You can find the main router configuration in `src/router.tsx`.
+Filesystem routes - src/routes/\*.tsx
+
+For creating new routes, first create a new empty file in the `src/routes` directory using your preferred method (e.g., touch command in terminal). Dev Server will automatically pick up the new file and create a route for it and add the starter code.
+
 ## Error collection
 
 Error collection is automatic and configured in `src/router.tsx`.

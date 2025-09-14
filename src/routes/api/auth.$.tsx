@@ -1,5 +1,5 @@
 import { createServerFileRoute } from "@tanstack/react-start/server";
-import { auth } from "../lib/auth";
+import { auth } from "../../lib/auth";
 
 async function authHandler({ request }: { request: Request }) {
 	try {

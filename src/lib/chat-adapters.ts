@@ -52,7 +52,7 @@ class VisionImageAdapter implements AttachmentAdapter {
 		};
 	}
 
-	async remove(attachment: PendingAttachment): Promise<void> {
+	async remove(_attachment: PendingAttachment): Promise<void> {
 		// Cleanup if needed (e.g., revoke object URLs if you created any)
 	}
 
