@@ -2,11 +2,14 @@ import { env } from "@/env";
 import { json } from "@tanstack/react-start";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 
-export const ServerRoute = createServerFileRoute("/.well-known/oauth-protected-resource").methods({
+export const ServerRoute = createServerFileRoute(
+	"/.well-known/oauth-protected-resource",
+).methods({
 	GET: async () => {
-		const baseUrl = env.SERVER_URL || 
-			(process.env.NODE_ENV === "production" 
-				? "https://remotemcp.tech" 
+		const baseUrl =
+			env.SERVER_URL ||
+			(process.env.NODE_ENV === "production"
+				? "https://remotemcp.tech"
 				: "http://localhost:3000");
 
 		return json({
@@ -18,6 +21,6 @@ export const ServerRoute = createServerFileRoute("/.well-known/oauth-protected-r
 			scopes_supported: ["read", "write"],
 			resource_policy_uri: `${baseUrl}/privacy-policy`,
 			resource_tos_uri: `${baseUrl}/terms-of-service`,
-		})
+		});
 	},
 });

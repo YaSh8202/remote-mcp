@@ -447,8 +447,10 @@ export const oauthAccessTokens = pgTable("oauth_access_tokens", {
 
 export type OAuthClient = typeof oauthClients.$inferSelect;
 export type NewOAuthClient = typeof oauthClients.$inferInsert;
-export type OAuthAuthorizationCode = typeof oauthAuthorizationCodes.$inferSelect;
-export type NewOAuthAuthorizationCode = typeof oauthAuthorizationCodes.$inferInsert;
+export type OAuthAuthorizationCode =
+	typeof oauthAuthorizationCodes.$inferSelect;
+export type NewOAuthAuthorizationCode =
+	typeof oauthAuthorizationCodes.$inferInsert;
 export type OAuthAccessToken = typeof oauthAccessTokens.$inferSelect;
 export type NewOAuthAccessToken = typeof oauthAccessTokens.$inferInsert;
 
@@ -567,14 +569,17 @@ export const llmProviderKeysRelations = relations(
 	}),
 );
 
-export const oauthClientsRelations = relations(oauthClients, ({ one, many }) => ({
-	user: one(users, {
-		fields: [oauthClients.userId],
-		references: [users.id],
+export const oauthClientsRelations = relations(
+	oauthClients,
+	({ one, many }) => ({
+		user: one(users, {
+			fields: [oauthClients.userId],
+			references: [users.id],
+		}),
+		authorizationCodes: many(oauthAuthorizationCodes),
+		accessTokens: many(oauthAccessTokens),
 	}),
-	authorizationCodes: many(oauthAuthorizationCodes),
-	accessTokens: many(oauthAccessTokens),
-}));
+);
 
 export const oauthAuthorizationCodesRelations = relations(
 	oauthAuthorizationCodes,

@@ -107,12 +107,19 @@ export const oauthServer = new OAuth2Server({
 
 		async saveToken(token: Token, client: Client, user: User) {
 			const tokenId = generateId();
-			
+
 			// Ensure required fields are provided
-			if (!token.accessToken || !token.accessTokenExpiresAt || !token.refreshToken || !token.refreshTokenExpiresAt) {
-				throw new Error("Access token, access token expiry, refresh token and refresh token expiry are required");
+			if (
+				!token.accessToken ||
+				!token.accessTokenExpiresAt ||
+				!token.refreshToken ||
+				!token.refreshTokenExpiresAt
+			) {
+				throw new Error(
+					"Access token, access token expiry, refresh token and refresh token expiry are required",
+				);
 			}
-			
+
 			const tokenData: NewOAuthAccessToken = {
 				id: tokenId,
 				accessToken: token.accessToken,
@@ -123,7 +130,7 @@ export const oauthServer = new OAuth2Server({
 				clientId: client.id,
 				userId: user.id,
 			};
-			
+
 			await db.insert(oauthAccessTokens).values(tokenData);
 
 			return {

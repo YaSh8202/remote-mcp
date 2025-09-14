@@ -1,11 +1,21 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useOAuthClient } from "@/hooks/use-oauth-client";
 import { authQueries } from "@/services/queries";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import {
+	createFileRoute,
+	useNavigate,
+	useSearch,
+} from "@tanstack/react-router";
 import { AlertTriangle, ExternalLink, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -30,7 +40,11 @@ function AuthorizePage() {
 	const navigate = useNavigate();
 
 	// Get user session using the same pattern as the project
-	const { data: userSession, isLoading: authLoading, error: authError } = useQuery(authQueries.user());
+	const {
+		data: userSession,
+		isLoading: authLoading,
+		error: authError,
+	} = useQuery(authQueries.user());
 	const user = userSession?.user;
 
 	const { oauthClient, query } = useOAuthClient({ id: search.client_id || "" });
@@ -39,8 +53,14 @@ function AuthorizePage() {
 	const scopeParam = search.scope || "";
 
 	const scopes = [
-		{ value: "read", label: "Allow application to read your profile and MCP servers" },
-		{ value: "write", label: "Allow application to create and manage MCP servers" },
+		{
+			value: "read",
+			label: "Allow application to read your profile and MCP servers",
+		},
+		{
+			value: "write",
+			label: "Allow application to create and manage MCP servers",
+		},
 	];
 
 	// State for selected scopes
@@ -59,9 +79,13 @@ function AuthorizePage() {
 		if (scope === "read") {
 			if (!checked) {
 				// If unchecking 'read', also uncheck 'write'
-				setSelectedScopes((prev) => prev.filter((s) => s !== "read" && s !== "write"));
+				setSelectedScopes((prev) =>
+					prev.filter((s) => s !== "read" && s !== "write"),
+				);
 			} else {
-				setSelectedScopes((prev) => (prev.includes("read") ? prev : [...prev, "read"]));
+				setSelectedScopes((prev) =>
+					prev.includes("read") ? prev : [...prev, "read"],
+				);
 			}
 		} else if (scope === "write") {
 			if (checked) {
@@ -108,7 +132,9 @@ function AuthorizePage() {
 			<div className="min-h-screen flex items-center justify-center">
 				<Card className="w-full max-w-lg">
 					<CardHeader>
-						<CardTitle className="text-red-600">Application Not Found</CardTitle>
+						<CardTitle className="text-red-600">
+							Application Not Found
+						</CardTitle>
 						<CardDescription>
 							The requested application could not be found.
 						</CardDescription>
@@ -118,7 +144,7 @@ function AuthorizePage() {
 		);
 	}
 
-	const isInsecureRedirect = 
+	const isInsecureRedirect =
 		!oauthClient.redirectUris[0]?.startsWith("https") &&
 		!oauthClient.redirectUris[0]?.startsWith("http://localhost:") &&
 		!oauthClient.redirectUris[0]?.startsWith("http://localhost/");
@@ -131,9 +157,9 @@ function AuthorizePage() {
 						<Shield className="h-12 w-12 text-blue-600" />
 					</div>
 					<CardTitle className="text-2xl">
-						<a 
-							href={oauthClient.uri} 
-							target="_blank" 
+						<a
+							href={oauthClient.uri}
+							target="_blank"
 							rel="noopener noreferrer"
 							className="flex items-center justify-center gap-2 hover:underline"
 						>
@@ -159,7 +185,10 @@ function AuthorizePage() {
 										onCheckedChange={(checked) =>
 											handleScopeChange(scope.value, checked === true)
 										}
-										disabled={scope.value === "write" && !selectedScopes.includes("read")}
+										disabled={
+											scope.value === "write" &&
+											!selectedScopes.includes("read")
+										}
 									/>
 									<label
 										htmlFor={scope.value}
@@ -177,7 +206,8 @@ function AuthorizePage() {
 						<Alert variant="destructive">
 							<AlertTriangle className="h-4 w-4" />
 							<AlertDescription>
-								This application will redirect to an insecure URL that may expose your access token.
+								This application will redirect to an insecure URL that may
+								expose your access token.
 							</AlertDescription>
 						</Alert>
 					)}
@@ -186,9 +216,9 @@ function AuthorizePage() {
 					<div className="text-sm text-muted-foreground">
 						<p>
 							You will be redirected to:{" "}
-							<a 
-								href={oauthClient.redirectUris[0]} 
-								target="_blank" 
+							<a
+								href={oauthClient.redirectUris[0]}
+								target="_blank"
 								rel="noopener noreferrer"
 								className="font-mono break-all hover:underline"
 							>
