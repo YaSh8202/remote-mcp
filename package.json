@@ -30,7 +30,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@gitbeaker/rest": "^42.5.0",
     "@hookform/resolvers": "^5.2.1",
-    "@modelcontextprotocol/sdk": "^1.17.5",
+    "@modelcontextprotocol/sdk": "^1.18.0",
     "@neondatabase/serverless": "^1.0.1",
     "@node-oauth/oauth2-server": "^5.2.1",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -117,7 +117,7 @@
     "vite-tsconfig-paths": "^5.1.4",
     "ws": "^8.18.3",
     "youtube-transcript": "^1.2.1",
-    "zod": "3.25.76",
+    "zod": "^3.25.76",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
