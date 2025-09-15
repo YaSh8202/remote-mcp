@@ -17,6 +17,7 @@ import {
 	Copy,
 	ExternalLink,
 	Terminal,
+	Download,
 	Zap,
 } from "lucide-react";
 
@@ -140,7 +141,7 @@ export function HowToConnect({
 									{claudeConfig}
 								</code>
 							</div>
-							<div className="flex gap-2">
+							<div className="flex gap-2 flex-wrap">
 								<Button
 									variant="outline"
 									size="sm"
@@ -168,6 +169,42 @@ export function HowToConnect({
 										<ExternalLink className="h-3 w-3" />
 										Learn About Extensions
 									</a>
+								</Button>
+								<Button
+									variant="secondary"
+									size="sm"
+									className="flex-1 gap-2"
+									onClick={() => {
+										// Construct a minimal MCPB (Model Context Protocol Bundle) file.
+										// Format (assumed JSON) accepted by Claude MCP Bundle extension.
+										// This can be adjusted if official schema differs.
+										const mcpb = {
+											version: 1,
+											name: serverName,
+											servers: {
+												[serverName]: {
+													type: "http",
+													url: serverUrl,
+												},
+											},
+											meta: {
+												generatedAt: new Date().toISOString(),
+												source: "remote-mcp-how-to-connect",
+											},
+										};
+
+										const blob = new Blob([JSON.stringify(mcpb, null, 2)], {
+											type: "application/json",
+										});
+										const a = document.createElement("a");
+										a.href = URL.createObjectURL(blob);
+										a.download = `${serverName}.mcpb`;
+										a.click();
+										setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+									}}
+								>
+									<Download className="h-3 w-3" />
+									Download .mcpb
 								</Button>
 							</div>
 						</div>
