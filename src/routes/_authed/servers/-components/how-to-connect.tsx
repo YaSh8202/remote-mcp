@@ -15,9 +15,9 @@ import {
 	BookOpen,
 	CheckCircle,
 	Copy,
+	Download,
 	ExternalLink,
 	Terminal,
-	Download,
 	Zap,
 } from "lucide-react";
 

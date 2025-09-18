@@ -68,7 +68,7 @@ function RootDocument() {
 						attribute="class"
 						defaultTheme="system"
 						enableSystem
-						storageKey="mcp-one-theme"
+						storageKey="remote-mcp-theme"
 						enableColorScheme
 					>
 						<TooltipProvider>

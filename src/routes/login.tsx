@@ -31,10 +31,13 @@ export const Route = createFileRoute("/login")({
 	beforeLoad: async ({ context }) => {
 		if (context.userSession?.user) {
 			throw redirect({
-				to: "/",
+				to: "/servers",
 			});
 		}
 	},
+	validateSearch: z.object({
+		from: z.string().optional(),
+	}),
 });
 
 // Schema for form validation
@@ -55,6 +58,9 @@ type SignUpFormData = z.infer<typeof signUpSchema>;
 function LoginPage() {
 	const navigate = useNavigate();
 	const [isSignUp, setIsSignUp] = useState(false);
+	const search = Route.useSearch();
+
+	const callbackURL = search.from || "/servers";
 
 	const form = useForm<SignInFormData | SignUpFormData>({
 		resolver: zodResolver(isSignUp ? signUpSchema : signInSchema),
@@ -69,7 +75,7 @@ function LoginPage() {
 		try {
 			await signIn.social({
 				provider: "google",
-				callbackURL: "/",
+				callbackURL,
 			});
 		} catch (error) {
 			console.error("Google sign in error:", error);
@@ -80,7 +86,7 @@ function LoginPage() {
 		try {
 			await signIn.social({
 				provider: "github",
-				callbackURL: "/",
+				callbackURL,
 			});
 		} catch (error) {
 			console.error("GitHub sign in error:", error);
@@ -95,17 +101,17 @@ function LoginPage() {
 					email: signUpData.email,
 					password: signUpData.password,
 					name: signUpData.name,
-					callbackURL: "/",
+					callbackURL,
 				});
 			} else {
 				const signInData = data as SignInFormData;
 				await signIn.email({
 					email: signInData.email,
 					password: signInData.password,
-					callbackURL: "/",
+					callbackURL,
 				});
 			}
-			navigate({ to: "/" });
+			navigate({ to: "/servers" });
 		} catch (error) {
 			console.error("Email auth error:", error);
 		}
