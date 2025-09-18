@@ -244,12 +244,12 @@ const Composer: FC = () => {
 					/>
 					<div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-between">
 						<div className="flex items-center gap-1">
+							<ComposerAddAttachment />
 							<ModelSelector
 								selectedModel={selectedModel}
 								onModelSelect={setSelectedModel}
 								disabled={!hasValidKeys}
 							/>
-							<ComposerAddAttachment />
 						</div>
 						<div className="flex items-center gap-2">
 							<SendButton />
