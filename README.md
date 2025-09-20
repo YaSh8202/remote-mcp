@@ -16,7 +16,7 @@
 
 Remote MCP is a cloud-based platform that lets you easily create and manage **Model Context Protocol (MCP) servers** and connect them to your favorite AI clients like Claude Desktop, Cursor, or any MCP-compatible application.
 
-Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more!
+Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more! Plus, test your integrations directly with our built-in AI chat interface.
 
 ![Remote MCP Dashboard](assets/screenshot-servers.png)
 
@@ -50,17 +50,21 @@ The **Model Context Protocol (MCP)** is an open standard that enables AI assista
 
 No need to run local servers or manage complex configurations. Just create, configure, and connect!
 
-### 🔒 **Secure & Reliable**
+### 🤖 **Built-in AI Chat**
 
-Your credentials are encrypted and managed securely. We handle authentication, API limits, and security.
+Test and interact with your MCP servers directly in the web app with our integrated AI chat interface. No need to switch between applications!
+
+### 🔒 **Enterprise-Grade Security**
+
+OAuth 2.1 authentication with Bearer tokens, scope-based access control, and encrypted credential storage. Your data is protected with industry-standard security.
 
 ### 🌍 **Always Available**
 
-Cloud-hosted servers that work 24/7, accessible from any MCP client.
+Cloud-hosted servers that work 24/7, accessible from any MCP client worldwide.
 
 ### 📊 **Visual Management**
 
-Easy-to-use dashboard to manage your servers, connections, and monitor usage.
+Easy-to-use dashboard with human-readable tool documentation, real-time usage monitoring, and intuitive server management.
 
 
 ## Available Apps
@@ -83,12 +87,13 @@ Remote MCP supports integration with popular apps and services:
 
 ### Data & Search
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/postgresql.svg" width="16" height="16" style="vertical-align: middle;"> PostgreSQL** - Database queries and management (8 tools)
-- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/brave.svg" width="16" height="16" style="vertical-align: middle;"> Brave Search** - Web search, image search, news, and local business searches (5 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/brave.svg" width="16" height="16" style="vertical-align: middle;"> Brave Search** - Web search, image search, news search, video search, and local business searches (5 tools)
+- **🔥 Firecrawl** - Comprehensive web scraping and crawling with batch processing, site mapping, and structured data extraction (11 tools)
 
 ### Utilities
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/fastapi.svg" width="16" height="16" style="vertical-align: middle;"> Fetch** - HTTP requests and web content fetching in multiple formats (4 tools)
 
-> **Total: 159+ tools across 11 integrated applications**
+> **Total: 170+ tools across 12 integrated applications**
 
 _New apps and tools are being added regularly! Have a specific integration in mind? Let us know!_
 
@@ -153,6 +158,15 @@ Your AI assistant can now interact with your connected apps. Try asking:
 - "Query our PostgreSQL database for user metrics"
 - "Search the web for the latest React best practices"
 - "Play my favorite playlist on Spotify"
+
+### 🧪 **Test with Built-in AI Chat**
+
+Want to test your MCP server before connecting it to your AI client? Use our built-in AI chat interface:
+
+1. Go to the "Chat" section in your dashboard
+2. Select which MCP servers to use for the conversation
+3. Start chatting and test your tools directly in the web app
+4. Perfect for debugging and exploring your MCP server capabilities!
 
 <!-- ## Contributing
 
