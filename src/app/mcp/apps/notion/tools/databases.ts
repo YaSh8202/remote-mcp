@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { NotionClientWrapper } from "../client";
 import {
 	commonIdDescription,
@@ -22,10 +22,10 @@ const createDatabaseSchema = {
 		])
 		.describe("Parent object of the database."),
 	properties: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.describe("Property schema of the database."),
 	title: z
-		.array(z.record(z.unknown()))
+		.array(z.record(z.string(), z.unknown()))
 		.optional()
 		.describe("Title of the database as a rich text array."),
 	format: z
@@ -83,7 +83,10 @@ const queryDatabaseSchema = {
 	database_id: z
 		.string()
 		.describe(`The ID of the database to query.${commonIdDescription}`),
-	filter: z.record(z.unknown()).optional().describe("Filter conditions."),
+	filter: z
+		.record(z.string(), z.unknown())
+		.optional()
+		.describe("Filter conditions."),
 	sorts: z
 		.array(
 			z.object({
@@ -211,15 +214,15 @@ const updateDatabaseSchema = {
 		.string()
 		.describe(`The ID of the database to update.${commonIdDescription}`),
 	title: z
-		.array(z.record(z.unknown()))
+		.array(z.record(z.string(), z.unknown()))
 		.optional()
 		.describe("New title for the database."),
 	description: z
-		.array(z.record(z.unknown()))
+		.array(z.record(z.string(), z.unknown()))
 		.optional()
 		.describe("New description for the database."),
 	properties: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.optional()
 		.describe("Updated property schema."),
 	format: z
@@ -281,7 +284,7 @@ const createDatabaseItemSchema = {
 			`The ID of the database to add the item to.${commonIdDescription}`,
 		),
 	properties: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.describe(
 			"The properties of the new item. These should match the database schema.",
 		),

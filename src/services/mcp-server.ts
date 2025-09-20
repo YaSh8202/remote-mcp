@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { userRequiredMiddleware } from "./auth.api";
 
 export const mcpServerGetOneOrThrow = createServerFn({ method: "GET" })

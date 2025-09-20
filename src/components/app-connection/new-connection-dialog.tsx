@@ -36,7 +36,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import React from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { AppLogo } from "../AppLogo";
 import { ViewMarkdown } from "../markdown";
 import { SecretTextConnectionSettings } from "./secret-text-connection-settings";

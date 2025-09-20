@@ -1,5 +1,5 @@
 import { createFilterSchema, useGenericTable } from "@/hooks/use-generic-table";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Define the connection filter schema
 export const connectionsFilterSchema = createFilterSchema({

@@ -1,7 +1,7 @@
 import { McpRunStatus } from "@/db/schema";
 import { mcpRunService } from "@/services/mcp-run-service";
 import { TRPCError } from "@trpc/server";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const mcpRunRouter = createTRPCRouter({

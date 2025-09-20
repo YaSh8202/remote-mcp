@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { firecrawlAuth } from "../common";
 
 const extractSchema = {
@@ -12,7 +12,7 @@ const extractSchema = {
 		.optional()
 		.describe("System prompt to guide the LLM"),
 	schema: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.optional()
 		.describe("JSON schema for structured data extraction"),
 	allowExternalLinks: z

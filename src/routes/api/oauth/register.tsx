@@ -4,7 +4,7 @@ import { OAuthClientGrant, OAuthClientScope, oauthClients } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { json } from "@tanstack/react-start";
 import { createServerFileRoute } from "@tanstack/react-start/server";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const registrationSchema = z.object({
 	redirect_uris: z.array(z.string().url()).min(1),

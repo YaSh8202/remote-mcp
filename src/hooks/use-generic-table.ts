@@ -8,7 +8,7 @@ import type {
 	VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 // Base search params schema that can be extended
 export const baseTableSearchSchema = z.object({

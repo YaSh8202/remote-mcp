@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { NotionClientWrapper } from "../client";
 import {
 	commonIdDescription,
@@ -67,7 +67,7 @@ const updatePagePropertiesSchema = {
 			`The ID of the page or database item to update.${commonIdDescription}`,
 		),
 	properties: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.describe(
 			"Properties to update. These correspond to the columns or fields in the database.",
 		),

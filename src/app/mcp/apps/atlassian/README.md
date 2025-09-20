@@ -73,3 +73,13 @@ Content: "<h1>Meeting Notes</h1><p>Today's discussion...</p>"
 Issue Key: PROJ-123
 Transition ID: "31" (use getJiraTransitions to find available transitions)
 ```
+
+
+Next Tasks for Remote-MCP:
+- Add Ratelimiting to the API
+- Implement Landing page
+- Add more integrations
+- Demo video
+- Allow to add mcp servers/tools to the chat
+- Message/Chat branching, Regenerate and edit messages
+- 

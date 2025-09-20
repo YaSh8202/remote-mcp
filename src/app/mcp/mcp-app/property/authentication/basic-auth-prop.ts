@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { TPropertyValue } from "../input/common";
 import { PropertyType } from "../input/property-type";
 import { BaseMcpAppAuthSchema } from "./common";

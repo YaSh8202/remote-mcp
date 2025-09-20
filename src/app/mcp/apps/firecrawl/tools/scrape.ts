@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { firecrawlAuth } from "../common";
 
 const scrapeSchema = {
@@ -31,7 +31,7 @@ const scrapeSchema = {
 	mobile: z.boolean().optional().describe("Use mobile user agent"),
 	skipTlsVerification: z.boolean().optional().describe("Skip TLS verification"),
 	headers: z
-		.record(z.string())
+		.record(z.string(), z.string())
 		.optional()
 		.describe("Custom headers to include in the request"),
 };

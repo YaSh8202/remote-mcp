@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import type { StaticPropsValue } from "..";
 import { CheckboxProperty } from "../input/checkbox-property";
 import { TPropertyValue } from "../input/common";

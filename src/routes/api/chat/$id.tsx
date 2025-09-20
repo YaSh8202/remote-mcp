@@ -21,7 +21,7 @@ import {
 
 import { env } from "@/env";
 import { findMcpServer } from "@/integrations/trpc/router/mcp-server";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
 import { experimental_createMCPClient as createMCPClient } from "ai";
 
 export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({

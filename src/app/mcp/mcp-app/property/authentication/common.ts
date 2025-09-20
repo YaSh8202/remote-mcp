@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 // import { ServerContext } from '../../context';
 
 export const BaseMcpAppAuthSchema = z.object({

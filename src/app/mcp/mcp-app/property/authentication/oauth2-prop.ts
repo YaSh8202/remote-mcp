@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import type { StaticPropsValue } from "..";
 import { TPropertyValue } from "../input/common";
 import { StaticDropdownProperty } from "../input/dropdown/static-dropdown";

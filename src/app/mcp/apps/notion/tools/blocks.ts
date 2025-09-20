@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { NotionClientWrapper } from "../client";
 import {
 	commonIdDescription,
@@ -14,7 +14,7 @@ const appendBlockChildrenSchema = {
 		.string()
 		.describe(`The ID of the parent block.${commonIdDescription}`),
 	children: z
-		.array(z.record(z.unknown()))
+		.array(z.record(z.string(), z.unknown()))
 		.describe(
 			"Array of block objects to append. Each block must follow the Notion block schema.",
 		),
@@ -243,7 +243,7 @@ const updateBlockSchema = {
 		.string()
 		.describe(`The ID of the block to update.${commonIdDescription}`),
 	block: z
-		.record(z.unknown())
+		.record(z.string(), z.unknown())
 		.describe(
 			"The updated content for the block. Must match the block's type schema.",
 		),

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { PropertyType } from "../input/property-type";
 import { BasicAuthProperty } from "./basic-auth-prop";
 import { CustomAuthProperty, type CustomAuthProps } from "./custom-auth-prop";
