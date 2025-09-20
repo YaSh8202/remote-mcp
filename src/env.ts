@@ -18,6 +18,7 @@ export const env = createEnv({
 		SENTRY_AUTH_TOKEN: z.string().min(1).optional(),
 		OAUTH_APP_SECRETS: z.string().optional(),
 		ENCRYPTION_KEY: z.string().min(1),
+		MCP_SERVER_API_KEY: z.string().min(1),
 	},
 
 	/**

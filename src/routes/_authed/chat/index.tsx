@@ -47,8 +47,11 @@ function ChatPage() {
 				status: "pending",
 			};
 
+			const chatTitle =
+				message.parts[0].type === "text" ? message.parts[0].text : "New Chat";
+
 			const chatData = await createChatMutation.mutateAsync({
-				title: "New Chat",
+				title: chatTitle,
 				messages: [message],
 			});
 			queryClient.refetchQueries({

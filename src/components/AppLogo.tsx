@@ -1,15 +1,20 @@
 import { appIcons } from "@/app/mcp/apps/icons";
 import type { McpAppLogo } from "@/app/mcp/mcp-app/app-metadata";
+import { MCPIcon } from "./icons";
 
 export const AppLogo = ({
 	logo,
 	appName = "Application",
 	className = "",
 }: {
-	logo: McpAppLogo;
+	logo?: McpAppLogo;
 	appName?: string;
 	className?: string;
 }) => {
+	if (!logo) {
+		return <MCPIcon className={className} />;
+	}
+
 	if (logo.type === "url") {
 		return (
 			<img

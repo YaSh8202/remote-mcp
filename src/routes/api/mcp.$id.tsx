@@ -1,6 +1,7 @@
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { AppConnectionType } from "@/db/schema";
+import { env } from "@/env";
 import { oauthServer } from "@/lib/oauth2";
 import { appConnectionService } from "@/services/app-connection-service";
 import { userSettingsService } from "@/services/user-settings-service";
@@ -55,6 +56,20 @@ class McpAuthenticationError extends Error {
 
 // Validate OAuth token and return session information
 const validateOAuthToken = async (request: Request): Promise<ISession> => {
+	const apiKey = request.headers.get("X-API-Key");
+	if (apiKey && apiKey === env.MCP_SERVER_API_KEY) {
+		return {
+			userId: request.headers.get("X-User-Id") || "unknown",
+			sessionType: "apiKey",
+			scope: ["read", "write"],
+			user: {
+				id: request.headers.get("X-User-Id") || "unknown",
+				name: request.headers.get("X-User-Name") || "API User",
+			},
+		};
+	}
+	// Simple API key authentication
+
 	const authHeader = request.headers.get?.("Authorization");
 	if (!authHeader || !authHeader.startsWith("Bearer ")) {
 		throw new UnauthorizedRequestError(

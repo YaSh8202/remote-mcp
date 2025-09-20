@@ -233,6 +233,7 @@ export const chats = pgTable("chats", {
 			system?: string;
 			temperature?: number;
 			maxTokens?: number;
+			selectedServers?: string[];
 			[key: string]: unknown;
 		}>()
 		.default({}),

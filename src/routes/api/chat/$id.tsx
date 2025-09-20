@@ -11,11 +11,18 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { createOpenAI } from "@ai-sdk/openai";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
+	type ToolSet,
 	type UIMessage,
 	convertToModelMessages,
+	stepCountIs,
 	streamText,
 	validateUIMessages,
 } from "ai";
+
+import { env } from "@/env";
+import { findMcpServer } from "@/integrations/trpc/router/mcp-server";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { experimental_createMCPClient as createMCPClient } from "ai";
 
 export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 	POST: async ({ request, params }) => {
@@ -90,16 +97,14 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			// and append the new one (this handles the prepareSendMessagesRequest pattern)
 			let allMessages = [message];
 
-			try {
-				const existingMessages = await loadChat(requestChatId, session.user.id);
-				allMessages = [...existingMessages, ...allMessages];
-				allMessages = await validateUIMessages({
-					messages: allMessages,
-				});
-			} catch (error) {
-				console.error("Failed to load existing chat:", error);
-				// Continue with just the new message if loading fails
-			}
+			const { chat, messages: existingMessages } = await loadChat(
+				requestChatId,
+				session.user.id,
+			);
+			allMessages = [...existingMessages, ...allMessages];
+			allMessages = await validateUIMessages({
+				messages: allMessages,
+			});
 
 			// Ensure we have a valid chat ID
 			if (!currentChatId) {
@@ -118,11 +123,43 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 
 			const aiSdkModel = getAIModel(provider, model, apiKey);
 
+			const tools: ToolSet = {};
+			if (
+				chat.metadata?.selectedServers &&
+				Array.isArray(chat.metadata.selectedServers)
+			) {
+				for (const serverId of chat.metadata.selectedServers) {
+					const server = await findMcpServer(serverId, session.user.id);
+					if (server) {
+						const httpTransport = new StreamableHTTPClientTransport(
+							new URL(`${env.SERVER_URL}/api/mcp/${server.token}`),
+							{
+								requestInit: {
+									headers: {
+										"x-API-Key": env.MCP_SERVER_API_KEY,
+										"X-User-Id": session.user.id,
+									},
+								},
+							},
+						);
+
+						const mcpClient = await createMCPClient({
+							transport: httpTransport,
+						});
+
+						const serverTools = await mcpClient.tools();
+						Object.assign(tools, serverTools);
+					}
+				}
+			}
+
 			const result = streamText({
 				model: aiSdkModel,
 				system,
 				messages: modelMessages,
 				temperature: 0.7,
+				tools,
+				stopWhen: stepCountIs(10),
 			});
 
 			result.consumeStream();
