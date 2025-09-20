@@ -4,15 +4,15 @@ import type {
 	McpServer,
 	RegisteredTool,
 	ToolCallback,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
+} from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
+import type { RequestHandlerExtra } from "@socotra/modelcontextprotocol-sdk/shared/protocol.js";
 import type {
 	CallToolResult,
 	ServerNotification,
 	ServerRequest,
 	ToolAnnotations,
-} from "@modelcontextprotocol/sdk/types.js";
-import type { ZodRawShape, z } from "zod";
+} from "@socotra/modelcontextprotocol-sdk/types.js";
+import type { ZodRawShape, z } from "zod/v4";
 import type { AppPropValueSchema } from "./property";
 import type { McpAppAuthProperty } from "./property/authentication";
 
@@ -43,7 +43,7 @@ export type McpToolCallback<
 	Args extends ZodRawShape | undefined = undefined,
 > = Args extends ZodRawShape
 	? (
-			args: z.objectOutputType<Args, z.ZodTypeAny>,
+			args: z.infer<z.ZodObject<Args>>,
 			extra: McpRequestHandlerExtra<McpAppAuth>,
 		) => CallToolResult | Promise<CallToolResult>
 	: (
@@ -99,7 +99,7 @@ export function createParameterizedTool<
 	paramsSchema: Args;
 	annotations?: ToolAnnotations;
 	callback: (
-		args: z.objectOutputType<Args, z.ZodTypeAny>,
+		args: z.infer<z.ZodObject<Args>>,
 		extra: McpRequestHandlerExtra<McpAppAuth>,
 	) => CallToolResult | Promise<CallToolResult>;
 }): McpParameterizedToolConfig<McpAppAuth, Args> {

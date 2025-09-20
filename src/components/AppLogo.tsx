@@ -35,7 +35,7 @@ export const AppLogo = ({
 		console.warn(
 			`No icon found for app: ${appName} with icon type: ${logo.icon}`,
 		);
-		return null;
+		return <MCPIcon className={className} />;
 	}
 
 	return <Icon className={className} />;

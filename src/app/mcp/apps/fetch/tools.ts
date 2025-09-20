@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { createParameterizedTool } from "../../mcp-app/tools";
 import { fetchHtml, fetchJson, fetchMarkdown, fetchTxt } from "./fetcher";
 import { RequestPayloadSchema } from "./types";
@@ -18,7 +18,7 @@ const formatErrorResponse = (error: Error) => ({
 const fetchSchema = {
 	url: z.string().url().describe("URL of the website to fetch"),
 	headers: z
-		.record(z.string())
+		.record(z.string(), z.string())
 		.optional()
 		.describe("Optional headers to include in the request"),
 	max_length: z

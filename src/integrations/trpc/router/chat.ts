@@ -1,7 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { generateId } from "ai";
 import { and, desc, eq, isNull } from "drizzle-orm";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 import { db } from "@/db";
 import { MessageRole, MessageStatus, chats, messages } from "@/db/schema";
@@ -12,7 +12,7 @@ import { createTRPCRouter, protectedProcedure } from "../init";
 // Zod schemas for input validation
 const createChatSchema = z.object({
 	title: z.string().optional(),
-	metadata: z.record(z.unknown()).optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
 	messages: z.array(z.custom<UIMessage>(() => true)),
 });
 
@@ -20,7 +20,7 @@ const updateChatSchema = z.object({
 	id: z.string(),
 	title: z.string().optional(),
 	archived: z.boolean().optional(),
-	metadata: z.record(z.unknown()).optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const messagePartSchema = z.object({
@@ -29,9 +29,9 @@ const messagePartSchema = z.object({
 	// Tool call parts
 	toolCallId: z.string().optional(),
 	toolName: z.string().optional(),
-	input: z.record(z.unknown()).optional(),
-	output: z.record(z.unknown()).optional(),
-	result: z.record(z.unknown()).optional(),
+	input: z.record(z.string(), z.unknown()).optional(),
+	output: z.record(z.string(), z.unknown()).optional(),
+	result: z.record(z.string(), z.unknown()).optional(),
 	isError: z.boolean().optional(),
 	// File/image parts
 	data: z.string().optional(),
@@ -56,7 +56,7 @@ const createMessageSchema = z.object({
 			totalTokens: z.number().optional(),
 		})
 		.optional(),
-	metadata: z.record(z.unknown()).optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 const updateMessageSchema = z.object({
@@ -70,7 +70,7 @@ const updateMessageSchema = z.object({
 			totalTokens: z.number().optional(),
 		})
 		.optional(),
-	metadata: z.record(z.unknown()).optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 export const chatRouter = createTRPCRouter({

@@ -84,6 +84,7 @@ export function ServerDetailsPopover({
 														availableApps.find((a) => a.name === app.appName)
 															?.logo
 													}
+													className="h-4 w-4"
 												/>
 												<span className="text-sm truncate">{app.appName}</span>
 											</div>

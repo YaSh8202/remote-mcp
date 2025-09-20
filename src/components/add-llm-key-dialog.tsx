@@ -31,7 +31,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Key, Loader2, Shield } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const formSchema = z.object({
 	provider: z.nativeEnum(LLMProvider),

@@ -7,7 +7,7 @@ import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { protectedProcedure, publicProcedure } from "../init";
 
 export const mcpAppRouter = {

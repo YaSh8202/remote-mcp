@@ -1,5 +1,5 @@
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 import { NotionClientWrapper } from "../client";
 import {
 	commonIdDescription,
@@ -28,7 +28,7 @@ const createCommentSchema = {
 			`The ID of an existing discussion thread to add a comment to.${commonIdDescription}`,
 		),
 	rich_text: z
-		.array(z.record(z.unknown()))
+		.array(z.record(z.string(), z.unknown()))
 		.describe("Array of rich text objects representing the comment content."),
 	format: z
 		.enum(["json", "markdown"])

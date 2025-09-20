@@ -1,7 +1,7 @@
 import type {
 	McpServer,
 	RegisteredTool,
-} from "@modelcontextprotocol/sdk/server/mcp.js";
+} from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
 import type {
 	McpAppBase,
 	McpAppCategory,

@@ -11,7 +11,7 @@ import { UpsertSecretTextRequest } from "@/types/app-connection";
 import { KeyRound } from "lucide-react";
 import React from "react";
 import { useFormContext } from "react-hook-form";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 type SecretTextConnectionSettingsProps = {
 	authProperty: SecretTextProperty<boolean>;

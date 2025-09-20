@@ -18,7 +18,7 @@ import {
 } from "@tanstack/react-router";
 import { AlertTriangle, ExternalLink, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 const searchSchema = z.object({
 	client_id: z.string().catch(""),

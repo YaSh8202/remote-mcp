@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 import { McpAppAuthProperty } from "./authentication";
 import { InputProperty } from "./input";
 import type { DropdownState } from "./input/dropdown/common";

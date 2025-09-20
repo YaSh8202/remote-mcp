@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export enum OAuth2AuthorizationMethod {
 	HEADER = "HEADER",
@@ -26,7 +26,7 @@ export const OAuth2ExtraProps = z.object({
 		.optional()
 		.describe("The method of authorization (HEADER or BODY)"),
 	extra: z
-		.record(z.string())
+		.record(z.string(), z.string())
 		.optional()
 		.describe("Additional properties for OAuth2 configuration"),
 });
@@ -36,7 +36,7 @@ export const OAuth2PropertyValue = z.object({
 		.string()
 		.describe("The access token obtained after OAuth2 authentication"),
 	data: z
-		.record(z.any())
+		.record(z.string(), z.any())
 		.optional()
 		.describe("Additional data returned from the OAuth2 provider"),
 	required: z.boolean().describe("Whether this OAuth2 property is required"),

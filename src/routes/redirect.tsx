@@ -4,7 +4,7 @@ import {
 	useSearch,
 } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export const Route = createFileRoute("/redirect")({
 	component: RouteComponent,
