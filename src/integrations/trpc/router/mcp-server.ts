@@ -6,7 +6,7 @@ import { count, eq } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
-const findMcpServer = async (id: string, userId: string) => {
+export const findMcpServer = async (id: string, userId: string) => {
 	return await db.query.mcpServer.findFirst({
 		where: (mcpServer, { eq, and }) =>
 			and(eq(mcpServer.id, id), eq(mcpServer.ownerId, userId)),

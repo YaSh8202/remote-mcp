@@ -115,7 +115,7 @@ function ChatPageWithId() {
 		<ChatRuntimeProvider chatId={chatId} messages={uiMessages}>
 			<div className="flex h-full overflow-hidden">
 				<div className="flex-1 h-full overflow-hidden">
-					<Thread />
+					<Thread currentChat={chat} />
 				</div>
 			</div>
 		</ChatRuntimeProvider>

@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { chats, messages } from "@/db/schema";
+import { type Chat, chats, messages } from "@/db/schema";
 import { dbMessagesToUIMessages, uiMessageToDbMessage } from "@/lib/chat-utils";
 import { type UIMessage, generateId } from "ai";
 import { and, desc, eq, isNull } from "drizzle-orm";
@@ -29,7 +29,10 @@ export async function createChat(
 export async function loadChat(
 	chatId: string,
 	userId: string,
-): Promise<UIMessage[]> {
+): Promise<{
+	chat: Chat;
+	messages: UIMessage[];
+}> {
 	// First verify chat ownership
 	const chat = await db
 		.select()
@@ -53,7 +56,10 @@ export async function loadChat(
 		)
 		.orderBy(messages.createdAt);
 
-	return dbMessagesToUIMessages(chatMessages);
+	return {
+		chat: chat[0],
+		messages: dbMessagesToUIMessages(chatMessages),
+	};
 }
 
 /**

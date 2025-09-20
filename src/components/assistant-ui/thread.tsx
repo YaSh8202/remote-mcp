@@ -11,12 +11,12 @@ import {
 	ArrowDownIcon,
 	ArrowUpIcon,
 	CheckIcon,
+	ChevronDown,
 	ChevronLeftIcon,
 	ChevronRightIcon,
 	CopyIcon,
 	KeyIcon,
-	// PencilIcon,
-	// RefreshCwIcon,
+	Plus,
 	Square,
 } from "lucide-react";
 import { type FC, useState } from "react";
@@ -31,14 +31,25 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ModelSelector } from "@/components/model-selector";
+import { ServerDetailsPopover } from "@/components/server-details-popover";
+import { ServerSelectionPopover } from "@/components/server-selection-popover";
 import { Button } from "@/components/ui/button";
+import type { Chat } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chat-store";
+import { useMutation } from "@tanstack/react-query";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
+import { useEffect } from "react";
+import { AppLogo } from "../AppLogo";
+import { MCPIcon } from "../icons";
 
-export const Thread: FC = () => {
+interface ThreadProps {
+	currentChat?: Chat;
+}
+
+export const Thread: FC<ThreadProps> = ({ currentChat }) => {
 	return (
 		<LazyMotion features={domAnimation}>
 			<MotionConfig reducedMotion="user">
@@ -59,7 +70,7 @@ export const Thread: FC = () => {
 							}}
 						/>
 						<div className="aui-thread-viewport-spacer min-h-8 grow" />
-						<Composer />
+						<Composer currentChat={currentChat} />
 					</ThreadPrimitive.Viewport>
 				</ThreadPrimitive.Root>
 			</MotionConfig>
@@ -169,32 +180,85 @@ const ThreadWelcomeSuggestions: FC = () => {
 	);
 };
 
-const Composer: FC = () => {
+const Composer: FC<{ currentChat?: Chat }> = ({ currentChat }) => {
 	const { selectedModel, setSelectedModel } = useChatStore();
 	const trpc = useTRPC();
 	const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
+	const [selectedServerIds, setSelectedServerIds] = useState<string[]>([]);
 
 	const { data: keys = [] } = useSuspenseQuery(
 		trpc.llmProvider.getKeys.queryOptions({}),
+	);
+
+	const { data: servers = [] } = useSuspenseQuery(
+		trpc.mcpServer.list.queryOptions(),
+	);
+
+	const { data: availableApps } = useSuspenseQuery(
+		useTRPC().mcpApp.getAvailableApps.queryOptions(),
 	);
 
 	const validKeys = keys.filter((key) => key.isValid === true);
 	const hasValidKeys = validKeys.length > 0;
 	const existingProviders = validKeys.map((key) => key.provider);
 
-	// Auto-select first available model if none selected
-	// useEffect(() => {
-	// 	if (!selectedModel && validKeys.length > 0) {
-	// 		const firstKey = validKeys[0];
-	// 		const providerModels = models.filter(
-	// 			(m) => m.meta.provider === firstKey?.provider,
-	// 		);
+	// Get selected servers data
+	const selectedServers = servers.filter((server) =>
+		selectedServerIds.includes(server.id),
+	);
 
-	// 		if (providerModels.length > 0) {
-	// 			setSelectedModel(providerModels[0].meta.id, firstKey.provider);
-	// 		}
-	// 	}
-	// }, [validKeys, selectedModel, setSelectedModel, models]);
+	// Load selected servers from chat metadata on mount
+	useEffect(() => {
+		if (currentChat?.metadata?.selectedServers) {
+			const serverIds = currentChat.metadata.selectedServers;
+			setSelectedServerIds(serverIds);
+		}
+	}, [currentChat?.metadata?.selectedServers]);
+
+	// Update chat metadata when servers change
+	const updateChatMutation = useMutation({
+		...trpc.chat.update.mutationOptions(),
+	});
+
+	const handleServerAdd = async (serverId: string) => {
+		const newServerIds = [...selectedServerIds, serverId];
+		setSelectedServerIds(newServerIds);
+
+		// Update chat metadata if we have a current chat
+		if (currentChat) {
+			try {
+				await updateChatMutation.mutateAsync({
+					id: currentChat.id,
+					metadata: {
+						...currentChat.metadata,
+						selectedServers: newServerIds,
+					},
+				});
+			} catch (error) {
+				console.error("Failed to update chat metadata:", error);
+			}
+		}
+	};
+
+	const handleServerRemove = async (serverId: string) => {
+		const newServerIds = selectedServerIds.filter((id) => id !== serverId);
+		setSelectedServerIds(newServerIds);
+
+		// Update chat metadata if we have a current chat
+		if (currentChat) {
+			try {
+				await updateChatMutation.mutateAsync({
+					id: currentChat.id,
+					metadata: {
+						...currentChat.metadata,
+						selectedServers: newServerIds,
+					},
+				});
+			} catch (error) {
+				console.error("Failed to update chat metadata:", error);
+			}
+		}
+	};
 
 	return (
 		<div className="aui-composer-wrapper sticky bottom-0 mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
@@ -202,6 +266,62 @@ const Composer: FC = () => {
 			<ThreadPrimitive.Empty>
 				{hasValidKeys && <ThreadWelcomeSuggestions />}
 			</ThreadPrimitive.Empty>
+
+			{/* Server Selection Button - Only show when chat is ready and servers exist */}
+			{hasValidKeys && servers.length > 0 && (
+				<div className="mx-auto flex items-center gap-2 w-full max-w-[var(--thread-max-width)]">
+					{/* Show selected servers */}
+					{selectedServers.map((server) => (
+						<ServerDetailsPopover
+							key={server.id}
+							serverId={server.id}
+							onRemove={() => handleServerRemove(server.id)}
+						>
+							<Button size={"sm"} variant={"secondary"} className="">
+								<div className="flex -space-x-3">
+									{server.apps.slice(0, 3).map((app) => (
+										<div
+											key={app.appName}
+											className="flex h-5 w-5 items-center justify-center rounded-md bg-muted/70 border border-background"
+										>
+											<AppLogo
+												key={app.appName}
+												logo={
+													availableApps.find((a) => a.name === app.appName)
+														?.logo
+												}
+												className="h-3.5 w-3.5"
+											/>
+										</div>
+									))}
+								</div>
+								<span>{server.name}</span>
+								<ChevronDown className="h-3 w-3 ml-0.5" />
+							</Button>
+						</ServerDetailsPopover>
+					))}
+
+					<ServerSelectionPopover
+						selectedServerIds={selectedServerIds}
+						onServerAdd={handleServerAdd}
+					>
+						<Button
+							variant="secondary"
+							size="sm"
+							className="flex items-center gap-2 "
+						>
+							<Plus className="h-4 w-4" />
+							<span>
+								{selectedServerIds.length === 0 ? (
+									"Add Servers"
+								) : (
+									<MCPIcon className="size-3" />
+								)}
+							</span>
+						</Button>
+					</ServerSelectionPopover>
+				</div>
+			)}
 
 			{!hasValidKeys ? (
 				<div className="aui-composer-no-keys-wrapper relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),0_2px_5px_0px_rgba(0,0,0,0.06)] dark:border-muted-foreground/15">
