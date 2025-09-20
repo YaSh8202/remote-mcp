@@ -63,6 +63,18 @@ Cloud-hosted servers that work 24/7, accessible from any MCP client.
 Easy-to-use dashboard to manage your servers, connections, and monitor usage.
 
 
+## Latest features (recent updates)
+
+- feat: Implemented OAuth 2.1 authentication for MCP servers — includes client registration, authorization, and token endpoints to securely authorize third-party AI clients to use your MCP servers.
+- feat: Chat page and improved chat integration with MCP servers — the built-in chat page can now connect to and interact with MCP servers for richer conversational workflows.
+- feat: Server selection and details popovers — new UI components to quickly select an MCP server and view server details from the dashboard and chat flows.
+- fix/ui: Adjustments to ScrollArea and AppLogo (now returns the MCPIcon) for improved layout and consistency.
+- docs/ui: Updated AddLLMKeyDialog Google API key link and other small UX fixes.
+- infra: API routes reorganized (moved to src/routes/api) and various dependency updates and zod migration-related fixes.
+
+These changes bring easier server authorization, a more integrated chat experience, and improved server management in the UI.
+
+
 ## Available Apps
 
 Remote MCP supports integration with popular apps and services:
@@ -108,7 +120,17 @@ _New apps and tools are being added regularly! Have a specific integration in mi
 3. Select your app and authenticate
 4. Your credentials are securely stored and encrypted
 
-### 3. Connect to Your AI Client
+### 3. OAuth & Client Authorization
+
+Remote MCP now supports OAuth 2.1 flows for authorizing third-party AI clients with your MCP servers. Typical flow:
+
+1. Register a client (if required) via the server settings
+2. Use the authorization endpoint to obtain user consent
+3. Exchange the authorization code at the token endpoint to retrieve access tokens
+
+Refer to the server-specific settings page in the dashboard for exact endpoints and instructions.
+
+### 4. Connect to Your AI Client
 
 Add your Remote MCP server to your AI client:
 
@@ -135,7 +157,7 @@ Add to your `claude_desktop_config.json`:
 **For Other Clients:**
 Use the MCP endpoint URL: `https://remotemcp.tech/api/mcp/YOUR_SERVER_ID`
 
-### 4. Start Using!
+### 5. Start Using!
 
 Your AI assistant can now interact with your connected apps. Try asking:
 
