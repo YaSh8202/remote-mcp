@@ -12,13 +12,14 @@
 
 ---
 
+
 ## What is Remote MCP?
 
 Remote MCP is a cloud-based platform that lets you easily create and manage **Model Context Protocol (MCP) servers** and connect them to your favorite AI clients like Claude Desktop, Cursor, or any MCP-compatible application.
 
 Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more!
 
-![Remote MCP Demo](public/demo.mp4)
+![Remote MCP Demo](https://github.com/user-attachments/assets/341ef784-d9c1-4321-94ad-47cb2b467fc8)
 
 ## What is MCP?
 
