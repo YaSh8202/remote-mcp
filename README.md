@@ -18,7 +18,7 @@ Remote MCP is a cloud-based platform that lets you easily create and manage **Mo
 
 Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more!
 
-![Remote MCP Dashboard](assets/screenshot-servers.png)
+![Remote MCP Demo](public/demo.mp4)
 
 ## What is MCP?
 

@@ -159,7 +159,7 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				messages: modelMessages,
 				temperature: 0.7,
 				tools,
-				stopWhen: stepCountIs(20),
+				stopWhen: stepCountIs(25),
 			});
 
 			result.consumeStream();

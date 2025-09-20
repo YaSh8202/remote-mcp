@@ -2,12 +2,14 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, X } from "lucide-react";
+import { useState } from "react";
 import { BackgroundBeams } from "./ui/background-beams";
 import { Button } from "./ui/button";
 import { TextGenerateEffect } from "./ui/text-generate-effect";
 
 export function HeroSection() {
+	const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 	const trpc = useTRPC();
 	const { data: apps } = useSuspenseQuery(
 		trpc.mcpApp.getAvailableApps.queryOptions(),
@@ -106,6 +108,7 @@ export function HeroSection() {
 						variant="outline"
 						size="lg"
 						className="border-gray-600 text-white hover:bg-gray-800 font-semibold px-8 py-3 text-lg"
+						onClick={() => setIsVideoPlaying(true)}
 					>
 						<Play className="mr-2 h-5 w-5" />
 						Watch Demo
@@ -122,6 +125,38 @@ export function HeroSection() {
 					Built for AI agents • Trusted by developers worldwide
 				</motion.p>
 			</div>
+
+			{/* Video Modal */}
+			{isVideoPlaying && (
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					exit={{ opacity: 0 }}
+					className="fixed inset-0 z-50 flex items-center justify-center bg-background/50"
+					onClick={() => setIsVideoPlaying(false)}
+				>
+					<div className="relative max-w-4xl w-full mx-4">
+						<Button
+							variant="ghost"
+							size="sm"
+							className="absolute -top-12 right-0 text-white hover:bg-white/20"
+							onClick={() => setIsVideoPlaying(false)}
+						>
+							<X className="h-6 w-6" />
+						</Button>
+						{/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
+						<video
+							className="w-full rounded-lg shadow-2xl"
+							controls
+							autoPlay
+							onClick={(e) => e.stopPropagation()}
+						>
+							<source src="/demo.mp4" type="video/mp4" />
+							Your browser does not support the video tag.
+						</video>
+					</div>
+				</motion.div>
+			)}
 		</div>
 	);
 }
