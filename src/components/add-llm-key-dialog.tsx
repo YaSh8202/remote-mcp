@@ -54,7 +54,7 @@ const providerApiKeyUrls = {
 		label: "Anthropic Console",
 	},
 	[LLMProvider.GOOGLE]: {
-		url: "https://aistudio.google.com/",
+		url: "https://aistudio.google.com/apikey",
 		label: "Google AI Studio",
 	},
 };
