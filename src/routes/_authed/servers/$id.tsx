@@ -2,7 +2,6 @@ import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
 import EditableText from "@/components/ui/editable-text";
 import { useTRPC } from "@/integrations/trpc/react";
-import { mcpServerQueries } from "@/services/queries";
 import { usePageHeader } from "@/store/header-store";
 import {
 	useMutation,
@@ -32,7 +31,9 @@ function RouteComponent() {
 	const queryClient = useQueryClient();
 
 	const { data: server, refetch: refetchServer } = useSuspenseQuery(
-		mcpServerQueries.getOne(serverId),
+		trpc.mcpServer.findOrThrow.queryOptions({
+			id: serverId,
+		}),
 	);
 
 	const { data: appsMetadata = [] } = useSuspenseQuery(
