@@ -25,7 +25,7 @@ export function JsonViewer({
 	indentWidth = 15,
 	maxHeight = 240,
 }: JsonViewerProps) {
-	const { theme } = useTheme();
+	const { currentMode } = useTheme();
 	return (
 		<div
 			className={cn("rounded-md border bg-muted/10 overflow-auto", className)}
@@ -41,7 +41,7 @@ export function JsonViewer({
 					displayObjectSize={displayObjectSize}
 					enableClipboard={enableClipboard}
 					indentWidth={indentWidth}
-					style={theme === "dark" ? githubDarkTheme : githubLightTheme}
+					style={currentMode !== "dark" ? githubLightTheme : githubDarkTheme}
 				/>
 			</div>
 		</div>
