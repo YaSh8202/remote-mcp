@@ -94,7 +94,7 @@ export function ServerSelectionPopover({
 					</Tooltip>
 				</div>
 
-				<ScrollArea className="max-h-96">
+				<ScrollArea className="h-96">
 					<div className="px-3 pb-3">
 						{filteredServers.length === 0 ? (
 							<div className="flex flex-col items-center justify-center py-8 text-center">
