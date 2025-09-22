@@ -16,6 +16,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthorizeRouteImport } from './routes/authorize'
 import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OauthRedirectRouteImport } from './routes/oauth/redirect'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedRunsRouteImport } from './routes/_authed/runs'
 import { Route as AuthedChatRouteImport } from './routes/_authed/chat'
@@ -63,6 +64,11 @@ const AuthedRoute = AuthedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OauthRedirectRoute = OauthRedirectRouteImport.update({
+  id: '/oauth/redirect',
+  path: '/oauth/redirect',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/chat': typeof AuthedChatRouteWithChildren
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
+  '/oauth/redirect': typeof OauthRedirectRoute
   '/apps/$id': typeof AuthedAppsIdRoute
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
@@ -202,6 +209,7 @@ export interface FileRoutesByTo {
   '/redirect': typeof RedirectRoute
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
+  '/oauth/redirect': typeof OauthRedirectRoute
   '/apps/$id': typeof AuthedAppsIdRoute
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
@@ -220,6 +228,7 @@ export interface FileRoutesById {
   '/_authed/chat': typeof AuthedChatRouteWithChildren
   '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/settings': typeof AuthedSettingsRoute
+  '/oauth/redirect': typeof OauthRedirectRoute
   '/_authed/apps/$id': typeof AuthedAppsIdRoute
   '/_authed/chat/$chatId': typeof AuthedChatChatIdRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
@@ -238,6 +247,7 @@ export interface FileRouteTypes {
     | '/chat'
     | '/runs'
     | '/settings'
+    | '/oauth/redirect'
     | '/apps/$id'
     | '/chat/$chatId'
     | '/servers/$id'
@@ -253,6 +263,7 @@ export interface FileRouteTypes {
     | '/redirect'
     | '/runs'
     | '/settings'
+    | '/oauth/redirect'
     | '/apps/$id'
     | '/chat/$chatId'
     | '/servers/$id'
@@ -270,6 +281,7 @@ export interface FileRouteTypes {
     | '/_authed/chat'
     | '/_authed/runs'
     | '/_authed/settings'
+    | '/oauth/redirect'
     | '/_authed/apps/$id'
     | '/_authed/chat/$chatId'
     | '/_authed/servers/$id'
@@ -285,6 +297,7 @@ export interface RootRouteChildren {
   AuthorizeRoute: typeof AuthorizeRoute
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
+  OauthRedirectRoute: typeof OauthRedirectRoute
 }
 export interface FileServerRoutesByFullPath {
   '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonServerRoute
@@ -424,6 +437,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/oauth/redirect': {
+      id: '/oauth/redirect'
+      path: '/oauth/redirect'
+      fullPath: '/oauth/redirect'
+      preLoaderRoute: typeof OauthRedirectRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/settings': {
@@ -632,6 +652,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthorizeRoute: AuthorizeRoute,
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,
+  OauthRedirectRoute: OauthRedirectRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

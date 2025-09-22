@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RemoteMcpLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -7,7 +7,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useOAuthClient } from "@/hooks/use-oauth-client";
 import { authQueries } from "@/services/queries";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +15,7 @@ import {
 	useNavigate,
 	useSearch,
 } from "@tanstack/react-router";
-import { AlertTriangle, ExternalLink, Shield } from "lucide-react";
+import { ExternalLink, Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 import { z } from "zod/v4";
 
@@ -49,64 +48,16 @@ function AuthorizePage() {
 
 	const { oauthClient, query } = useOAuthClient({ id: search.client_id || "" });
 
-	// Parse requested scopes from the URL
-	const scopeParam = search.scope || "";
-
-	const scopes = [
-		{
-			value: "read",
-			label: "Allow application to read your profile and MCP servers",
-		},
-		{
-			value: "write",
-			label: "Allow application to create and manage MCP servers",
-		},
-	];
-
-	// State for selected scopes
-	const [selectedScopes, setSelectedScopes] = useState<string[]>([]);
-
-	// Update selected scopes when scope param changes
-	useEffect(() => {
-		const newRequestedScopes = scopeParam
-			.split(" ")
-			.filter(Boolean)
-			.flatMap((scope: string) => scope.split("+"));
-		setSelectedScopes(newRequestedScopes);
-	}, [scopeParam]);
-
-	const handleScopeChange = (scope: string, checked: boolean) => {
-		if (scope === "read") {
-			if (!checked) {
-				// If unchecking 'read', also uncheck 'write'
-				setSelectedScopes((prev) =>
-					prev.filter((s) => s !== "read" && s !== "write"),
-				);
-			} else {
-				setSelectedScopes((prev) =>
-					prev.includes("read") ? prev : [...prev, "read"],
-				);
-			}
-		} else if (scope === "write") {
-			if (checked) {
-				// If checking 'write', ensure 'read' is also checked
-				setSelectedScopes((prev) => {
-					const next = [...prev];
-					if (!next.includes("read")) next.push("read");
-					if (!next.includes("write")) next.push("write");
-					return next;
-				});
-			} else {
-				setSelectedScopes((prev) => prev.filter((s) => s !== "write"));
-			}
-		}
-	};
-
-	const authorize = async (selectedScopes: string[]) => {
+	const authorize = async () => {
 		// Build new search params with selected scopes
 		const params = new URLSearchParams(window.location.search);
-		params.set("scope", selectedScopes.join(" "));
-		window.location.href = `/api/oauth/authorize?${params.toString()}`;
+		params.set("scope", ["read", "write"].join(" "));
+
+		// Navigate to the OAuth redirect page which will handle the actual redirect
+		navigate({
+			to: "/oauth/redirect",
+			search: Object.fromEntries(params.entries()),
+		});
 	};
 
 	// Show loading state
@@ -122,7 +73,7 @@ function AuthorizePage() {
 	if (authError || !user) {
 		// Redirect to login with return URL
 		const returnUrl = encodeURIComponent(window.location.href);
-		window.location.href = `/login?returnUrl=${returnUrl}`;
+		window.location.href = `/login?from=${returnUrl}`;
 		return null;
 	}
 
@@ -144,13 +95,12 @@ function AuthorizePage() {
 		);
 	}
 
-	const isInsecureRedirect =
-		!oauthClient.redirectUris[0]?.startsWith("https") &&
-		!oauthClient.redirectUris[0]?.startsWith("http://localhost:") &&
-		!oauthClient.redirectUris[0]?.startsWith("http://localhost/");
-
 	return (
-		<div className="min-h-screen flex items-center justify-center p-4">
+		<div className="min-h-screen flex flex-col space-y-5 items-center justify-center p-4">
+			<div className="flex items-center space-x-3 mb-4">
+				<RemoteMcpLogo className="size-12 fill-white" />
+				<h1 className="text-2xl font-bold">Remote MCP</h1>
+			</div>
 			<Card className="w-full max-w-lg">
 				<CardHeader className="text-center">
 					<div className="flex items-center justify-center mb-4">
@@ -173,45 +123,6 @@ function AuthorizePage() {
 				</CardHeader>
 
 				<CardContent className="space-y-6">
-					{/* Scopes Section */}
-					<div className="space-y-4">
-						<h3 className="text-lg font-semibold">Permissions</h3>
-						<div className="space-y-3">
-							{scopes.map((scope) => (
-								<div key={scope.value} className="flex items-start space-x-3">
-									<Checkbox
-										id={scope.value}
-										checked={selectedScopes.includes(scope.value)}
-										onCheckedChange={(checked) =>
-											handleScopeChange(scope.value, checked === true)
-										}
-										disabled={
-											scope.value === "write" &&
-											!selectedScopes.includes("read")
-										}
-									/>
-									<label
-										htmlFor={scope.value}
-										className="text-sm font-medium leading-6 cursor-pointer"
-									>
-										{scope.label}
-									</label>
-								</div>
-							))}
-						</div>
-					</div>
-
-					{/* Security Warning */}
-					{isInsecureRedirect && (
-						<Alert variant="destructive">
-							<AlertTriangle className="h-4 w-4" />
-							<AlertDescription>
-								This application will redirect to an insecure URL that may
-								expose your access token.
-							</AlertDescription>
-						</Alert>
-					)}
-
 					{/* Redirect Information */}
 					<div className="text-sm text-muted-foreground">
 						<p>
@@ -225,15 +136,15 @@ function AuthorizePage() {
 								{oauthClient.redirectUris[0]}
 							</a>
 						</p>
+						<p className="mt-3">
+							If you approve, {oauthClient.name} will be able to access your mcp
+							servers and use its capabilities.
+						</p>
 					</div>
 
 					{/* Action Buttons */}
 					<div className="flex flex-col space-y-3">
-						<Button
-							onClick={() => authorize(selectedScopes)}
-							disabled={selectedScopes.length === 0}
-							className="w-full"
-						>
+						<Button onClick={() => authorize()} className="w-full">
 							Approve Access
 						</Button>
 						<Button
