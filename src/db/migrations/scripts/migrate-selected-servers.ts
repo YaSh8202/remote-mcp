@@ -55,7 +55,7 @@ async function migrateSelectedServers() {
 
 					// Remove selectedServers from metadata
 					const updatedMetadata = { ...metadata };
-					// biome-ignore lint/performance/noDelete: <explanation>
+					// biome-ignore lint/performance/noDelete: Need to remove selectedServers property from existing metadata object during migration
 					delete updatedMetadata.selectedServers;
 
 					// Update the chat to remove selectedServers from metadata
