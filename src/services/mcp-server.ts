@@ -118,16 +118,7 @@ export const mcpServerListTools = createServerFn({ method: "GET" })
 			}),
 		);
 
-		return allTools.reduce(
-			(acc, { tools, name }) => {
-				acc.push({ name, tools });
-				return acc;
-			},
-			[] as Array<{
-				name: string;
-				tools: ToolDescription[];
-			}>,
-		) as Array<{
+		return allTools as Array<{
 			name: string;
 			tools: ToolDescription[];
 		}>;
