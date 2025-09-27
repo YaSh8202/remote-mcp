@@ -101,7 +101,6 @@ export function ToolsSelectionSheet({
 				const result = await mcpServerListTools({
 					data: { servers: serversForToolsQuery },
 				});
-				console.log("mcpServerListTools result:", result);
 				return Array.isArray(result) ? result : [];
 			} catch (error) {
 				console.error("Failed to load server tools:", error);
