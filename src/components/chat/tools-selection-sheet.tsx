@@ -79,7 +79,6 @@ export function ToolsSelectionSheet({
 		})
 		.filter((server): server is NonNullable<typeof server> => server !== null);
 
-	console.log("Filtered serversForToolsQuery:", serversForToolsQuery);
 
 	// Query to load tools for all servers
 	const { data: serverToolsData = [], isLoading: isLoadingTools } = useQuery({
