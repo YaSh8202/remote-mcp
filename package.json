@@ -16,6 +16,12 @@
     "db:studio": "drizzle-kit studio",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "biome check --write --files-ignore-unknown=true",
+      "biome check --files-ignore-unknown=true"
+    ]
+  },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.15",
     "@ai-sdk/google": "^2.0.13",
@@ -137,6 +143,7 @@
     "drizzle-kit": "^0.31.4",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.2.1",
     "shadcn": "^3.3.1",
     "typescript": "^5.9.2",
     "vite": "^6.3.5",
