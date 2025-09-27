@@ -79,7 +79,6 @@ export function ToolsSelectionSheet({
 		})
 		.filter((server): server is NonNullable<typeof server> => server !== null);
 
-
 	// Query to load tools for all servers
 	const { data: serverToolsData = [], isLoading: isLoadingTools } = useQuery({
 		queryKey: [
@@ -88,14 +87,8 @@ export function ToolsSelectionSheet({
 		],
 		queryFn: async () => {
 			if (serversForToolsQuery.length === 0) {
-				console.log("No servers for tools query");
 				return [];
 			}
-
-			console.log(
-				"Calling mcpServerListTools with servers:",
-				serversForToolsQuery,
-			);
 
 			try {
 				const result = await mcpServerListTools({
@@ -120,7 +113,6 @@ export function ToolsSelectionSheet({
 		const toolsForServer = serverToolsData[index]?.tools || [];
 		serverTools[serverKey] = toolsForServer;
 	});
-
 
 	// Mutation for updating MCP server tools with proper invalidation
 	const updateMcpServerMutation = useMutation({
