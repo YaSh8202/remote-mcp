@@ -233,7 +233,6 @@ export const chats = pgTable("chats", {
 			system?: string;
 			temperature?: number;
 			maxTokens?: number;
-			selectedServers?: string[];
 			[key: string]: unknown;
 		}>()
 		.default({}),
@@ -327,10 +326,41 @@ export const messages = pgTable("messages", {
 		.default({}),
 });
 
+// Chat MCP Servers table for storing selected servers and tools per chat
+export const chatMcpServers = pgTable("chat_mcp_servers", {
+	id: text("id").primaryKey(),
+	chatId: text("chat_id")
+		.notNull()
+		.references(() => chats.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	updatedAt: timestamp("updated_at", { withTimezone: true })
+		.notNull()
+		.defaultNow(),
+	// Remote MCP server configuration
+	isRemoteMcp: boolean("is_remote_mcp").notNull(),
+	mcpServerId: text("mcp_server_id").references(() => mcpServer.id, {
+		onDelete: "cascade",
+	}),
+	// Direct MCP server configuration (for non-remote)
+	displayName: text("display_name"),
+	config: jsonb("config").$type<{
+		url?: string;
+		type?: "http" | "sse";
+		headers?: Record<string, unknown>;
+	}>(),
+	// Tools configuration
+	tools: jsonb("tools").$type<string[]>().notNull().default([]),
+	includeAllTools: boolean("include_all_tools").notNull().default(true),
+});
+
 export type Chat = typeof chats.$inferSelect;
 export type NewChat = typeof chats.$inferInsert;
 export type Message = typeof messages.$inferSelect;
 export type NewMessage = typeof messages.$inferInsert;
+export type ChatMcpServer = typeof chatMcpServers.$inferSelect;
+export type NewChatMcpServer = typeof chatMcpServers.$inferInsert;
 
 export const llmProviderKeys = pgTable("llm_provider_keys", {
 	id: text("id").primaryKey(),
@@ -479,6 +509,7 @@ export const chatsRelations = relations(chats, ({ one, many }) => ({
 		references: [users.id],
 	}),
 	messages: many(messages),
+	mcpServers: many(chatMcpServers),
 }));
 
 export const messagesRelations = relations(messages, ({ one, many }) => ({
@@ -536,6 +567,17 @@ export const mcpRunsRelations = relations(mcpRuns, ({ one }) => ({
 	owner: one(users, {
 		fields: [mcpRuns.ownerId],
 		references: [users.id],
+	}),
+}));
+
+export const chatMcpServersRelations = relations(chatMcpServers, ({ one }) => ({
+	chat: one(chats, {
+		fields: [chatMcpServers.chatId],
+		references: [chats.id],
+	}),
+	mcpServer: one(mcpServer, {
+		fields: [chatMcpServers.mcpServerId],
+		references: [mcpServer.id],
 	}),
 }));
 

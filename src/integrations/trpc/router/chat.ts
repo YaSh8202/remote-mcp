@@ -4,7 +4,14 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v4";
 
 import { db } from "@/db";
-import { MessageRole, MessageStatus, chats, messages } from "@/db/schema";
+import {
+	MessageRole,
+	MessageStatus,
+	chatMcpServers,
+	chats,
+	mcpServer,
+	messages,
+} from "@/db/schema";
 import { saveChat } from "@/services/chat-service";
 import type { UIMessage } from "ai";
 import { createTRPCRouter, protectedProcedure } from "../init";
@@ -403,5 +410,182 @@ export const chatRouter = createTRPCRouter({
 				chat: chat[0],
 				messages: chatMessages,
 			};
+		}),
+
+	listMcpServers: protectedProcedure
+		.input(z.object({ chatId: z.string() }))
+		.query(async ({ ctx, input }) => {
+			// Verify chat ownership first
+			const chat = await db
+				.select()
+				.from(chats)
+				.where(and(eq(chats.id, input.chatId), eq(chats.ownerId, ctx.user.id)))
+				.limit(1);
+
+			if (!chat[0]) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Chat not found",
+				});
+			}
+
+			// Get chat MCP servers from the new table
+			const chatMcpServersData = await db
+				.select({
+					chatMcpServer: chatMcpServers,
+					mcpServerData: mcpServer,
+				})
+				.from(chatMcpServers)
+				.leftJoin(mcpServer, eq(chatMcpServers.mcpServerId, mcpServer.id))
+				.where(eq(chatMcpServers.chatId, input.chatId));
+
+			return chatMcpServersData;
+		}),
+
+	// Add MCP server to chat
+	addMcpServer: protectedProcedure
+		.input(
+			z.object({
+				chatId: z.string(),
+				isRemoteMcp: z.boolean(),
+				mcpServerId: z.string().optional(),
+				displayName: z.string().optional(),
+				config: z
+					.object({
+						url: z.string().url().optional(),
+						type: z.enum(["http", "sse"]).optional(),
+						headers: z.record(z.string(), z.unknown()).optional(),
+					})
+					.optional(),
+				tools: z.array(z.string()).default([]),
+				includeAllTools: z.boolean().default(true),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Verify chat ownership
+			const chat = await db
+				.select()
+				.from(chats)
+				.where(and(eq(chats.id, input.chatId), eq(chats.ownerId, ctx.user.id)))
+				.limit(1);
+
+			if (!chat[0]) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Chat not found",
+				});
+			}
+
+			// If it's a remote MCP server, verify the server exists and belongs to user
+			if (input.isRemoteMcp && input.mcpServerId) {
+				const server = await db
+					.select()
+					.from(mcpServer)
+					.where(
+						and(
+							eq(mcpServer.id, input.mcpServerId),
+							eq(mcpServer.ownerId, ctx.user.id),
+						),
+					)
+					.limit(1);
+
+				if (!server[0]) {
+					throw new TRPCError({
+						code: "NOT_FOUND",
+						message: "MCP Server not found",
+					});
+				}
+			}
+
+			const newChatMcpServer = await db
+				.insert(chatMcpServers)
+				.values({
+					id: generateId(),
+					chatId: input.chatId,
+					isRemoteMcp: input.isRemoteMcp,
+					mcpServerId: input.mcpServerId,
+					displayName: input.displayName,
+					config: input.config,
+					tools: input.tools,
+					includeAllTools: input.includeAllTools,
+				})
+				.returning();
+
+			return newChatMcpServer[0];
+		}),
+
+	// Update MCP server in chat
+	updateMcpServer: protectedProcedure
+		.input(
+			z.object({
+				id: z.string(),
+				tools: z.array(z.string()).optional(),
+				includeAllTools: z.boolean().optional(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			const { id, ...updateData } = input;
+
+			// Verify ownership through chat
+			const chatMcpServerWithChat = await db
+				.select({
+					chatMcpServer: chatMcpServers,
+					chat: chats,
+				})
+				.from(chatMcpServers)
+				.leftJoin(chats, eq(chatMcpServers.chatId, chats.id))
+				.where(eq(chatMcpServers.id, id))
+				.limit(1);
+
+			if (
+				!chatMcpServerWithChat[0] ||
+				chatMcpServerWithChat[0].chat?.ownerId !== ctx.user.id
+			) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Chat MCP Server not found",
+				});
+			}
+
+			const updatedChatMcpServer = await db
+				.update(chatMcpServers)
+				.set({
+					...updateData,
+					updatedAt: new Date(),
+				})
+				.where(eq(chatMcpServers.id, id))
+				.returning();
+
+			return updatedChatMcpServer[0];
+		}),
+
+	// Remove MCP server from chat
+	removeMcpServer: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.mutation(async ({ ctx, input }) => {
+			// Verify ownership through chat
+			const chatMcpServerWithChat = await db
+				.select({
+					chatMcpServer: chatMcpServers,
+					chat: chats,
+				})
+				.from(chatMcpServers)
+				.leftJoin(chats, eq(chatMcpServers.chatId, chats.id))
+				.where(eq(chatMcpServers.id, input.id))
+				.limit(1);
+
+			if (
+				!chatMcpServerWithChat[0] ||
+				chatMcpServerWithChat[0].chat?.ownerId !== ctx.user.id
+			) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Chat MCP Server not found",
+				});
+			}
+
+			await db.delete(chatMcpServers).where(eq(chatMcpServers.id, input.id));
+
+			return { success: true };
 		}),
 });

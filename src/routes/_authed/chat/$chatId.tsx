@@ -111,11 +111,17 @@ function ChatPageWithId() {
 		],
 	});
 
+	const { data: chatMcpServers = [] } = useSuspenseQuery({
+		...trpc.chat.listMcpServers.queryOptions({
+			chatId: chatId,
+		}),
+	});
+
 	return (
 		<ChatRuntimeProvider chatId={chatId} messages={uiMessages}>
 			<div className="flex h-full overflow-hidden">
 				<div className="flex-1 h-full overflow-hidden">
-					<Thread currentChat={chat} />
+					<Thread currentChat={{ ...chat, mcpServers: chatMcpServers }} />
 				</div>
 			</div>
 		</ChatRuntimeProvider>
