@@ -17,10 +17,7 @@
     "prepare": "husky"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,json,css,md}": [
-      "biome check --write --files-ignore-unknown=true",
-      "biome check --files-ignore-unknown=true"
-    ]
+    "*.{js,jsx,ts,tsx,json,css,md}": "biome check --write --no-errors-on-unmatched"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^2.0.15",
