@@ -71,6 +71,13 @@
 			"when": 1757272932138,
 			"tag": "0009_broad_fixer",
 			"breakpoints": true
+		},
+		{
+			"idx": 10,
+			"version": "7",
+			"when": 1758959759803,
+			"tag": "0010_acoustic_magus",
+			"breakpoints": true
 		}
 	]
 }

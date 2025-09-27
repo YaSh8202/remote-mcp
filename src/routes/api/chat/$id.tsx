@@ -19,8 +19,11 @@ import {
 	validateUIMessages,
 } from "ai";
 
+import { db } from "@/db";
+import { chatMcpServers, mcpServer } from "@/db/schema";
 import { env } from "@/env";
-import { findMcpServer } from "@/integrations/trpc/router/mcp-server";
+import { eq } from "drizzle-orm";
+
 import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
 import { experimental_createMCPClient as createMCPClient } from "ai";
 
@@ -124,21 +127,61 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			const aiSdkModel = getAIModel(provider, model, apiKey);
 
 			const tools: ToolSet = {};
-			if (
-				chat.metadata?.selectedServers &&
-				Array.isArray(chat.metadata.selectedServers)
-			) {
-				for (const serverId of chat.metadata.selectedServers) {
-					const server = await findMcpServer(serverId, session.user.id);
-					if (server) {
+
+			// Get chat MCP servers from the new table
+			const chatMcpServersData = await db
+				.select({
+					chatMcpServer: chatMcpServers,
+					mcpServerData: mcpServer,
+				})
+				.from(chatMcpServers)
+				.leftJoin(mcpServer, eq(chatMcpServers.mcpServerId, mcpServer.id))
+				.where(eq(chatMcpServers.chatId, chat.id));
+
+			for (const {
+				chatMcpServer: chatServer,
+				mcpServerData: serverData,
+			} of chatMcpServersData) {
+				if (chatServer.isRemoteMcp && serverData) {
+					// Handle remote MCP server
+					const httpTransport = new StreamableHTTPClientTransport(
+						new URL(`${env.SERVER_URL}/api/mcp/${serverData.token}`),
+						{
+							requestInit: {
+								headers: {
+									"x-API-Key": env.MCP_SERVER_API_KEY,
+									"X-User-Id": session.user.id,
+								},
+							},
+						},
+					);
+
+					const mcpClient = await createMCPClient({
+						transport: httpTransport,
+					});
+
+					const serverTools = await mcpClient.tools();
+
+					// Filter tools based on chat MCP server configuration
+					if (chatServer.includeAllTools) {
+						Object.assign(tools, serverTools);
+					} else if (chatServer.tools && Array.isArray(chatServer.tools)) {
+						// Only include selected tools
+						for (const toolName of chatServer.tools) {
+							if (serverTools[toolName]) {
+								tools[toolName] = serverTools[toolName];
+							}
+						}
+					}
+				} else if (!chatServer.isRemoteMcp && chatServer.config) {
+					// Handle direct MCP server configuration
+					const { url, headers } = chatServer.config;
+					if (url) {
 						const httpTransport = new StreamableHTTPClientTransport(
-							new URL(`${env.SERVER_URL}/api/mcp/${server.token}`),
+							new URL(url),
 							{
 								requestInit: {
-									headers: {
-										"x-API-Key": env.MCP_SERVER_API_KEY,
-										"X-User-Id": session.user.id,
-									},
+									headers: headers as Record<string, string> | undefined,
 								},
 							},
 						);
@@ -148,7 +191,18 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 						});
 
 						const serverTools = await mcpClient.tools();
-						Object.assign(tools, serverTools);
+
+						// Filter tools based on chat MCP server configuration
+						if (chatServer.includeAllTools) {
+							Object.assign(tools, serverTools);
+						} else if (chatServer.tools && Array.isArray(chatServer.tools)) {
+							// Only include selected tools
+							for (const toolName of chatServer.tools) {
+								if (serverTools[toolName]) {
+									tools[toolName] = serverTools[toolName];
+								}
+							}
+						}
 					}
 				}
 			}

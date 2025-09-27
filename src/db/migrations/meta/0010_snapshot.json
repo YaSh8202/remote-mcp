@@ -1,6 +1,6 @@
 {
-	"id": "0f317640-0816-4b39-be18-18dfcd557a3a",
-	"prevId": "e712747c-9006-407c-9222-a0f7621270da",
+	"id": "4633a111-c2ba-4cc3-9d06-0d177b53a9b0",
+	"prevId": "0f317640-0816-4b39-be18-18dfcd557a3a",
 	"version": "7",
 	"dialect": "postgresql",
 	"tables": {
@@ -182,6 +182,102 @@
 					"tableFrom": "app_connections",
 					"tableTo": "users",
 					"columnsFrom": ["owner_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				}
+			},
+			"compositePrimaryKeys": {},
+			"uniqueConstraints": {},
+			"policies": {},
+			"checkConstraints": {},
+			"isRLSEnabled": false
+		},
+		"public.chat_mcp_servers": {
+			"name": "chat_mcp_servers",
+			"schema": "",
+			"columns": {
+				"id": {
+					"name": "id",
+					"type": "text",
+					"primaryKey": true,
+					"notNull": true
+				},
+				"chat_id": {
+					"name": "chat_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"created_at": {
+					"name": "created_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"updated_at": {
+					"name": "updated_at",
+					"type": "timestamp with time zone",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "now()"
+				},
+				"is_remote_mcp": {
+					"name": "is_remote_mcp",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true
+				},
+				"mcp_server_id": {
+					"name": "mcp_server_id",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"display_name": {
+					"name": "display_name",
+					"type": "text",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"config": {
+					"name": "config",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": false
+				},
+				"tools": {
+					"name": "tools",
+					"type": "jsonb",
+					"primaryKey": false,
+					"notNull": true,
+					"default": "'[]'::jsonb"
+				},
+				"include_all_tools": {
+					"name": "include_all_tools",
+					"type": "boolean",
+					"primaryKey": false,
+					"notNull": true,
+					"default": true
+				}
+			},
+			"indexes": {},
+			"foreignKeys": {
+				"chat_mcp_servers_chat_id_chats_id_fk": {
+					"name": "chat_mcp_servers_chat_id_chats_id_fk",
+					"tableFrom": "chat_mcp_servers",
+					"tableTo": "chats",
+					"columnsFrom": ["chat_id"],
+					"columnsTo": ["id"],
+					"onDelete": "cascade",
+					"onUpdate": "no action"
+				},
+				"chat_mcp_servers_mcp_server_id_mcp_server_id_fk": {
+					"name": "chat_mcp_servers_mcp_server_id_mcp_server_id_fk",
+					"tableFrom": "chat_mcp_servers",
+					"tableTo": "mcp_server",
+					"columnsFrom": ["mcp_server_id"],
 					"columnsTo": ["id"],
 					"onDelete": "cascade",
 					"onUpdate": "no action"

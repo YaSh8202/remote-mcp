@@ -16,7 +16,6 @@ import {
 	useSearch,
 } from "@tanstack/react-router";
 import { ExternalLink, Shield } from "lucide-react";
-import { useEffect, useState } from "react";
 import { z } from "zod/v4";
 
 const searchSchema = z.object({

@@ -6,7 +6,7 @@ import {
 	MessagePrimitive,
 	ThreadPrimitive,
 } from "@assistant-ui/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
@@ -34,7 +34,7 @@ import { ModelSelector } from "@/components/model-selector";
 import { ServerDetailsPopover } from "@/components/server-details-popover";
 import { ServerSelectionPopover } from "@/components/server-selection-popover";
 import { Button } from "@/components/ui/button";
-import type { Chat } from "@/db/schema";
+import type { Chat, ChatMcpServer, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chat-store";
@@ -43,10 +43,18 @@ import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
 import { useEffect } from "react";
 import { AppLogo } from "../AppLogo";
+import ToolsSelector from "../chat/tools-selector";
 import { MCPIcon } from "../icons";
 
+type ChatWithMcpServers = Chat & {
+	mcpServers?: Array<{
+		chatMcpServer: ChatMcpServer;
+		mcpServerData: McpServer | null;
+	}>;
+};
+
 interface ThreadProps {
-	currentChat?: Chat;
+	currentChat?: ChatWithMcpServers;
 }
 
 export const Thread: FC<ThreadProps> = ({ currentChat }) => {
@@ -180,12 +188,14 @@ const ThreadWelcomeSuggestions: FC = () => {
 	);
 };
 
-const Composer: FC<{ currentChat?: Chat }> = ({ currentChat }) => {
+const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
+	currentChat,
+}) => {
 	const { selectedModel, setSelectedModel } = useChatStore();
 	const trpc = useTRPC();
 	const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
 	const [selectedServerIds, setSelectedServerIds] = useState<string[]>([]);
-
+	const queryClient = useQueryClient();
 	const { data: keys = [] } = useSuspenseQuery(
 		trpc.llmProvider.getKeys.queryOptions({}),
 	);
@@ -207,35 +217,65 @@ const Composer: FC<{ currentChat?: Chat }> = ({ currentChat }) => {
 		selectedServerIds.includes(server.id),
 	);
 
-	// Load selected servers from chat metadata on mount
+	// Load selected servers from chat MCP servers on mount
 	useEffect(() => {
-		if (currentChat?.metadata?.selectedServers) {
-			const serverIds = currentChat.metadata.selectedServers;
+		if (currentChat?.mcpServers) {
+			const serverIds = currentChat.mcpServers
+				.filter(
+					(
+						server,
+					): server is typeof server & {
+						mcpServerData: NonNullable<typeof server.mcpServerData>;
+					} =>
+						server.chatMcpServer.isRemoteMcp && server.mcpServerData !== null,
+				)
+				.map((server) => server.mcpServerData.id);
 			setSelectedServerIds(serverIds);
 		}
-	}, [currentChat?.metadata?.selectedServers]);
+	}, [currentChat?.mcpServers]);
 
-	// Update chat metadata when servers change
-	const updateChatMutation = useMutation({
-		...trpc.chat.update.mutationOptions(),
+	// Add/remove MCP server mutations
+	const addMcpServerMutation = useMutation({
+		...trpc.chat.addMcpServer.mutationOptions(),
+		onSuccess: () => {
+			// Invalidate chat data to reflect new MCP server
+			queryClient.invalidateQueries({
+				queryKey: trpc.chat.listMcpServers.queryKey({
+					chatId: currentChat?.id,
+				}),
+			});
+		},
+	});
+
+	const removeMcpServerMutation = useMutation({
+		...trpc.chat.removeMcpServer.mutationOptions(),
+
+		onSuccess: () => {
+			// Invalidate chat data to reflect removed MCP server
+			queryClient.invalidateQueries({
+				queryKey: trpc.chat.listMcpServers.queryKey({
+					chatId: currentChat?.id,
+				}),
+			});
+		},
 	});
 
 	const handleServerAdd = async (serverId: string) => {
 		const newServerIds = [...selectedServerIds, serverId];
 		setSelectedServerIds(newServerIds);
 
-		// Update chat metadata if we have a current chat
+		// Add MCP server to chat if we have a current chat
 		if (currentChat) {
 			try {
-				await updateChatMutation.mutateAsync({
-					id: currentChat.id,
-					metadata: {
-						...currentChat.metadata,
-						selectedServers: newServerIds,
-					},
+				await addMcpServerMutation.mutateAsync({
+					chatId: currentChat.id,
+					isRemoteMcp: true,
+					mcpServerId: serverId,
+					includeAllTools: true,
+					tools: [],
 				});
 			} catch (error) {
-				console.error("Failed to update chat metadata:", error);
+				console.error("Failed to add MCP server to chat:", error);
 			}
 		}
 	};
@@ -244,18 +284,24 @@ const Composer: FC<{ currentChat?: Chat }> = ({ currentChat }) => {
 		const newServerIds = selectedServerIds.filter((id) => id !== serverId);
 		setSelectedServerIds(newServerIds);
 
-		// Update chat metadata if we have a current chat
+		// Remove MCP server from chat if we have a current chat
 		if (currentChat) {
 			try {
-				await updateChatMutation.mutateAsync({
-					id: currentChat.id,
-					metadata: {
-						...currentChat.metadata,
-						selectedServers: newServerIds,
-					},
-				});
+				// Find the chat MCP server record to remove
+				const chatMcpServer = currentChat.mcpServers?.find(
+					(
+						server,
+					): server is typeof server & {
+						mcpServerData: NonNullable<typeof server.mcpServerData>;
+					} => server.mcpServerData?.id === serverId,
+				);
+				if (chatMcpServer) {
+					await removeMcpServerMutation.mutateAsync({
+						id: chatMcpServer.chatMcpServer.id,
+					});
+				}
 			} catch (error) {
-				console.error("Failed to update chat metadata:", error);
+				console.error("Failed to remove MCP server from chat:", error);
 			}
 		}
 	};
@@ -363,13 +409,14 @@ const Composer: FC<{ currentChat?: Chat }> = ({ currentChat }) => {
 						aria-label="Message input"
 					/>
 					<div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-between">
-						<div className="flex items-center gap-1">
+						<div className="flex items-center gap-0.5">
 							<ComposerAddAttachment />
 							<ModelSelector
 								selectedModel={selectedModel}
 								onModelSelect={setSelectedModel}
 								disabled={!hasValidKeys}
 							/>
+							{(currentChat?.mcpServers?.length ?? 0) > 0 && <ToolsSelector />}
 						</div>
 						<div className="flex items-center gap-2">
 							<SendButton />
