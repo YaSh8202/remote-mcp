@@ -29,10 +29,15 @@ async function migrateSelectedServers() {
 		for (const chat of chatsWithSelectedServers) {
 			try {
 				const metadata = chat.metadata;
-				
+
 				// Check if selectedServers exists and is an array
-				if (metadata?.selectedServers && Array.isArray(metadata.selectedServers)) {
-					console.log(`Processing chat ${chat.id} with ${metadata.selectedServers.length} selected servers`);
+				if (
+					metadata?.selectedServers &&
+					Array.isArray(metadata.selectedServers)
+				) {
+					console.log(
+						`Processing chat ${chat.id} with ${metadata.selectedServers.length} selected servers`,
+					);
 
 					// Create chat_mcp_servers records for each selected server
 					for (const serverId of metadata.selectedServers) {
