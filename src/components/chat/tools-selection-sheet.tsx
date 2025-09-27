@@ -121,7 +121,6 @@ export function ToolsSelectionSheet({
 		serverTools[serverKey] = toolsForServer;
 	});
 
-	console.log("Final serverTools mapping:", serverTools);
 
 	// Mutation for updating MCP server tools with proper invalidation
 	const updateMcpServerMutation = useMutation({
