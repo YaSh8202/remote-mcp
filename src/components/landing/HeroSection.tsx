@@ -192,6 +192,7 @@ export function HeroSection() {
 												autoPlay
 												muted
 												playsInline
+												title="Demo: See Remote MCP in Action – how to connect AI agents to external tools in minutes"
 												onEnded={() => {
 													setIsVideoPlaying(false);
 													setShowThumbnail(true);
