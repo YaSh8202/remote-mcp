@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { BackgroundBeams } from "./ui/background-beams";
-import { Button } from "./ui/button";
+import { BackgroundBeams } from "../ui/background-beams";
+import { Button } from "../ui/button";
 
 export function CTASection() {
 	return (
