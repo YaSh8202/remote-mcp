@@ -126,7 +126,7 @@ const CollisionMechanism = React.forwardRef<
 	const [beamKey, setBeamKey] = useState(0);
 	const [cycleCollisionDetected, setCycleCollisionDetected] = useState(false);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Refs (beamRef, parentRef) are stable and do not need to be included in the dependency array.
 	useEffect(() => {
 		const checkCollision = () => {
 			if (
