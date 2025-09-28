@@ -22,74 +22,75 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Code, Plus, Settings, Shield, Zap } from "lucide-react";
 import { useState } from "react";
 import { ConnectAppDialog } from "./-components/connect-app-dialog";
 
-export const Route = createFileRoute("/_authed/apps/$id")({
-	component: RouteComponent,
-	loader: async ({ context, params }) => {
-		const apps = await context.queryClient.ensureQueryData(
-			context.trpc.mcpApp.getAvailableApps.queryOptions(),
-		);
-		const app = apps.find((app: McpAppMetadata) => app.name === params.id);
-		if (!app) {
-			throw notFound();
-		}
-		return { app };
-	},
-	notFoundComponent: () => {
-		const navigate = useNavigate();
+const NotFoundComponent = () => {
+	const navigate = useNavigate();
 
-		return (
-			<div className="min-h-[60vh] flex flex-col items-center justify-center max-w-lg mx-auto p-8 space-y-8">
-				<div className="space-y-4 text-center">
-					<div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-						<svg
-							className="w-8 h-8 text-muted-foreground"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							aria-hidden="true"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-							/>
-						</svg>
-					</div>
-					<div className="space-y-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							App Not Found
-						</h1>
-						<p className="text-sm text-muted-foreground max-w-md">
-							The app you are looking for does not exist or may have been
-							removed.
-						</p>
-					</div>
+	return (
+		<div className="min-h-[60vh] flex flex-col items-center justify-center max-w-lg mx-auto p-8 space-y-8">
+			<div className="space-y-4 text-center">
+				<div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+					<svg
+						className="w-8 h-8 text-muted-foreground"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
 				</div>
-				<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-					<Button
-						onClick={() => navigate({ to: "/apps" })}
-						className="min-w-[140px] gap-2"
-					>
-						<ArrowLeft className="h-4 w-4" />
-						Browse Apps
-					</Button>
-					<Button
-						variant="outline"
-						onClick={() => navigate({ to: "/" })}
-						className="min-w-[140px]"
-					>
-						Go to Home
-					</Button>
+				<div className="space-y-2">
+					<h1 className="text-2xl font-semibold text-foreground">
+						App Not Found
+					</h1>
+					<p className="text-sm text-muted-foreground max-w-md">
+						The app you are looking for does not exist or may have been removed.
+					</p>
 				</div>
 			</div>
-		);
-	},
+			<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+				<Button
+					onClick={() => navigate({ to: "/apps" })}
+					className="min-w-[140px] gap-2"
+				>
+					<ArrowLeft className="h-4 w-4" />
+					Browse Apps
+				</Button>
+				<Button
+					variant="outline"
+					onClick={() => navigate({ to: "/" })}
+					className="min-w-[140px]"
+				>
+					Go to Home
+				</Button>
+			</div>
+		</div>
+	);
+};
+
+export const Route = createFileRoute("/_authed/apps/$id")({
+	component: RouteComponent,
+	// loader: async ({ context, params }) => {
+	// 	const apps = await context.queryClient.ensureQueryData(
+	// 		context.trpc.mcpApp.getAvailableApps.queryOptions(),
+	// 	);
+	// 	const app = apps.find((app: McpAppMetadata) => app.name === params.id);
+	// 	if (!app) {
+	// 		throw notFound();
+	// 	}
+	// 	return { app };
+	// },
+	notFoundComponent: NotFoundComponent,
 });
 
 interface ToolCardProps {
@@ -253,7 +254,7 @@ function RouteComponent() {
 	}
 
 	if (!app) {
-		throw notFound();
+		return <NotFoundComponent />;
 	}
 
 	return (

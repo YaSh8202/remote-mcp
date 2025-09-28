@@ -29,11 +29,6 @@ import { ConnectAppDialog } from "./-components/connect-app-dialog";
 
 export const Route = createFileRoute("/_authed/apps/")({
 	component: RouteComponent,
-	loader: async ({ context }) => {
-		return await context.queryClient.ensureQueryData(
-			context.trpc.mcpApp.getAvailableApps.queryOptions(),
-		);
-	},
 });
 
 interface AppCardProps {
@@ -246,49 +241,6 @@ function RouteComponent() {
 					<p className="text-muted-foreground">
 						Discover and connect powerful applications to your MCP servers
 					</p>
-				</div>
-
-				{/* Stats Overview */}
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-					<Card>
-						<CardContent className="p-4">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
-									<AppWindow className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-								</div>
-								<div>
-									<Skeleton className="h-6 w-8 mb-1" />
-									<Skeleton className="h-3 w-20" />
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardContent className="p-4">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-green-100 dark:bg-green-900/20 rounded-lg">
-									<Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
-								</div>
-								<div>
-									<Skeleton className="h-6 w-8 mb-1" />
-									<Skeleton className="h-3 w-16" />
-								</div>
-							</div>
-						</CardContent>
-					</Card>
-					<Card>
-						<CardContent className="p-4">
-							<div className="flex items-center gap-3">
-								<div className="p-2 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
-									<Shield className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-								</div>
-								<div>
-									<Skeleton className="h-6 w-8 mb-1" />
-									<Skeleton className="h-3 w-24" />
-								</div>
-							</div>
-						</CardContent>
-					</Card>
 				</div>
 
 				{/* Loading skeleton grid */}
