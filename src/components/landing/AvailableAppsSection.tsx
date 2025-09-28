@@ -6,8 +6,8 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
-import { AppLogo } from "./AppLogo";
-import { Badge } from "./ui/badge";
+import { AppLogo } from "../AppLogo";
+import { Badge } from "../ui/badge";
 
 const categoryTitle = {
 	[McpAppCategory.DEVELOPER_TOOLS]: "Developer Tools",
