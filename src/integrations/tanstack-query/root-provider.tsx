@@ -5,6 +5,7 @@ import superjson from "superjson";
 
 import { TRPCProvider } from "@/integrations/trpc/react";
 
+import { env } from "@/env";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
 import { getWebRequest } from "@tanstack/react-start/server";
@@ -12,6 +13,10 @@ import { getWebRequest } from "@tanstack/react-start/server";
 function getUrl() {
 	const base = (() => {
 		if (typeof window !== "undefined") return "";
+
+		if (env.BETTER_AUTH_URL) {
+			return env.BETTER_AUTH_URL;
+		}
 
 		// For Vercel deployment, use VERCEL_URL
 		if (process.env.VERCEL_URL) {
