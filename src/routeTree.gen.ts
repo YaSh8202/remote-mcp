@@ -14,7 +14,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RedirectRouteImport } from './routes/redirect'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthorizeRouteImport } from './routes/authorize'
-import { Route as AuthedRouteImport } from './routes/_authed'
+import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OauthRedirectRouteImport } from './routes/oauth/redirect'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
@@ -57,7 +57,7 @@ const AuthorizeRoute = AuthorizeRouteImport.update({
   path: '/authorize',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthedRoute = AuthedRouteImport.update({
+const AuthedRouteRoute = AuthedRouteRouteImport.update({
   id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
@@ -74,27 +74,27 @@ const OauthRedirectRoute = OauthRedirectRouteImport.update({
 const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedRunsRoute = AuthedRunsRouteImport.update({
   id: '/runs',
   path: '/runs',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedChatRoute = AuthedChatRouteImport.update({
   id: '/chat',
   path: '/chat',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedServersIndexRoute = AuthedServersIndexRouteImport.update({
   id: '/servers/',
   path: '/servers/',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedConnectionsIndexRoute = AuthedConnectionsIndexRouteImport.update({
   id: '/connections/',
   path: '/connections/',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedChatIndexRoute = AuthedChatIndexRouteImport.update({
   id: '/',
@@ -104,12 +104,12 @@ const AuthedChatIndexRoute = AuthedChatIndexRouteImport.update({
 const AuthedAppsIndexRoute = AuthedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedServersIdRoute = AuthedServersIdRouteImport.update({
   id: '/servers/$id',
   path: '/servers/$id',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const AuthedChatChatIdRoute = AuthedChatChatIdRouteImport.update({
   id: '/$chatId',
@@ -119,7 +119,7 @@ const AuthedChatChatIdRoute = AuthedChatChatIdRouteImport.update({
 const AuthedAppsIdRoute = AuthedAppsIdRouteImport.update({
   id: '/apps/$id',
   path: '/apps/$id',
-  getParentRoute: () => AuthedRoute,
+  getParentRoute: () => AuthedRouteRoute,
 } as any)
 const DotwellKnownOauthProtectedResourceServerRoute =
   DotwellKnownOauthProtectedResourceServerRouteImport.update({
@@ -221,7 +221,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/_authed': typeof AuthedRouteWithChildren
+  '/_authed': typeof AuthedRouteRouteWithChildren
   '/authorize': typeof AuthorizeRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
@@ -293,7 +293,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AuthedRoute: typeof AuthedRouteWithChildren
+  AuthedRouteRoute: typeof AuthedRouteRouteWithChildren
   AuthorizeRoute: typeof AuthorizeRoute
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
@@ -429,7 +429,7 @@ declare module '@tanstack/react-router' {
       id: '/_authed'
       path: ''
       fullPath: ''
-      preLoaderRoute: typeof AuthedRouteImport
+      preLoaderRoute: typeof AuthedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -451,35 +451,35 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof AuthedSettingsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/runs': {
       id: '/_authed/runs'
       path: '/runs'
       fullPath: '/runs'
       preLoaderRoute: typeof AuthedRunsRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/chat': {
       id: '/_authed/chat'
       path: '/chat'
       fullPath: '/chat'
       preLoaderRoute: typeof AuthedChatRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/servers/': {
       id: '/_authed/servers/'
       path: '/servers'
       fullPath: '/servers'
       preLoaderRoute: typeof AuthedServersIndexRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/connections/': {
       id: '/_authed/connections/'
       path: '/connections'
       fullPath: '/connections'
       preLoaderRoute: typeof AuthedConnectionsIndexRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/chat/': {
       id: '/_authed/chat/'
@@ -493,14 +493,14 @@ declare module '@tanstack/react-router' {
       path: '/apps'
       fullPath: '/apps'
       preLoaderRoute: typeof AuthedAppsIndexRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/servers/$id': {
       id: '/_authed/servers/$id'
       path: '/servers/$id'
       fullPath: '/servers/$id'
       preLoaderRoute: typeof AuthedServersIdRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/chat/$chatId': {
       id: '/_authed/chat/$chatId'
@@ -514,7 +514,7 @@ declare module '@tanstack/react-router' {
       path: '/apps/$id'
       fullPath: '/apps/$id'
       preLoaderRoute: typeof AuthedAppsIdRouteImport
-      parentRoute: typeof AuthedRoute
+      parentRoute: typeof AuthedRouteRoute
     }
   }
 }
@@ -621,7 +621,7 @@ const AuthedChatRouteWithChildren = AuthedChatRoute._addFileChildren(
   AuthedChatRouteChildren,
 )
 
-interface AuthedRouteChildren {
+interface AuthedRouteRouteChildren {
   AuthedChatRoute: typeof AuthedChatRouteWithChildren
   AuthedRunsRoute: typeof AuthedRunsRoute
   AuthedSettingsRoute: typeof AuthedSettingsRoute
@@ -632,7 +632,7 @@ interface AuthedRouteChildren {
   AuthedServersIndexRoute: typeof AuthedServersIndexRoute
 }
 
-const AuthedRouteChildren: AuthedRouteChildren = {
+const AuthedRouteRouteChildren: AuthedRouteRouteChildren = {
   AuthedChatRoute: AuthedChatRouteWithChildren,
   AuthedRunsRoute: AuthedRunsRoute,
   AuthedSettingsRoute: AuthedSettingsRoute,
@@ -643,12 +643,13 @@ const AuthedRouteChildren: AuthedRouteChildren = {
   AuthedServersIndexRoute: AuthedServersIndexRoute,
 }
 
-const AuthedRouteWithChildren =
-  AuthedRoute._addFileChildren(AuthedRouteChildren)
+const AuthedRouteRouteWithChildren = AuthedRouteRoute._addFileChildren(
+  AuthedRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AuthedRoute: AuthedRouteWithChildren,
+  AuthedRouteRoute: AuthedRouteRouteWithChildren,
   AuthorizeRoute: AuthorizeRoute,
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,

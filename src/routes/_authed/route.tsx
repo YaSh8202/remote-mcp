@@ -19,17 +19,17 @@ import {
 import { Suspense, useEffect } from "react";
 
 export const Route = createFileRoute("/_authed")({
-	// beforeLoad: ({ context, location }) => {
-	// 	if (!context.userSession?.user) {
-	// 		throw redirect({
-	// 			to: "/login",
-	// 			statusCode: 302,
-	// 			search: {
-	// 				from: location.pathname,
-	// 			},
-	// 		});
-	// 	}
-	// },
+	beforeLoad: ({ context, location }) => {
+		if (!context.userSession?.user) {
+			throw redirect({
+				to: "/login",
+				statusCode: 302,
+				search: {
+					from: location.pathname,
+				},
+			});
+		}
+	},
 	component: () => (
 		<SidebarProvider>
 			<AppSidebar />
