@@ -12,6 +12,18 @@ import { getWebRequest } from "@tanstack/react-start/server";
 function getUrl() {
 	const base = (() => {
 		if (typeof window !== "undefined") return "";
+
+		// For Vercel deployment, use VERCEL_URL
+		if (process.env.VERCEL_URL) {
+			return `https://${process.env.VERCEL_URL}`;
+		}
+
+		// For other cloud deployments, use SERVER_URL if available
+		if (process.env.SERVER_URL) {
+			return process.env.SERVER_URL;
+		}
+
+		// Fallback to localhost for local development
 		return `http://localhost:${process.env.PORT ?? 3000}`;
 	})();
 	return `${base}/api/trpc`;
