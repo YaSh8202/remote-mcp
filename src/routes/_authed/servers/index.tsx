@@ -10,11 +10,10 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { McpApp, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
@@ -145,46 +144,14 @@ function ServerCard({ server, appsMetadata }: ServerCardProps) {
 	);
 }
 
-function ServerCardSkeleton() {
-	return (
-		<Card className="animate-pulse">
-			<CardHeader>
-				<div className="flex items-start justify-between">
-					<div className="flex items-center gap-3">
-						<Skeleton className="h-9 w-9 rounded-lg" />
-						<div>
-							<Skeleton className="h-5 w-32 mb-2" />
-							<Skeleton className="h-3 w-24" />
-						</div>
-					</div>
-					<Skeleton className="h-8 w-8 rounded" />
-				</div>
-			</CardHeader>
-			<CardContent>
-				<div className="space-y-4">
-					<Skeleton className="h-4 w-16" />
-					<div className="space-y-2">
-						<Skeleton className="h-4 w-28" />
-						<Skeleton className="h-6 w-full" />
-					</div>
-					<Skeleton className="h-3 w-20" />
-				</div>
-			</CardContent>
-			<CardFooter>
-				<Skeleton className="h-8 w-full" />
-			</CardFooter>
-		</Card>
-	);
-}
-
 function RouteComponent() {
 	const navigate = useNavigate();
 	const trpc = useTRPC();
 
-	const { data: servers = [], isLoading: serversLoading } = useQuery(
+	const { data: servers = [] } = useSuspenseQuery(
 		trpc.mcpServer.list.queryOptions(),
 	);
-	const { data: appsMetadata = [], isLoading: appsLoading } = useQuery(
+	const { data: appsMetadata = [] } = useSuspenseQuery(
 		trpc.mcpApp.getAvailableApps.queryOptions(),
 	);
 
@@ -220,8 +187,6 @@ function RouteComponent() {
 		return total + (server.apps?.length || 0);
 	}, 0);
 
-	const isLoading = serversLoading || appsLoading;
-
 	return (
 		<div className="w-full max-w-full mx-auto p-4 md:p-6 space-y-6">
 			{/* Stats Overview */}
@@ -233,19 +198,8 @@ function RouteComponent() {
 								<Server className="h-5 w-5 text-blue-600 dark:text-blue-400" />
 							</div>
 							<div className="min-w-0">
-								{isLoading ? (
-									<div className="space-y-1">
-										<Skeleton className="h-6 w-8" />
-										<Skeleton className="h-3 w-20" />
-									</div>
-								) : (
-									<>
-										<p className="text-2xl font-bold">{servers.length}</p>
-										<p className="text-sm text-muted-foreground">
-											Total Servers
-										</p>
-									</>
-								)}
+								<p className="text-2xl font-bold">{servers.length}</p>
+								<p className="text-sm text-muted-foreground">Total Servers</p>
 							</div>
 						</div>
 					</CardContent>
@@ -258,19 +212,8 @@ function RouteComponent() {
 								<Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
 							</div>
 							<div className="min-w-0">
-								{isLoading ? (
-									<div className="space-y-1">
-										<Skeleton className="h-6 w-8" />
-										<Skeleton className="h-3 w-24" />
-									</div>
-								) : (
-									<>
-										<p className="text-2xl font-bold">{totalConnectedApps}</p>
-										<p className="text-sm text-muted-foreground">
-											Connected Apps
-										</p>
-									</>
-								)}
+								<p className="text-2xl font-bold">{totalConnectedApps}</p>
+								<p className="text-sm text-muted-foreground">Connected Apps</p>
 							</div>
 						</div>
 					</CardContent>
@@ -283,19 +226,8 @@ function RouteComponent() {
 								<Globe className="h-5 w-5 text-orange-600 dark:text-orange-400" />
 							</div>
 							<div>
-								{isLoading ? (
-									<div className="space-y-1">
-										<Skeleton className="h-6 w-8" />
-										<Skeleton className="h-3 w-24" />
-									</div>
-								) : (
-									<>
-										<p className="text-2xl font-bold">{appsMetadata.length}</p>
-										<p className="text-sm text-muted-foreground">
-											Available Apps
-										</p>
-									</>
-								)}
+								<p className="text-2xl font-bold">{appsMetadata.length}</p>
+								<p className="text-sm text-muted-foreground">Available Apps</p>
 							</div>
 						</div>
 					</CardContent>
@@ -303,13 +235,7 @@ function RouteComponent() {
 			</div>
 
 			{/* Servers Grid */}
-			{isLoading ? (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-					<ServerCardSkeleton />
-					<ServerCardSkeleton />
-					<ServerCardSkeleton />
-				</div>
-			) : servers.length === 0 ? (
+			{servers.length === 0 ? (
 				<Card className="p-12 text-center border-2 border-dashed">
 					<div className="mx-auto max-w-md">
 						<div className="p-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
