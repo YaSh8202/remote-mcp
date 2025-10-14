@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { McpApp, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,

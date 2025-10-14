@@ -6,6 +6,7 @@ import { firecrawlMcpApp } from "./firecrawl";
 import { githubMcpApp } from "./github";
 import { gitlabMcpApp } from "./gitlab";
 import { googleDriveMcpApp } from "./google-drive";
+import { linearMcpApp } from "./linear";
 import { notionMcpApp } from "./notion";
 import { postgresMcpApp } from "./postgres";
 import { slackMcpApp } from "./slack";
@@ -25,4 +26,5 @@ export const mcpApps = [
 	notionMcpApp,
 	spotifyMcpApp,
 	googleDriveMcpApp,
+	linearMcpApp,
 ] as McpApp[];
