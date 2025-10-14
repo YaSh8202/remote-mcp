@@ -3,6 +3,23 @@ import { LinearClient } from "@linear/sdk";
 import { z } from "zod";
 import { formatError, linearAuth } from "../common";
 
+// Define the filter type based on Linear SDK's expected structure
+interface LinearIssueFilter {
+	or?: Array<
+		{ title: { contains: string } } | { description: { contains: string } }
+	>;
+	team?: { id: { eq: string } };
+	state?: { name: { eq: string } };
+	assignee?: { id: { eq: string } };
+	labels?: {
+		some: {
+			name: { in: string[] };
+		};
+	};
+	priority?: { eq: number };
+	estimate?: { eq: number };
+}
+
 const searchIssuesSchema = {
 	query: z
 		.string()
@@ -43,8 +60,7 @@ export const searchIssuesTool = createParameterizedTool({
 			const client = new LinearClient({ apiKey });
 
 			// Build search filter
-			// biome-ignore lint/suspicious/noExplicitAny: Linear SDK filter types are complex and dynamic
-			const filter: any = {};
+			const filter: LinearIssueFilter = {};
 
 			if (args.query && typeof args.query === "string") {
 				filter.or = [
