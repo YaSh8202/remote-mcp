@@ -14,7 +14,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { McpApp, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
 	Activity,
@@ -181,10 +181,10 @@ function RouteComponent() {
 	const navigate = useNavigate();
 	const trpc = useTRPC();
 
-	const { data: servers = [], isLoading: serversLoading } = useQuery(
+	const { data: servers = [], isLoading: serversLoading } = useSuspenseQuery(
 		trpc.mcpServer.list.queryOptions(),
 	);
-	const { data: appsMetadata = [], isLoading: appsLoading } = useQuery(
+	const { data: appsMetadata = [], isLoading: appsLoading } = useSuspenseQuery(
 		trpc.mcpApp.getAvailableApps.queryOptions(),
 	);
 
