@@ -2,6 +2,7 @@ import type {
 	McpServer,
 	RegisteredTool,
 } from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
+import { z } from "zod";
 import type {
 	McpAppBase,
 	McpAppCategory,
@@ -68,7 +69,10 @@ export class McpApp<McpAppAuth extends McpAppAuthProperty = McpAppAuthProperty>
 			tools: this.tools.map((tool) => ({
 				name: tool.name,
 				description: "description" in tool ? tool.description : undefined,
-				paramsSchema: "paramsSchema" in tool ? tool.paramsSchema : undefined,
+				paramsSchema:
+					"paramsSchema" in tool
+						? z.toJSONSchema(z.object(tool.paramsSchema))
+						: undefined,
 				annotations: "annotations" in tool ? tool.annotations : undefined,
 			})),
 		};

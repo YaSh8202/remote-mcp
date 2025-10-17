@@ -8,7 +8,10 @@ import {
 import { LLMProvider } from "@/types/models";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createOpenAI } from "@ai-sdk/openai";
+import {
+	type OpenAIResponsesProviderOptions,
+	createOpenAI,
+} from "@ai-sdk/openai";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
 	type ToolSet,
@@ -214,6 +217,11 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				temperature: 0.7,
 				tools,
 				stopWhen: stepCountIs(25),
+				providerOptions: {
+					openai: {
+						reasoningEffort: "low",
+					} satisfies OpenAIResponsesProviderOptions,
+				},
 			});
 
 			result.consumeStream();
