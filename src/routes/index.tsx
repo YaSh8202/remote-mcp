@@ -11,6 +11,85 @@ import { Home, Layers, Mail, Users, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,
+	head: () => {
+		const title = "Remote MCP - Connect AI Assistants to Your Favorite Apps";
+		const description =
+			"Create and manage MCP servers in the cloud. Connect Claude, Cursor, and other AI clients to GitHub, Slack, YouTube, PostgreSQL, and 159+ tools across 11 integrated apps. No complex setup required.";
+		const imageUrl = "https://remotemcp.tech/logo512.png";
+		const siteUrl = "https://remotemcp.tech";
+
+		return {
+			meta: [
+				{
+					title,
+				},
+				{
+					name: "description",
+					content: description,
+				},
+				// Open Graph meta tags
+				{
+					property: "og:title",
+					content: title,
+				},
+				{
+					property: "og:description",
+					content: description,
+				},
+				{
+					property: "og:type",
+					content: "website",
+				},
+				{
+					property: "og:image",
+					content: imageUrl,
+				},
+				{
+					property: "og:url",
+					content: siteUrl,
+				},
+				{
+					property: "og:site_name",
+					content: "Remote MCP",
+				},
+				// Twitter Card meta tags
+				{
+					name: "twitter:card",
+					content: "summary_large_image",
+				},
+				{
+					name: "twitter:title",
+					content: title,
+				},
+				{
+					name: "twitter:description",
+					content: description,
+				},
+				{
+					name: "twitter:image",
+					content: imageUrl,
+				},
+				// Additional SEO meta tags
+				{
+					name: "keywords",
+					content:
+						"MCP, Model Context Protocol, AI assistant, Claude Desktop, Cursor, GitHub integration, Slack integration, AI tools, cloud MCP server, AI automation",
+				},
+				{
+					name: "author",
+					content: "Remote MCP",
+				},
+				{
+					name: "robots",
+					content: "index, follow",
+				},
+				{
+					name: "viewport",
+					content: "width=device-width, initial-scale=1",
+				},
+			],
+		};
+	},
 });
 
 function RouteComponent() {
