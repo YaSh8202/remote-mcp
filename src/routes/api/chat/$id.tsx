@@ -1,6 +1,10 @@
 import { auth } from "@/lib/auth";
 import { generateMessageId } from "@/lib/chat-utils";
-import { loadChat, saveChat } from "@/services/chat-service";
+import {
+	deleteMessageAndAfter,
+	loadChat,
+	saveChat,
+} from "@/services/chat-service";
 import {
 	getDefaultLLMProviderKey,
 	hasValidLLMProviderKey,
@@ -51,6 +55,7 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				system,
 				provider = LLMProvider.OPENAI, // Default to OpenAI
 				model,
+				trigger,
 			}: {
 				message: UIMessage;
 				system?: string;
@@ -59,6 +64,7 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				model?: string;
 				trigger?: "submit-message" | "regenerate-message";
 			} = body;
+			console.log("🚀 ~ trigger:", trigger);
 
 			// Check if user has valid API keys for any provider
 			const hasAnyValidKey = await hasValidLLMProviderKey(session.user.id);
@@ -99,15 +105,104 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 					status: "done",
 				};
 			}
-			// If we have a chat ID but only one message, we need to load existing messages
-			// and append the new one (this handles the prepareSendMessagesRequest pattern)
-			let allMessages = [message];
 
+			// Load existing messages from database
 			const { chat, messages: existingMessages } = await loadChat(
 				requestChatId,
 				session.user.id,
 			);
-			allMessages = [...existingMessages, ...allMessages];
+
+			let allMessages: UIMessage[];
+
+			// Handle regenerate-message trigger
+			if (trigger === "regenerate-message") {
+				// When regenerating, the message sent is the USER message that needs a new response
+				// We need to:
+				// 1. Find the user message in the database
+				// 2. Delete all ASSISTANT messages that came after it
+				// 3. Keep all messages up to and including the user message for context
+				// 4. Send to LLM to generate new response
+
+				const userMessageId = message.id;
+
+				if (!userMessageId) {
+					return new Response(
+						JSON.stringify({
+							error: "Message ID is required for regeneration",
+						}),
+						{
+							status: 400,
+							headers: { "Content-Type": "application/json" },
+						},
+					);
+				}
+
+				// Load current messages to find what comes after the user message
+				const { messages: currentMessages } = await loadChat(
+					requestChatId,
+					session.user.id,
+				);
+
+				// Find the index of the user message
+				const userMessageIndex = currentMessages.findIndex(
+					(msg) => msg.id === userMessageId,
+				);
+
+				if (userMessageIndex === -1) {
+					return new Response(
+						JSON.stringify({
+							error: "User message not found for regeneration",
+						}),
+						{
+							status: 400,
+							headers: { "Content-Type": "application/json" },
+						},
+					);
+				}
+
+				// Find all messages after the user message (these are the ones to delete)
+				const messagesAfterUser = currentMessages.slice(userMessageIndex + 1);
+
+				// Delete all messages after the user message
+				for (const msg of messagesAfterUser) {
+					if (msg.id) {
+						await deleteMessageAndAfter(currentChatId, msg.id, session.user.id);
+					}
+				}
+
+				// Reload messages after deletion
+				const { messages: messagesAfterDeletion } = await loadChat(
+					requestChatId,
+					session.user.id,
+				);
+
+				// Use the updated message list (should end with the user message)
+				allMessages = messagesAfterDeletion;
+
+				// Ensure we have at least one message after deletion
+				if (allMessages.length === 0) {
+					return new Response(
+						JSON.stringify({
+							error: "No messages available for regeneration",
+						}),
+						{
+							status: 400,
+							headers: { "Content-Type": "application/json" },
+						},
+					);
+				}
+			} else {
+				// Normal message submission flow
+				// Append the new message to existing messages
+				allMessages = [...existingMessages, message];
+
+				// Save the new user message immediately
+				await saveChat({
+					chatId: currentChatId,
+					userId: session.user.id,
+					messages: allMessages,
+				});
+			} // Validate all messages
 			allMessages = await validateUIMessages({
 				messages: allMessages,
 			});
@@ -116,14 +211,6 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			if (!currentChatId) {
 				throw new Error("Failed to get or create chat ID");
 			}
-
-			// Save the new message to the database
-
-			saveChat({
-				chatId: currentChatId,
-				userId: session.user.id,
-				messages: allMessages,
-			});
 			// Convert UI messages to model messages format (AI SDK v5)
 			const modelMessages = convertToModelMessages(allMessages);
 

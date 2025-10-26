@@ -17,6 +17,7 @@ import {
 	CopyIcon,
 	KeyIcon,
 	Plus,
+	RefreshCwIcon,
 	Square,
 } from "lucide-react";
 import { type FC, useState } from "react";
@@ -498,7 +499,7 @@ const AssistantMessage: FC = () => {
 				</div>
 
 				<div className="aui-assistant-message-footer mt-2 ml-2 flex">
-					<BranchPicker />
+					{/* <BranchPicker /> */}
 					<AssistantActionBar />
 				</div>
 			</div>
@@ -524,12 +525,11 @@ const AssistantActionBar: FC = () => {
 					</MessagePrimitive.If>
 				</TooltipIconButton>
 			</ActionBarPrimitive.Copy>
-			{/* TODO: Message Threading and Backend support needed to enable "Refresh"/"Regenerate" actions */}
-			{/* <ActionBarPrimitive.Reload asChild>
-				<TooltipIconButton tooltip="Refresh">
+			<ActionBarPrimitive.Reload asChild>
+				<TooltipIconButton tooltip="Regenerate">
 					<RefreshCwIcon />
 				</TooltipIconButton>
-			</ActionBarPrimitive.Reload> */}
+			</ActionBarPrimitive.Reload>
 		</ActionBarPrimitive.Root>
 	);
 };
