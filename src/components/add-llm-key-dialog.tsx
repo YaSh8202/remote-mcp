@@ -1,4 +1,4 @@
-import { llmProviderIcons } from "@/components/icons";
+import { ProviderLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -44,7 +44,9 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 // API key URLs for each provider
-const providerApiKeyUrls = {
+const providerApiKeyUrls: Partial<
+	Record<LLMProvider, { url: string; label: string }>
+> = {
 	[LLMProvider.OPENAI]: {
 		url: "https://platform.openai.com/api-keys",
 		label: "OpenAI Platform",
@@ -56,6 +58,22 @@ const providerApiKeyUrls = {
 	[LLMProvider.GOOGLE]: {
 		url: "https://aistudio.google.com/apikey",
 		label: "Google AI Studio",
+	},
+	[LLMProvider.ALIBABA]: {
+		url: "https://www.alibabacloud.com/help/en/model-studio/developer-reference/get-api-key",
+		label: "Alibaba Cloud",
+	},
+	[LLMProvider.GROQ]: {
+		url: "https://console.groq.com/keys",
+		label: "Groq Console",
+	},
+	[LLMProvider.GITHUB_MODELS]: {
+		url: "https://github.com/settings/tokens",
+		label: "GitHub Settings",
+	},
+	[LLMProvider.MISTRAL]: {
+		url: "https://console.mistral.ai/api-keys",
+		label: "Mistral Console",
 	},
 };
 
@@ -111,15 +129,18 @@ export function AddLLMKeyDialog({
 	};
 
 	const getProviderDisplayName = (provider: LLMProvider) => {
-		return providers.find((p) => p.id === provider)?.displayName;
+		return providers.find((p) => p.id === provider)?.name;
 	};
 
 	const renderSelectedProvider = (value: string) => {
 		if (!value) return "Select a provider";
-		const IconComponent = llmProviderIcons[value as LLMProvider];
 		return (
 			<div className="flex items-center space-x-3">
-				{IconComponent && <IconComponent className="h-5 w-5 flex-shrink-0" />}
+				<ProviderLogo
+					provider={value as LLMProvider}
+					size={20}
+					className="flex-shrink-0"
+				/>
 				<span className="font-medium">
 					{getProviderDisplayName(value as LLMProvider)}
 				</span>
@@ -182,7 +203,6 @@ export function AddLLMKeyDialog({
 												</div>
 											) : (
 												availableProviders.map((provider) => {
-													const IconComponent = llmProviderIcons[provider];
 													return (
 														<SelectItem
 															key={provider}
@@ -190,9 +210,11 @@ export function AddLLMKeyDialog({
 															className="py-3"
 														>
 															<div className="flex items-center space-x-3">
-																{IconComponent && (
-																	<IconComponent className="h-5 w-5 flex-shrink-0" />
-																)}
+																<ProviderLogo
+																	provider={provider}
+																	size={20}
+																	className="flex-shrink-0"
+																/>
 																<span className="font-medium">
 																	{getProviderDisplayName(provider)}
 																</span>
@@ -232,14 +254,14 @@ export function AddLLMKeyDialog({
 													<ExternalLink className="h-3 w-3 text-muted-foreground" />
 													<a
 														href={
-															providerApiKeyUrls[form.watch("provider")].url
+															providerApiKeyUrls[form.watch("provider")]?.url
 														}
 														target="_blank"
 														rel="noopener noreferrer"
 														className="text-xs text-primary hover:text-primary/80 underline underline-offset-4"
 													>
 														Get your API key from{" "}
-														{providerApiKeyUrls[form.watch("provider")].label}
+														{providerApiKeyUrls[form.watch("provider")]?.label}
 													</a>
 												</div>
 											)}
