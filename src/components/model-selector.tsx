@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -16,14 +15,21 @@ import {
 import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
-import type { LLMProvider } from "@/types/models";
+import type { LLMProvider, ModelWithProvider } from "@/types/models";
 import { LLMProvider as LLMProviderEnum } from "@/types/models";
 import { useQuery } from "@tanstack/react-query";
-import { Bot, Check, ChevronDown, Plus } from "lucide-react";
-import { Eye as Vision } from "lucide-react";
+import {
+	Bot,
+	Brain,
+	Check,
+	ChevronDown,
+	Eye,
+	Plus,
+	Wrench,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 import { AddLLMKeyDialog } from "./add-llm-key-dialog";
-import { llmProviderIcons } from "./icons";
+import { ProviderLogo } from "./icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface ModelSelectorProps {
@@ -35,8 +41,47 @@ interface ModelSelectorProps {
 const ProviderIcon = ({
 	provider,
 }: { provider: LLMProvider }): React.ReactElement => {
-	const Icon = llmProviderIcons[provider];
-	return <Icon />;
+	return <ProviderLogo provider={provider} size={16} />;
+};
+
+/**
+ * Component to display model capabilities as icons
+ */
+const ModelCapabilities = ({ model }: { model: ModelWithProvider }) => {
+	return (
+		<div className="flex gap-1">
+			{model.reasoning && (
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<div className="flex items-center justify-center w-5 h-5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">
+							<Brain className="h-3 w-3" />
+						</div>
+					</TooltipTrigger>
+					<TooltipContent>Reasoning model</TooltipContent>
+				</Tooltip>
+			)}
+			{model.attachment && (
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<div className="flex items-center justify-center w-5 h-5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">
+							<Eye className="h-3 w-3" />
+						</div>
+					</TooltipTrigger>
+					<TooltipContent>Supports image/file uploads</TooltipContent>
+				</Tooltip>
+			)}
+			{model.tool_call && (
+				<Tooltip>
+					<TooltipTrigger asChild>
+						<div className="flex items-center justify-center w-5 h-5 rounded bg-green-500/10 text-green-600 dark:text-green-400">
+							<Wrench className="h-3 w-3" />
+						</div>
+					</TooltipTrigger>
+					<TooltipContent>Supports function calling</TooltipContent>
+				</Tooltip>
+			)}
+		</div>
+	);
 };
 
 export function ModelSelector({
@@ -52,40 +97,27 @@ export function ModelSelector({
 		trpc.llmProvider.getKeys.queryOptions({}),
 	);
 
-	const { models, providers } = useModels();
+	const { providers } = useModels();
 
 	const validKeys = keys.filter((key) => key.isValid === true);
 
-	const availableModels = useMemo(() => {
-		if (!models || validKeys.length === 0) return [];
+	const availableProviders = useMemo(() => {
+		if (!providers || validKeys.length === 0) return [];
 
 		const providersWithKeys = validKeys.map((key) => key.provider);
 
-		return models.filter((model) =>
-			providersWithKeys.includes(model.meta.provider),
+		return providers.filter((provider) =>
+			providersWithKeys.includes(provider.id),
 		);
-	}, [models, validKeys]);
+	}, [providers, validKeys]);
 
-	const selectedModelInfo = availableModels.find(
-		(model) => model.meta.id === selectedModel,
-	);
-
-	const getProviderDisplayName = (provider: LLMProvider) => {
-		return providers.find((p) => p.id === provider)?.displayName ?? "";
-	};
-
-	const groupedModels = useMemo(() => {
-		// Initialize with all enum values
-		const groups: Partial<Record<LLMProvider, typeof availableModels>> = {};
-		for (const model of availableModels) {
-			const provider = model.meta.provider;
-			if (!groups[provider]) {
-				groups[provider] = [];
-			}
-			groups[provider]?.push(model);
+	const selectedModelInfo = useMemo(() => {
+		for (const provider of availableProviders) {
+			const model = provider.models.find((m) => m.fullId === selectedModel);
+			if (model) return model;
 		}
-		return groups;
-	}, [availableModels]);
+		return null;
+	}, [availableProviders, selectedModel]);
 
 	// Calculate providers that don't have valid keys
 	const existingProviders = validKeys.map((key) => key.provider as LLMProvider);
@@ -129,19 +161,17 @@ export function ModelSelector({
 					<Button
 						variant="ghost"
 						aria-expanded={open}
-						className="justify-between  max-w-[300px]"
+						className="justify-between max-w-[300px]"
 						disabled={disabled}
 					>
 						<div className="flex items-center gap-2 truncate">
 							{selectedModelInfo && (
 								<span className="text-sm">
-									<ProviderIcon provider={selectedModelInfo.meta.provider} />
+									<ProviderIcon provider={selectedModelInfo.provider} />
 								</span>
 							)}
 							<span className="truncate">
-								{selectedModelInfo
-									? selectedModelInfo.meta.displayName
-									: "Select model"}
+								{selectedModelInfo ? selectedModelInfo.name : "Select model"}
 							</span>
 						</div>
 						<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -153,24 +183,24 @@ export function ModelSelector({
 						<CommandList>
 							<CommandEmpty>No models found.</CommandEmpty>
 							<div className="max-h-[300px] overflow-auto">
-								{Object.entries(groupedModels).map(([provider, models]) => (
+								{availableProviders.map((provider) => (
 									<CommandGroup
-										key={provider}
+										key={provider.id}
 										heading={
 											<div className="flex items-center gap-2">
 												<span>
-													<ProviderIcon provider={provider as LLMProvider} />
+													<ProviderIcon provider={provider.id} />
 												</span>
-												{getProviderDisplayName(provider as LLMProvider)}
+												{provider.name}
 											</div>
 										}
 									>
-										{models.map((model) => (
+										{provider.models.map((model) => (
 											<CommandItem
-												key={model.meta.id}
-												value={`${model.meta.displayName} ${model.meta.id} ${model.meta.name} ${model.meta.family || ""}`}
+												key={model.fullId}
+												value={`${model.name} ${model.id} ${model.fullId}`}
 												onSelect={() => {
-													onModelSelect(model.meta.id, model.meta.provider);
+													onModelSelect(model.fullId, model.provider);
 													setOpen(false);
 												}}
 												className="py-3"
@@ -178,7 +208,7 @@ export function ModelSelector({
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
-														selectedModel === model.meta.id
+														selectedModel === model.fullId
 															? "opacity-100"
 															: "opacity-0",
 													)}
@@ -186,41 +216,19 @@ export function ModelSelector({
 												<div className="flex-1 space-y-1">
 													<div className="flex items-center justify-between">
 														<span className="font-medium text-sm">
-															{model.meta.displayName.split(":")[1]}
+															{model.name}
 														</span>
-														<div className="flex gap-1">
-															{model.meta.tags.slice(0, 2).map((tag, index) => (
-																<Badge
-																	key={index}
-																	variant="secondary"
-																	className="text-xs h-5 px-1.5"
-																>
-																	{tag === "vision" ? (
-																		<Tooltip>
-																			<TooltipTrigger>
-																				<Vision className="h-3 w-3" />
-																			</TooltipTrigger>
-																			<TooltipContent>
-																				Supports image uploads and analysis
-																			</TooltipContent>
-																		</Tooltip>
-																	) : (
-																		tag
-																	)}
-																</Badge>
-															))}
-														</div>
+														<ModelCapabilities model={model} />
 													</div>
 													<div className="flex items-center gap-2 text-xs text-muted-foreground">
 														<span>
-															Context:{" "}
-															{(model.limits.contextWindow / 1000).toFixed(0)}k
+															Context: {(model.limit.context / 1000).toFixed(0)}
+															k
 														</span>
 														<span>•</span>
 														<span>
-															${model.pricing.inputPerMTokUSD.toFixed(2)}/ $
-															{model.pricing.outputPerMTokUSD.toFixed(2)} per 1M
-															tokens
+															${model.cost.input.toFixed(2)}/$
+															{model.cost.output.toFixed(2)} per 1M tokens
 														</span>
 													</div>
 												</div>

@@ -74,7 +74,7 @@ export function DeleteLLMKeyDialog({
 				<div className="py-4">
 					<p className="text-sm">
 						Are you sure you want to delete the API key "{keyName}" for{" "}
-						{getProviderById(models, provider)?.displayName}?
+						{getProviderById(models, provider)?.name}?
 					</p>
 					<div className="mt-3 p-3 bg-muted rounded-lg">
 						<p className="text-xs text-muted-foreground">

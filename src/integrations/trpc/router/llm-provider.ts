@@ -155,11 +155,19 @@ export const llmProviderRouter = createTRPCRouter({
 function getProviderDescription(provider: LLMProvider): string {
 	switch (provider) {
 		case LLMProvider.OPENAI:
-			return "OpenAI's GPT models including GPT-4, GPT-3.5";
+			return "OpenAI's GPT models including GPT-4, GPT-3.5, and GPT-4o";
 		case LLMProvider.ANTHROPIC:
 			return "Anthropic's Claude models including Claude 3 Opus, Sonnet, and Haiku";
 		case LLMProvider.GOOGLE:
-			return "Google's Gemini models";
+			return "Google's Gemini models including Gemini Pro and Flash";
+		case LLMProvider.ALIBABA:
+			return "Alibaba's Qwen models via DashScope API";
+		case LLMProvider.GROQ:
+			return "Groq's fast inference API with various open-source models";
+		case LLMProvider.GITHUB_MODELS:
+			return "GitHub Models marketplace with various AI models";
+		case LLMProvider.MISTRAL:
+			return "Mistral AI's models including Mistral Large, Medium, and Small";
 		default:
 			return "";
 	}

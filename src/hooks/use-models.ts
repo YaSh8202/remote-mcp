@@ -1,20 +1,14 @@
+import { getModelsData } from "@/lib/models-dev";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { parseModelsData } from "../types/models";
 
 export const useModels = () => {
 	const { data } = useSuspenseQuery({
 		queryKey: ["models"],
 		queryFn: async () => {
-			const modelsData = await import("../assets/models.json").then(
-				(mod) => mod.default,
-			);
-			const data = parseModelsData(modelsData);
-			if (!data.success) {
-				throw data.error;
-			}
-			return data.data;
+			return await getModelsData();
 		},
-		staleTime: Number.POSITIVE_INFINITY,
+		staleTime: 24 * 60 * 60 * 1000, // 24 hours - models data doesn't change frequently
+		gcTime: 24 * 60 * 60 * 1000, // 24 hours
 	});
 	return {
 		...data,

@@ -12,10 +12,13 @@ import {
 import { LLMProvider } from "@/types/models";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { createGroq } from "@ai-sdk/groq";
+import { createMistral } from "@ai-sdk/mistral";
 import {
 	type OpenAIResponsesProviderOptions,
 	createOpenAI,
 } from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createServerFileRoute } from "@tanstack/react-start/server";
 import {
 	type ToolSet,
@@ -64,7 +67,6 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				model?: string;
 				trigger?: "submit-message" | "regenerate-message";
 			} = body;
-			console.log("🚀 ~ trigger:", trigger);
 
 			// Check if user has valid API keys for any provider
 			const hasAnyValidKey = await hasValidLLMProviderKey(session.user.id);
@@ -352,15 +354,46 @@ function getAIModel(
 		case LLMProvider.OPENAI:
 			return createOpenAI({
 				apiKey: apiKey,
-			})(model || "gpt-5-mini");
+			})(model || "gpt-4o-mini");
+
 		case LLMProvider.ANTHROPIC:
 			return createAnthropic({
 				apiKey: apiKey,
-			})(model || "claude-3.5-haiku");
+			})(model || "claude-3-5-sonnet-20241022");
+
 		case LLMProvider.GOOGLE:
 			return createGoogleGenerativeAI({
 				apiKey: apiKey,
-			})(model || "gemini-2.5-flash");
+			})(model || "gemini-2.0-flash-exp");
+
+		case LLMProvider.MISTRAL:
+			return createMistral({
+				apiKey: apiKey,
+			})(model || "mistral-small-latest");
+
+		case LLMProvider.GROQ:
+			// Groq is OpenAI-compatible, use createOpenAI with Groq's base URL
+			return createGroq({
+				apiKey: apiKey,
+				// baseURL: "https://api.groq.com/openai/v1",
+			})(model || "llama-3.3-70b-versatile");
+
+		case LLMProvider.ALIBABA:
+			// Alibaba Cloud (Qwen) uses OpenAI-compatible API
+			return createOpenAICompatible({
+				apiKey: apiKey,
+				baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+				name: "alibaba",
+			})(model || "qwen3-max");
+
+		case LLMProvider.GITHUB_MODELS:
+			// GitHub Models uses OpenAI-compatible API
+			return createOpenAICompatible({
+				apiKey: apiKey,
+				baseURL: "https://models.github.ai/inference",
+				name: "github-models",
+			})(model || "gpt-4.1-mini");
+
 		default:
 			throw new Error(`Unsupported provider: ${provider}`);
 	}

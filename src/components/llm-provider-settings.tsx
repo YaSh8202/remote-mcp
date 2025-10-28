@@ -182,15 +182,13 @@ export function LLMProviderSettings() {
 									<div className="flex items-center space-x-4 flex-1">
 										<div className="flex-1">
 											<div className="flex items-center space-x-2 mb-1">
-												<span className="font-medium">{`${getProviderById(modelsData, key.provider).displayName} Key`}</span>
+												<span className="font-medium">{`${getProviderById(modelsData, key.provider)?.name ?? key.provider} Key`}</span>
 												{getValidationIcon(key.isValid)}
 											</div>
 											<div className="flex items-center space-x-2 text-sm text-muted-foreground">
 												<span>
-													{
-														getProviderById(modelsData, key.provider)
-															.displayName
-													}
+													{getProviderById(modelsData, key.provider)?.name ??
+														key.provider}
 												</span>
 												{getValidationBadge(key.isValid)}
 												{key.isDefault && (
@@ -228,7 +226,7 @@ export function LLMProviderSettings() {
 											onClick={() =>
 												handleDeleteKey(
 													key.id,
-													`${getProviderById(modelsData, key.provider).displayName} Key`,
+													`${getProviderById(modelsData, key.provider)?.name ?? key.provider} Key`,
 													key.provider,
 												)
 											}

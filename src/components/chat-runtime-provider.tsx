@@ -31,7 +31,7 @@ export function ChatRuntimeProvider({
 
 	const model = useMemo(() => {
 		const modelInfo = findModelById(modelsData, selectedModel);
-		return modelInfo?.meta.name ?? selectedModel;
+		return modelInfo?.id ?? selectedModel;
 	}, [modelsData, selectedModel]);
 
 	const chat = useChat({
