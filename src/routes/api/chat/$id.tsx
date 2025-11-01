@@ -10,9 +10,15 @@ import {
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import { createGroq } from "@ai-sdk/groq";
+import {
+	type AnthropicProviderOptions,
+	createAnthropic,
+} from "@ai-sdk/anthropic";
+import {
+	type GoogleGenerativeAIProviderOptions,
+	createGoogleGenerativeAI,
+} from "@ai-sdk/google";
+import { type GroqProviderOptions, createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import {
 	type OpenAIResponsesProviderOptions,
@@ -24,6 +30,7 @@ import {
 	type ToolSet,
 	type UIMessage,
 	convertToModelMessages,
+	smoothStream,
 	stepCountIs,
 	streamText,
 	validateUIMessages,
@@ -308,9 +315,27 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				stopWhen: stepCountIs(25),
 				providerOptions: {
 					openai: {
-						reasoningEffort: "low",
+						reasoningEffort: "medium",
+						include: ["reasoning.encrypted_content"],
 					} satisfies OpenAIResponsesProviderOptions,
+					anthropic: {
+						thinking: { type: "enabled", budgetTokens: 12000 },
+						sendReasoning: true,
+					} satisfies AnthropicProviderOptions,
+					google: {
+						thinkingConfig: {
+							includeThoughts: true,
+						},
+					} satisfies GoogleGenerativeAIProviderOptions,
+					grok: {
+						reasoningEffort: "medium",
+					} satisfies GroqProviderOptions,
 				},
+				experimental_transform: [
+					smoothStream({
+						chunking: "word",
+					}),
+				],
 			});
 
 			result.consumeStream();
