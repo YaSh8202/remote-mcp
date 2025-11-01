@@ -316,7 +316,8 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 				providerOptions: {
 					openai: {
 						reasoningEffort: "medium",
-						include: ["reasoning.encrypted_content"],
+						reasoningSummary: "auto",
+						textVerbosity: "medium",
 					} satisfies OpenAIResponsesProviderOptions,
 					anthropic: {
 						thinking: { type: "enabled", budgetTokens: 12000 },
