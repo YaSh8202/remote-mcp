@@ -12,6 +12,7 @@ import {
 import { useQueryClient } from "@tanstack/react-query";
 import type { UIMessage } from "ai";
 import { useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 
 interface ChatRuntimeProviderProps {
 	children: React.ReactNode;
@@ -38,6 +39,11 @@ export function ChatRuntimeProvider({
 		id: `${chatId}-${selectedProvider}-${model}`,
 		transport: new AssistantChatTransport({
 			prepareSendMessagesRequest: ({ messages, ...rest }) => {
+				if (!model) {
+					// toast.error("Please select a model before sending a message.");
+					throw new Error("Model not selected");
+				}
+
 				return {
 					body: {
 						message: messages[messages.length - 1],
@@ -54,6 +60,9 @@ export function ChatRuntimeProvider({
 			queryClient.invalidateQueries({
 				queryKey: trpc.chat.getWithMessages.queryKey(),
 			});
+		},
+		onError: (error) => {
+			toast.error(`Error sending message: ${error.message}`);
 		},
 	});
 

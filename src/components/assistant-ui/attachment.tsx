@@ -211,9 +211,11 @@ export const ComposerAttachments: FC = () => {
 	);
 };
 
-export const ComposerAddAttachment: FC = () => {
+export const ComposerAddAttachment: FC<{ disabled?: boolean }> = ({
+	disabled = false,
+}) => {
 	return (
-		<ComposerPrimitive.AddAttachment asChild>
+		<ComposerPrimitive.AddAttachment disabled={disabled} asChild>
 			<TooltipIconButton
 				tooltip="Add Attachment"
 				side="bottom"

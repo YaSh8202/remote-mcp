@@ -360,7 +360,7 @@ const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
 							<Plus className="h-4 w-4" />
 							<span>
 								{selectedServerIds.length === 0 ? (
-									"Add Servers"
+									"Add Tools"
 								) : (
 									<MCPIcon className="size-3" />
 								)}
@@ -435,7 +435,7 @@ const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
 	);
 };
 
-const SendButton: FC = () => {
+export const SendButton: FC<{ disabled?: boolean }> = ({ disabled }) => {
 	return (
 		<>
 			<ThreadPrimitive.If running={false}>
@@ -448,6 +448,7 @@ const SendButton: FC = () => {
 						size="icon"
 						className="aui-composer-send size-[34px] rounded-full p-1"
 						aria-label="Send message"
+						disabled={disabled}
 					>
 						<ArrowUpIcon className="aui-composer-send-icon size-5" />
 					</TooltipIconButton>
