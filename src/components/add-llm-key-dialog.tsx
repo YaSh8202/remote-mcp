@@ -29,6 +29,7 @@ import { LLMProvider } from "@/types/models";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Key, Loader2, Shield } from "lucide-react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
@@ -81,12 +82,14 @@ interface AddLLMKeyDialogProps {
 	open: boolean;
 	onOpenChange: (open: boolean) => void;
 	existingProviders: LLMProvider[];
+	initialProvider?: LLMProvider;
 }
 
 export function AddLLMKeyDialog({
 	open,
 	onOpenChange,
 	existingProviders,
+	initialProvider,
 }: AddLLMKeyDialogProps) {
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
@@ -95,10 +98,17 @@ export function AddLLMKeyDialog({
 	const form = useForm<FormData>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			provider: LLMProvider.OPENAI,
+			provider: initialProvider || LLMProvider.OPENAI,
 			apiKey: "",
 		},
 	});
+
+	// Update form when initialProvider changes
+	useEffect(() => {
+		if (initialProvider && open) {
+			form.setValue("provider", initialProvider);
+		}
+	}, [initialProvider, open, form]);
 
 	const addKeyMutation = useMutation({
 		mutationFn: trpc.llmProvider.addKey.mutationOptions().mutationFn,

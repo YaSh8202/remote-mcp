@@ -83,12 +83,24 @@ export const myRouter = createTRPCRouter({
 
 **Existing routers**: `mcpServer`, `mcpApp`, `appConnection`, `mcpRun`, `user`, `userSettings`, `chat`, `llmProvider`
 
+**Chat router specifics**:
+- Messages stored with JSONB `content` array (supports tool calls, reasoning, images)
+- Use `generateId()` from `ai` package for chat/message IDs
+- Token usage tracked in `tokenUsage` field (`promptTokens`, `completionTokens`, `totalTokens`)
+
 ## MCP App Integration (Plugin System)
 
 **Structure**: Each app in `src/app/mcp/apps/{app-name}/`
 - `index.ts`: App definition using `createMcpApp()`
 - `common.ts`: Auth config and shared utilities
 - `tools/`: Tool definitions using `createParameterizedTool()`
+
+**Available Apps** (13 integrations, 159+ tools):
+- Developer: `github`, `gitlab`, `atlassian` (Jira/Confluence)
+- Communication: `slack`, `notion`
+- Media: `youtube`, `spotify`, `google-drive`
+- Data: `postgres`, `brave`, `fetch`, `firecrawl`
+- Productivity: `linear`
 
 **Adding New MCP App**:
 ```typescript
@@ -98,7 +110,7 @@ import { McpAppCategory } from "../../mcp-app/app-metadata";
 import { oauthProperty } from "../../mcp-app/property";
 
 export const myApp = createMcpApp({
-  name: "myapp",                    // Unique identifier
+  name: "myapp",                    // Unique identifier (lowercase, hyphenated)
   displayName: "My App",            // User-facing name
   description: "Integration description",
   logo: { type: "icon", icon: "myapp" },
@@ -118,7 +130,7 @@ export const myApp = createMcpApp({
 **Tool Definition Pattern** (`tools/my-tool.ts`):
 ```typescript
 import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
-import { z } from "zod";
+import { z } from "zod/v4";
 
 export const myTool = createParameterizedTool({
   name: "myToolName",
@@ -129,6 +141,7 @@ export const myTool = createParameterizedTool({
   },
   callback: async (args, extra) => {
     // extra.auth contains decrypted OAuth tokens
+    // extra.loggingContext for audit trail
     // Return { content: [{ type: "text", text: "..." }] }
   },
 });
@@ -138,6 +151,7 @@ export const myTool = createParameterizedTool({
 - All OAuth tokens/API keys encrypted using `encryptObject()` from `src/lib/encryption.ts`
 - Decrypted on-the-fly during tool execution
 - Never log decrypted credentials
+- Storage: `app_connection` table → `connectionValue` JSONB column
 
 ## Database Schema
 
@@ -238,11 +252,46 @@ pnpm test         # Run Vitest tests
 - Tool execution logging: Query `mcp_run` table for recent invocations
 - Encryption issues: Verify `ENCRYPTION_KEY` is exactly 32 bytes
 
+## AI/LLM Integration (Vercel AI SDK)
+
+**Multi-Provider Support**: Platform supports 7+ LLM providers via unified interface
+- **Provider abstraction**: `src/lib/chat-adapters.ts` handles attachments (images, text)
+- **Dynamic models**: `src/lib/models-dev.ts` fetches model data from models.dev API (24h cache)
+- **Provider enum**: `src/types/models.ts` defines `LLMProvider` with schema validation
+- **Free tier providers**: `src/components/free-tier-providers.tsx` highlights no-cost options
+
+**Chat Architecture** (`@assistant-ui/react` + `ai` package):
+```typescript
+// Service layer handles persistence
+import { saveChat } from "@/services/chat-service";
+import { uiMessageToDbMessage } from "@/lib/chat-utils";
+
+// tRPC router for chat operations
+chatRouter.createMessage({ chatId, role, content, status, tokenUsage });
+```
+
+**Key patterns**:
+- Use `generateId()` from `ai` package for chat/message IDs (consistent with AI SDK)
+- Store messages as JSONB with `MessagePart[]` content (supports tool calls, reasoning, attachments)
+- Session-based caching for models data (`sessionStorage`, 24h TTL)
+- Vision support: Images converted to base64 data URLs in `VisionImageAdapter`
+
+## Client-Side Component Pattern
+
+**SSR with React Start**: Components are server-side by default
+- Add `"use client"` directive ONLY for:
+  - Interactive UI with React hooks (`useState`, `useEffect`, etc.)
+  - Third-party client-only libraries (e.g., `@assistant-ui/react`)
+  - Browser APIs (localStorage, window, etc.)
+- Examples: All files in `src/components/data-table/`, `src/components/ui/`
+- **Do NOT add** to route files or server function files
+
 ## Key Conventions
 
 1. **Zod Schemas**: Use `zod/v4` (not default import) for all validation
-2. **IDs**: Generate with `generateId()` from `src/lib/id.ts` (uses `nanoid`)
+2. **IDs**: Generate with `generateId()` from `src/lib/id.ts` (nanoid) OR `ai` package (chat/messages)
 3. **Error Handling**: Return `{ content: [...], isError: true }` from tool callbacks
 4. **Async/Await**: Always use async/await (no promise chaining)
 5. **Type Safety**: Import types from `@/types/` (path alias configured)
 6. **File Organization**: Co-locate related files (e.g., `tools/` within `apps/github/`)
+7. **Path Aliases**: Use `@/` prefix for all internal imports (configured via `vite-tsconfig-paths`)

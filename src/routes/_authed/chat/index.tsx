@@ -1,12 +1,27 @@
-import { Thread } from "@/components/assistant-ui/thread";
+import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
+import {
+	ComposerAddAttachment,
+	ComposerAttachments,
+} from "@/components/assistant-ui/attachment";
+import { SendButton, Thread } from "@/components/assistant-ui/thread";
+import { FreeTierProviders } from "@/components/free-tier-providers";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
+import { LLMProvider } from "@/types/models";
 import { useChat } from "@ai-sdk/react";
-import { AssistantRuntimeProvider } from "@assistant-ui/react";
+import {
+	AssistantRuntimeProvider,
+	ComposerPrimitive,
+} from "@assistant-ui/react";
 import { useAISDKRuntime } from "@assistant-ui/react-ai-sdk";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { DefaultChatTransport, type UIMessage } from "ai";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authed/chat/")({
 	component: ChatPage,
@@ -19,6 +34,18 @@ function ChatPage() {
 	});
 	const queryClient = useQueryClient();
 	const navigate = Route.useNavigate();
+
+	// State for add LLM key dialog
+	const [addKeyDialogOpen, setAddKeyDialogOpen] = useState(false);
+	const [selectedProvider, setSelectedProvider] = useState<LLMProvider>(
+		LLMProvider.GITHUB_MODELS,
+	);
+
+	// Check if user has any LLM providers configured
+	const { data: llmProviders } = useSuspenseQuery(
+		trpc.llmProvider.getKeys.queryOptions({}),
+	);
+	const hasProviders = llmProviders && llmProviders.length > 0;
 
 	const chat = useChat({
 		transport: new DefaultChatTransport({
@@ -74,13 +101,55 @@ function ChatPage() {
 		],
 	});
 
+	const handleProviderSelect = (provider: LLMProvider) => {
+		setSelectedProvider(provider);
+		setAddKeyDialogOpen(true);
+	};
+
+	const existingProviders =
+		llmProviders?.map((p) => p.provider as LLMProvider) || [];
+
 	return (
 		<AssistantRuntimeProvider runtime={runtime}>
 			<div className="flex h-full overflow-hidden">
 				<div className="flex-1 h-full overflow-hidden">
-					<Thread />
+					{hasProviders ? (
+						<Thread />
+					) : (
+						<div className="max-w-4xl mx-auto flex flex-col h-full">
+							<div className="flex-1 overflow-y-auto">
+								<FreeTierProviders onProviderSelect={handleProviderSelect} />
+							</div>
+							<ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),0_2px_5px_0px_rgba(0,0,0,0.06)] dark:border-muted-foreground/15">
+								<ComposerAttachments />
+								<ComposerPrimitive.Input
+									placeholder="Please add an LLM API key to start chatting..."
+									className="aui-composer-input mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground focus:outline-primary"
+									rows={1}
+									autoFocus
+									aria-label="Message input"
+									disabled={true}
+								/>
+								<div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-between">
+									<div className="flex items-center gap-0.5">
+										<ComposerAddAttachment disabled />
+									</div>
+									<div className="flex items-center gap-2">
+										<SendButton disabled={true} />
+									</div>
+								</div>
+							</ComposerPrimitive.Root>
+						</div>
+					)}
 				</div>
 			</div>
+
+			<AddLLMKeyDialog
+				open={addKeyDialogOpen}
+				onOpenChange={setAddKeyDialogOpen}
+				existingProviders={existingProviders}
+				initialProvider={selectedProvider}
+			/>
 		</AssistantRuntimeProvider>
 	);
 }
