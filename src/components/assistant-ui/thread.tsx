@@ -29,6 +29,7 @@ import {
 	UserMessageAttachments,
 } from "@/components/assistant-ui/attachment";
 import { MarkdownText } from "@/components/assistant-ui/markdown-text";
+import { ReasoningText } from "@/components/assistant-ui/reasoning-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { ModelSelector } from "@/components/model-selector";
@@ -494,6 +495,7 @@ const AssistantMessage: FC = () => {
 						components={{
 							Text: MarkdownText,
 							tools: { Fallback: ToolFallback },
+							Reasoning: ReasoningText,
 						}}
 					/>
 					<MessageError />
