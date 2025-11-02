@@ -10,7 +10,9 @@ import type {
 } from "@/types/models";
 import { LLMProvider } from "@/types/models";
 
-const MODELS_DEV_API_URL = "https://models.dev/api.json";
+// Use our server-side proxy to avoid CORS issues
+const MODELS_DEV_API_URL =
+	typeof window !== "undefined" ? "/api/models" : "https://models.dev/api.json";
 const CACHE_KEY = "models-dev-data";
 const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 const MAX_MODELS_PER_PROVIDER = 7; // Show only latest 7 models per provider
@@ -71,20 +73,32 @@ export async function fetchModelsDevData(): Promise<ModelsDevResponse> {
 		return cached;
 	}
 
-	// Fetch from API
-	const response = await fetch(MODELS_DEV_API_URL);
-	if (!response.ok) {
-		throw new Error(
-			`Failed to fetch models data: ${response.status} ${response.statusText}`,
-		);
+	try {
+		// Fetch from API
+		const response = await fetch(MODELS_DEV_API_URL, {
+			mode: "cors",
+			headers: {
+				Accept: "application/json",
+			},
+		});
+		if (!response.ok) {
+			throw new Error(
+				`Failed to fetch models data: ${response.status} ${response.statusText}`,
+			);
+		}
+
+		const data = (await response.json()) as ModelsDevResponse;
+
+		// Cache the data
+		setCachedData(data);
+
+		return data;
+	} catch (error) {
+		// Log error for debugging but don't throw to prevent page crashes
+		console.warn("Failed to fetch models.dev data:", error);
+		// Re-throw to let the query handle it gracefully
+		throw error;
 	}
-
-	const data = (await response.json()) as ModelsDevResponse;
-
-	// Cache the data
-	setCachedData(data);
-
-	return data;
 }
 
 /**
