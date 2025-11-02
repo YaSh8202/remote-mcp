@@ -137,18 +137,6 @@ export function HeroSection() {
 								<p className="text-gray-500 text-sm">
 									Built for AI agents • Trusted by developers worldwide
 								</p>
-								<a
-									href="https://fazier.com/launches/remotemcp.tech"
-									target="_blank"
-									rel="noopener noreferrer"
-									className="transition-opacity hover:opacity-80"
-								>
-									<img
-										src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=dark"
-										width={120}
-										alt="Fazier badge"
-									/>
-								</a>
 							</motion.div>
 						</motion.div>{" "}
 						{/* Right Column - Video */}
