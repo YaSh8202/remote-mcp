@@ -8,7 +8,10 @@ interface I18nProviderProps {
 }
 
 export function I18nProvider({ children }: I18nProviderProps) {
-	const [language] = useLocalStorage("language", "en");
+	const [language] = useLocalStorage("language", "en", {
+		serializer: (value) => value,
+		deserializer: (value) => value,
+	});
 
 	useEffect(() => {
 		// Update the i18n language when the stored language changes

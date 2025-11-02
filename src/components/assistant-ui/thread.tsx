@@ -40,6 +40,7 @@ import type { Chat, ChatMcpServer, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chat-store";
+import { useNewChatStore } from "@/store/new-chat-store";
 import { useMutation } from "@tanstack/react-query";
 import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
 import * as m from "motion/react-m";
@@ -57,9 +58,10 @@ type ChatWithMcpServers = Chat & {
 
 interface ThreadProps {
 	currentChat?: ChatWithMcpServers;
+	isNewChat?: boolean;
 }
 
-export const Thread: FC<ThreadProps> = ({ currentChat }) => {
+export const Thread: FC<ThreadProps> = ({ currentChat, isNewChat = false }) => {
 	return (
 		<LazyMotion features={domAnimation}>
 			<MotionConfig reducedMotion="user">
@@ -80,7 +82,7 @@ export const Thread: FC<ThreadProps> = ({ currentChat }) => {
 							}}
 						/>
 						<div className="aui-thread-viewport-spacer min-h-8 grow" />
-						<Composer currentChat={currentChat} />
+						<Composer currentChat={currentChat} isNewChat={isNewChat} />
 					</ThreadPrimitive.Viewport>
 				</ThreadPrimitive.Root>
 			</MotionConfig>
@@ -190,13 +192,20 @@ const ThreadWelcomeSuggestions: FC = () => {
 	);
 };
 
-const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
-	currentChat,
-}) => {
+const Composer: FC<{
+	currentChat?: ChatWithMcpServers;
+	isNewChat?: boolean;
+}> = ({ currentChat, isNewChat = false }) => {
 	const { selectedModel, setSelectedModel } = useChatStore();
 	const trpc = useTRPC();
 	const [showAddKeyDialog, setShowAddKeyDialog] = useState(false);
-	const [selectedServerIds, setSelectedServerIds] = useState<string[]>([]);
+
+	// For existing chats, use local state. For new chats, use the store.
+	const [localSelectedServerIds, setLocalSelectedServerIds] = useState<
+		string[]
+	>([]);
+	const newChatStore = useNewChatStore();
+
 	const queryClient = useQueryClient();
 	const { data: keys = [] } = useSuspenseQuery(
 		trpc.llmProvider.getKeys.queryOptions({}),
@@ -214,14 +223,22 @@ const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
 	const hasValidKeys = validKeys.length > 0;
 	const existingProviders = validKeys.map((key) => key.provider);
 
+	// Use appropriate state based on whether this is a new chat or existing chat
+	const selectedServerIds = isNewChat
+		? newChatStore.selectedServerIds
+		: localSelectedServerIds;
+	const setSelectedServerIds = isNewChat
+		? newChatStore.setServers
+		: setLocalSelectedServerIds;
+
 	// Get selected servers data
 	const selectedServers = servers.filter((server) =>
 		selectedServerIds.includes(server.id),
 	);
 
-	// Load selected servers from chat MCP servers on mount
+	// Load selected servers from chat MCP servers on mount (only for existing chats)
 	useEffect(() => {
-		if (currentChat?.mcpServers) {
+		if (!isNewChat && currentChat?.mcpServers) {
 			const serverIds = currentChat.mcpServers
 				.filter(
 					(
@@ -232,9 +249,9 @@ const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
 						server.chatMcpServer.isRemoteMcp && server.mcpServerData !== null,
 				)
 				.map((server) => server.mcpServerData.id);
-			setSelectedServerIds(serverIds);
+			setLocalSelectedServerIds(serverIds);
 		}
-	}, [currentChat?.mcpServers]);
+	}, [currentChat?.mcpServers, isNewChat]);
 
 	// Add/remove MCP server mutations
 	const addMcpServerMutation = useMutation({
@@ -263,47 +280,57 @@ const Composer: FC<{ currentChat?: ChatWithMcpServers }> = ({
 	});
 
 	const handleServerAdd = async (serverId: string) => {
-		const newServerIds = [...selectedServerIds, serverId];
-		setSelectedServerIds(newServerIds);
+		if (isNewChat) {
+			// For new chats, just update the store
+			newChatStore.addServer(serverId);
+		} else {
+			// For existing chats, update local state and persist to DB
+			const newServerIds = [...selectedServerIds, serverId];
+			setSelectedServerIds(newServerIds);
 
-		// Add MCP server to chat if we have a current chat
-		if (currentChat) {
-			try {
-				await addMcpServerMutation.mutateAsync({
-					chatId: currentChat.id,
-					isRemoteMcp: true,
-					mcpServerId: serverId,
-					includeAllTools: true,
-					tools: [],
-				});
-			} catch (error) {
-				console.error("Failed to add MCP server to chat:", error);
+			if (currentChat) {
+				try {
+					await addMcpServerMutation.mutateAsync({
+						chatId: currentChat.id,
+						isRemoteMcp: true,
+						mcpServerId: serverId,
+						includeAllTools: true,
+						tools: [],
+					});
+				} catch (error) {
+					console.error("Failed to add MCP server to chat:", error);
+				}
 			}
 		}
 	};
 
 	const handleServerRemove = async (serverId: string) => {
-		const newServerIds = selectedServerIds.filter((id) => id !== serverId);
-		setSelectedServerIds(newServerIds);
+		if (isNewChat) {
+			// For new chats, just update the store
+			newChatStore.removeServer(serverId);
+		} else {
+			// For existing chats, update local state and persist to DB
+			const newServerIds = selectedServerIds.filter((id) => id !== serverId);
+			setSelectedServerIds(newServerIds);
 
-		// Remove MCP server from chat if we have a current chat
-		if (currentChat) {
-			try {
-				// Find the chat MCP server record to remove
-				const chatMcpServer = currentChat.mcpServers?.find(
-					(
-						server,
-					): server is typeof server & {
-						mcpServerData: NonNullable<typeof server.mcpServerData>;
-					} => server.mcpServerData?.id === serverId,
-				);
-				if (chatMcpServer) {
-					await removeMcpServerMutation.mutateAsync({
-						id: chatMcpServer.chatMcpServer.id,
-					});
+			if (currentChat) {
+				try {
+					// Find the chat MCP server record to remove
+					const chatMcpServer = currentChat.mcpServers?.find(
+						(
+							server,
+						): server is typeof server & {
+							mcpServerData: NonNullable<typeof server.mcpServerData>;
+						} => server.mcpServerData?.id === serverId,
+					);
+					if (chatMcpServer) {
+						await removeMcpServerMutation.mutateAsync({
+							id: chatMcpServer.chatMcpServer.id,
+						});
+					}
+				} catch (error) {
+					console.error("Failed to remove MCP server from chat:", error);
 				}
-			} catch (error) {
-				console.error("Failed to remove MCP server from chat:", error);
 			}
 		}
 	};

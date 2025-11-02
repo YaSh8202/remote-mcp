@@ -203,7 +203,13 @@ export const ServerRoute = createServerFileRoute("/api/chat/$id").methods({
 			} else {
 				// Normal message submission flow
 				// Append the new message to existing messages
-				allMessages = [...existingMessages, message];
+
+				if (existingMessages[existingMessages.length - 1]?.id === message.id) {
+					// merge with last message (to update status from pending to done)
+					allMessages = [...existingMessages.slice(0, -1), message];
+				} else {
+					allMessages = [...existingMessages, message];
+				}
 
 				// Save the new user message immediately
 				await saveChat({
