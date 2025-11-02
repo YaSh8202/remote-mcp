@@ -128,16 +128,29 @@ export function HeroSection() {
 							</motion.div>
 
 							{/* Trusted by */}
-							<motion.p
+							<motion.div
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}
 								transition={{ duration: 0.8, delay: 1.2 }}
-								className="text-gray-500 text-sm"
+								className="flex flex-col sm:flex-row gap-4 items-start sm:items-center"
 							>
-								Built for AI agents • Trusted by developers worldwide
-							</motion.p>
-						</motion.div>
-
+								<p className="text-gray-500 text-sm">
+									Built for AI agents • Trusted by developers worldwide
+								</p>
+								<a
+									href="https://fazier.com/launches/remotemcp.tech"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="transition-opacity hover:opacity-80"
+								>
+									<img
+										src="https://fazier.com/api/v1//public/badges/launch_badges.svg?badge_type=launched&theme=dark"
+										width={120}
+										alt="Fazier badge"
+									/>
+								</a>
+							</motion.div>
+						</motion.div>{" "}
 						{/* Right Column - Video */}
 						<motion.div
 							initial={{ opacity: 0, x: 50 }}
