@@ -142,7 +142,6 @@ function LoginPage() {
 			}
 		} catch (error) {
 			console.error("Email auth error:", error);
-			// Error will be shown by the mutation
 		}
 	};
 
