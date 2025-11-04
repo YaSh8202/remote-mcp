@@ -61,7 +61,6 @@ export const auth = betterAuth({
 
 			sendVerificationOnSignUp: true,
 			overrideDefaultEmailVerification: true,
-			// disableSignUp: true,
 		}),
 	],
 });
