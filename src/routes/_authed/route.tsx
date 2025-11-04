@@ -29,6 +29,20 @@ export const Route = createFileRoute("/_authed")({
 				},
 			});
 		}
+
+		// Check if email is verified
+		if (!context.userSession.user.emailVerified) {
+			// Store email for verification page
+
+			throw redirect({
+				to: "/verify-email",
+				statusCode: 302,
+				search: {
+					email: context.userSession.user.email,
+					from: location.pathname,
+				},
+			});
+		}
 	},
 	component: () => (
 		<SidebarProvider>

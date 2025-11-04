@@ -19,6 +19,7 @@ export const env = createEnv({
 		OAUTH_APP_SECRETS: z.string().optional(),
 		ENCRYPTION_KEY: z.string().min(1),
 		MCP_SERVER_API_KEY: z.string().min(1),
+		RESEND_API_KEY: z.string().min(1),
 	},
 
 	/**

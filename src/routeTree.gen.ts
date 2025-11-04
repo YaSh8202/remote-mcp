@@ -11,6 +11,7 @@
 import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as RedirectRouteImport } from './routes/redirect'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthorizeRouteImport } from './routes/authorize'
@@ -43,6 +44,11 @@ import { ServerRoute as DotwellKnownOauthAuthorizationServerSplatServerRouteImpo
 
 const rootServerRouteImport = createServerRootRoute()
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RedirectRoute = RedirectRouteImport.update({
   id: '/redirect',
   path: '/redirect',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/authorize': typeof AuthorizeRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/chat': typeof AuthedChatRouteWithChildren
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/authorize': typeof AuthorizeRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
   '/oauth/redirect': typeof OauthRedirectRoute
@@ -231,6 +239,7 @@ export interface FileRoutesById {
   '/authorize': typeof AuthorizeRoute
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
+  '/verify-email': typeof VerifyEmailRoute
   '/_authed/chat': typeof AuthedChatRouteWithChildren
   '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/settings': typeof AuthedSettingsRoute
@@ -250,6 +259,7 @@ export interface FileRouteTypes {
     | '/authorize'
     | '/login'
     | '/redirect'
+    | '/verify-email'
     | '/chat'
     | '/runs'
     | '/settings'
@@ -267,6 +277,7 @@ export interface FileRouteTypes {
     | '/authorize'
     | '/login'
     | '/redirect'
+    | '/verify-email'
     | '/runs'
     | '/settings'
     | '/oauth/redirect'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/authorize'
     | '/login'
     | '/redirect'
+    | '/verify-email'
     | '/_authed/chat'
     | '/_authed/runs'
     | '/_authed/settings'
@@ -303,6 +315,7 @@ export interface RootRouteChildren {
   AuthorizeRoute: typeof AuthorizeRoute
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
+  VerifyEmailRoute: typeof VerifyEmailRoute
   OauthRedirectRoute: typeof OauthRedirectRoute
 }
 export interface FileServerRoutesByFullPath {
@@ -417,6 +430,13 @@ export interface RootServerRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/redirect': {
       id: '/redirect'
       path: '/redirect'
@@ -673,6 +693,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthorizeRoute: AuthorizeRoute,
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,
+  VerifyEmailRoute: VerifyEmailRoute,
   OauthRedirectRoute: OauthRedirectRoute,
 }
 export const routeTree = rootRouteImport

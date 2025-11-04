@@ -171,3 +171,20 @@ This project is licensed under the MIT License - see the [MIT](LICENSE) file for
 **Made with ❤️ for the AI community**
 
 [Get Started](https://remotemcp.tech)
+
+
+https://github.com/assistant-ui/assistant-ui/discussions/2122
+
+https://github.com/assistant-ui/assistant-ui/issues/2349
+https://www.assistant-ui.com/docs/runtimes/custom/external-store
+https://www.assistant-ui.com/docs/runtimes/custom/local#2-custom-database-with-useremotethreadlistruntime
+
+## TODOS
+- Email verification
+- Strata/Unified MCp Server
+- Chat Message Branching
+- AI Elements Migrations
+- Tool Approve Request
+- Add more mcp apps
+- allow to Add external mcp server 
+- show reasoning
