@@ -129,7 +129,6 @@ function LoginPage() {
 							if (ctx.error.status === 403) {
 								navigate({
 									to: "/verify-email",
-									search: { email: signInData.email },
 								});
 								return;
 							}
