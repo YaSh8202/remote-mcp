@@ -97,21 +97,49 @@ function LoginPage() {
 		try {
 			if (isSignUp) {
 				const signUpData = data as SignUpFormData;
-				await signUp.email({
-					email: signUpData.email,
-					password: signUpData.password,
-					name: signUpData.name,
-					callbackURL,
+				await signUp.email(
+					{
+						email: signUpData.email,
+						password: signUpData.password,
+						name: signUpData.name,
+						callbackURL,
+					},
+					{
+						onError: (ctx) => {
+							throw new Error(ctx.error.message);
+						},
+					},
+				);
+
+				// Redirect to verify email page after successful signup
+				navigate({
+					to: "/verify-email",
 				});
 			} else {
 				const signInData = data as SignInFormData;
-				await signIn.email({
-					email: signInData.email,
-					password: signInData.password,
-					callbackURL,
-				});
+				await signIn.email(
+					{
+						email: signInData.email,
+						password: signInData.password,
+						callbackURL,
+					},
+					{
+						onError: (ctx) => {
+							// Handle email verification required error
+							if (ctx.error.status === 403) {
+								navigate({
+									to: "/verify-email",
+								});
+								return;
+							}
+							throw new Error(ctx.error.message);
+						},
+					},
+				);
+
+				// Only navigate to servers if sign in was successful
+				navigate({ to: "/servers" });
 			}
-			navigate({ to: "/servers" });
 		} catch (error) {
 			console.error("Email auth error:", error);
 		}
@@ -120,21 +148,21 @@ function LoginPage() {
 	const googleSignInMutation = useMutation({
 		mutationFn: handleGoogleSignIn,
 		onSuccess: () => {
-			navigate({ to: "/" });
+			navigate({ to: "/servers" });
 		},
 	});
 
 	const githubSignInMutation = useMutation({
 		mutationFn: handleGitHubSignIn,
 		onSuccess: () => {
-			navigate({ to: "/" });
+			navigate({ to: "/servers" });
 		},
 	});
 
 	const emailAuthMutation = useMutation({
 		mutationFn: handleEmailAuth,
 		onSuccess: () => {
-			navigate({ to: "/" });
+			navigate({ to: "/servers" });
 		},
 	});
 

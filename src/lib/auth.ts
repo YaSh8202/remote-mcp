@@ -1,9 +1,11 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { emailOTP } from "better-auth/plugins";
 import { reactStartCookies } from "better-auth/react-start";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { env } from "../env";
+import { sendOTPEmail } from "./email-service";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -17,7 +19,7 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
-		requireEmailVerification: false,
+		minPasswordLength: 10,
 	},
 	socialProviders: {
 		...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
@@ -43,5 +45,22 @@ export const auth = betterAuth({
 	},
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL,
-	plugins: [reactStartCookies()],
+	plugins: [
+		reactStartCookies(),
+		emailOTP({
+			async sendVerificationOTP({ email, otp, type }) {
+				await sendOTPEmail({
+					to: email,
+					otp,
+					type,
+				});
+			},
+			otpLength: 6,
+			expiresIn: 600, // 5 minutes
+			allowedAttempts: 5,
+
+			sendVerificationOnSignUp: true,
+			overrideDefaultEmailVerification: true,
+		}),
+	],
 });

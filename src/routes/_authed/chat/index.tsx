@@ -69,7 +69,6 @@ function ChatPage() {
 			});
 
 			// Persist selected MCP servers to the newly created chat
-			console.log("🚀 ~ onFinish ~ selectedServerIds:", selectedServerIds);
 			if (selectedServerIds.length > 0) {
 				try {
 					await Promise.all(
