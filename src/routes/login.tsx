@@ -6,6 +6,7 @@ import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod/v4";
 import { Button } from "../components/ui/button";
 import {
@@ -72,76 +73,64 @@ function LoginPage() {
 	});
 
 	const handleGoogleSignIn = async () => {
-		try {
-			await signIn.social({
-				provider: "google",
-				callbackURL,
-			});
-		} catch (error) {
-			console.error("Google sign in error:", error);
-		}
+		await signIn.social({
+			provider: "google",
+			callbackURL,
+		});
 	};
 
 	const handleGitHubSignIn = async () => {
-		try {
-			await signIn.social({
-				provider: "github",
-				callbackURL,
-			});
-		} catch (error) {
-			console.error("GitHub sign in error:", error);
-		}
+		await signIn.social({
+			provider: "github",
+			callbackURL,
+		});
 	};
 
 	const handleEmailAuth = async (data: SignInFormData | SignUpFormData) => {
-		try {
-			if (isSignUp) {
-				const signUpData = data as SignUpFormData;
-				await signUp.email(
-					{
-						email: signUpData.email,
-						password: signUpData.password,
-						name: signUpData.name,
-						callbackURL,
+		if (isSignUp) {
+			const signUpData = data as SignUpFormData;
+			await signUp.email(
+				{
+					email: signUpData.email,
+					password: signUpData.password,
+					name: signUpData.name,
+					callbackURL,
+				},
+				{
+					onError: (ctx) => {
+						throw new Error(ctx.error.message);
 					},
-					{
-						onError: (ctx) => {
-							throw new Error(ctx.error.message);
-						},
-					},
-				);
+				},
+			);
 
-				// Redirect to verify email page after successful signup
-				navigate({
-					to: "/verify-email",
-				});
-			} else {
-				const signInData = data as SignInFormData;
-				await signIn.email(
-					{
-						email: signInData.email,
-						password: signInData.password,
-						callbackURL,
+			// Redirect to verify email page after successful signup
+			navigate({
+				to: "/verify-email",
+			});
+		} else {
+			const signInData = data as SignInFormData;
+			await signIn.email(
+				{
+					email: signInData.email,
+					password: signInData.password,
+					callbackURL,
+				},
+				{
+					onError: (ctx) => {
+						// Handle email verification required error
+						if (ctx.error.status === 403) {
+							navigate({
+								to: "/verify-email",
+							});
+							return;
+						}
+						throw new Error(ctx.error.message);
 					},
-					{
-						onError: (ctx) => {
-							// Handle email verification required error
-							if (ctx.error.status === 403) {
-								navigate({
-									to: "/verify-email",
-								});
-								return;
-							}
-							throw new Error(ctx.error.message);
-						},
-					},
-				);
+				},
+			);
 
-				// Only navigate to servers if sign in was successful
-				navigate({ to: "/servers" });
-			}
-		} catch (error) {
-			console.error("Email auth error:", error);
+			// Only navigate to servers if sign in was successful
+			navigate({ to: "/servers" });
 		}
 	};
 
@@ -150,6 +139,12 @@ function LoginPage() {
 		onSuccess: () => {
 			navigate({ to: "/servers" });
 		},
+		onError: (error: Error) => {
+			toast.error("Google Sign In Failed", {
+				description:
+					error.message || "Failed to sign in with Google. Please try again.",
+			});
+		},
 	});
 
 	const githubSignInMutation = useMutation({
@@ -157,12 +152,31 @@ function LoginPage() {
 		onSuccess: () => {
 			navigate({ to: "/servers" });
 		},
+		onError: (error: Error) => {
+			toast.error("GitHub Sign In Failed", {
+				description:
+					error.message || "Failed to sign in with GitHub. Please try again.",
+			});
+		},
 	});
 
 	const emailAuthMutation = useMutation({
 		mutationFn: handleEmailAuth,
 		onSuccess: () => {
-			navigate({ to: "/servers" });
+			if (!isSignUp) {
+				navigate({ to: "/servers" });
+			}
+		},
+		onError: (error: Error) => {
+			const errorMessage =
+				error.message ||
+				(isSignUp
+					? "Failed to create account. Please try again."
+					: "Failed to sign in. Please check your credentials.");
+
+			toast.error(isSignUp ? "Sign Up Failed" : "Sign In Failed", {
+				description: errorMessage,
+			});
 		},
 	});
 
