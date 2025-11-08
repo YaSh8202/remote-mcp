@@ -166,11 +166,11 @@ function RouteComponent() {
 				{/* Sidebar */}
 				<div className="space-y-6">
 					{/* Server Details */}
-					<ServerDetails
+					{/* <ServerDetails
 						serverUrl={serverUrl}
 						copied={copied}
 						copyToClipboard={copyToClipboard}
-					/>
+					/> */}
 
 					{/* How to Connect */}
 					<HowToConnect
