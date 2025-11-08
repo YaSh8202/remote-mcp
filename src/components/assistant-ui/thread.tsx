@@ -32,6 +32,7 @@ import { MarkdownText } from "@/components/assistant-ui/markdown-text";
 import { ReasoningText } from "@/components/assistant-ui/reasoning-text";
 import { ToolFallback } from "@/components/assistant-ui/tool-fallback";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
+import { ExternalServerDetailsPopover } from "@/components/external-server-details-popover";
 import { ModelSelector } from "@/components/model-selector";
 import { ServerDetailsPopover } from "@/components/server-details-popover";
 import { ServerSelectionPopover } from "@/components/server-selection-popover";
@@ -231,9 +232,14 @@ const Composer: FC<{
 		? newChatStore.setServers
 		: setLocalSelectedServerIds;
 
-	// Get selected servers data
+	// Get selected servers data (remote servers only)
 	const selectedServers = servers.filter((server) =>
 		selectedServerIds.includes(server.id),
+	);
+
+	// Get external servers from chat
+	const externalServers = currentChat?.mcpServers?.filter(
+		(server) => !server.chatMcpServer.isRemoteMcp,
 	);
 
 	// Load selected servers from chat MCP servers on mount (only for existing chats)
@@ -277,6 +283,10 @@ const Composer: FC<{
 				}),
 			});
 		},
+	});
+
+	const validateExternalServerMutation = useMutation({
+		...trpc.mcpServer.validateExternal.mutationOptions(),
 	});
 
 	const handleServerAdd = async (serverId: string) => {
@@ -335,6 +345,85 @@ const Composer: FC<{
 		}
 	};
 
+	const handleExternalServerRemove = async (chatMcpServerId: string) => {
+		if (currentChat) {
+			try {
+				await removeMcpServerMutation.mutateAsync({
+					id: chatMcpServerId,
+				});
+			} catch (error) {
+				console.error("Failed to remove external MCP server from chat:", error);
+			}
+		}
+	};
+
+	const handleExternalServerAdd = async (config: {
+		displayName: string;
+		url: string;
+		type: "http" | "sse";
+		headers?: Record<string, string>;
+	}): Promise<{ success: boolean; error?: string }> => {
+		if (isNewChat) {
+			// For new chats, store the config in the new chat store
+			// Note: This will need to be handled when the chat is created
+			console.warn(
+				"External MCP servers for new chats need to be implemented in the store",
+			);
+			// TODO: Add external server support to newChatStore
+			return {
+				success: false,
+				error: "External servers not supported for new chats yet",
+			};
+		}
+
+		// For existing chats, validate and persist to DB
+		if (!currentChat) {
+			return { success: false, error: "No active chat found" };
+		}
+
+		try {
+			// Validate the external server by fetching its tools
+			const validateResult = await validateExternalServerMutation.mutateAsync({
+				url: config.url,
+				headers: config.headers,
+			});
+
+			if (!validateResult.isValid) {
+				return {
+					success: false,
+					error:
+						validateResult.error ||
+						"Failed to connect to the MCP server. Please check the URL and try again.",
+				};
+			}
+
+			// Server is valid, add it to the chat
+			await addMcpServerMutation.mutateAsync({
+				chatId: currentChat.id,
+				isRemoteMcp: false,
+				displayName: config.displayName,
+				config: {
+					url: config.url,
+					type: config.type,
+					headers: config.headers,
+				},
+				includeAllTools: true,
+				tools: [],
+			});
+
+			return { success: true };
+		} catch (error) {
+			console.error("Failed to add external MCP server to chat:", error);
+			return {
+				success: false,
+				error:
+					error instanceof Error
+						? error.message
+						: "An unexpected error occurred. Please try again.",
+			};
+		}
+	};
+
 	return (
 		<div className="aui-composer-wrapper sticky bottom-0 mx-auto flex w-full max-w-[var(--thread-max-width)] flex-col gap-4 overflow-visible rounded-t-3xl bg-background pb-4 md:pb-6">
 			<ThreadScrollToBottom />
@@ -343,9 +432,9 @@ const Composer: FC<{
 			</ThreadPrimitive.Empty>
 
 			{/* Server Selection Button - Only show when chat is ready and servers exist */}
-			{hasValidKeys && servers.length > 0 && (
-				<div className="mx-auto flex items-center gap-2 w-full max-w-[var(--thread-max-width)]">
-					{/* Show selected servers */}
+			{hasValidKeys && (
+				<div className="mx-auto flex items-center gap-2 w-full max-w-[var(--thread-max-width)] flex-wrap">
+					{/* Show selected remote servers */}
 					{selectedServers.map((server) => (
 						<ServerDetailsPopover
 							key={server.id}
@@ -376,9 +465,32 @@ const Composer: FC<{
 						</ServerDetailsPopover>
 					))}
 
+					{/* Show external servers */}
+					{externalServers?.map((externalServer) => (
+						<ExternalServerDetailsPopover
+							key={externalServer.chatMcpServer.id}
+							chatMcpServer={externalServer.chatMcpServer}
+							onRemove={() =>
+								handleExternalServerRemove(externalServer.chatMcpServer.id)
+							}
+						>
+							<Button size={"sm"} variant={"secondary"} className="">
+								<div className="flex h-5 w-5 items-center justify-center rounded-md bg-muted/70 border border-background">
+									<MCPIcon className="h-3.5 w-3.5 text-primary" />
+								</div>
+								<span>
+									{externalServer.chatMcpServer.displayName ||
+										"External Server"}
+								</span>
+								<ChevronDown className="h-3 w-3 ml-0.5" />
+							</Button>
+						</ExternalServerDetailsPopover>
+					))}
+
 					<ServerSelectionPopover
 						selectedServerIds={selectedServerIds}
 						onServerAdd={handleServerAdd}
+						onExternalServerAdd={handleExternalServerAdd}
 					>
 						<Button
 							variant="secondary"
@@ -387,7 +499,8 @@ const Composer: FC<{
 						>
 							<Plus className="h-4 w-4" />
 							<span>
-								{selectedServerIds.length === 0 ? (
+								{selectedServerIds.length === 0 &&
+								(!externalServers || externalServers.length === 0) ? (
 									"Add Tools"
 								) : (
 									<MCPIcon className="size-3" />

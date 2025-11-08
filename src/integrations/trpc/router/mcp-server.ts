@@ -138,4 +138,58 @@ export const mcpServerRouter = {
 
 		return serverCount[0]?.count || 0;
 	}),
+
+	validateExternal: protectedProcedure
+		.input(
+			z.object({
+				url: z.string().url(),
+				headers: z.record(z.string(), z.string()).optional(),
+			}),
+		)
+		.mutation(async ({ input }) => {
+			try {
+				// Import the MCP SDK
+				const { StreamableHTTPClientTransport } = await import(
+					"@socotra/modelcontextprotocol-sdk/client/streamableHttp.js"
+				);
+				const { experimental_createMCPClient: createMCPClient } = await import(
+					"ai"
+				);
+
+				// Create a transport for the external server
+				const httpTransport = new StreamableHTTPClientTransport(
+					new URL(input.url),
+					{
+						requestInit: {
+							headers: input.headers as Record<string, string> | undefined,
+						},
+					},
+				);
+
+				// Create MCP client
+				const mcpClient = await createMCPClient({
+					transport: httpTransport,
+				});
+
+				// Try to list tools to validate the connection
+				const tools = await mcpClient.tools();
+				const toolNames = Object.keys(tools);
+
+				return {
+					isValid: true,
+					tools: toolNames,
+					toolCount: toolNames.length,
+				};
+			} catch (error) {
+				console.error("External MCP server validation error:", error);
+				return {
+					isValid: false,
+					error:
+						error instanceof Error
+							? error.message
+							: "Failed to connect to external MCP server",
+					tools: [],
+				};
+			}
+		}),
 } satisfies TRPCRouterRecord;
