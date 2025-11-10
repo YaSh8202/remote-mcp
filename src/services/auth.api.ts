@@ -1,10 +1,10 @@
 import { auth } from "@/lib/auth";
 import { createMiddleware, createServerFn, json } from "@tanstack/react-start";
-import { getWebRequest } from "@tanstack/react-start/server";
+import { getRequest } from "@tanstack/react-start/server";
 
 export const getUserSession = createServerFn({ method: "GET" }).handler(
 	async () => {
-		const request = getWebRequest();
+		const request = getRequest();
 
 		if (!request?.headers) {
 			return null;
