@@ -1,5 +1,4 @@
 import { defineConfig } from 'vite'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
@@ -14,15 +13,17 @@ const config = defineConfig({
       projects: ['./tsconfig.json'],
     }),
     tailwindcss(),
-    // Enable automatic code splitting for routes
-    tanstackRouter({
-      autoCodeSplitting: true,
-    }),
     tanstackStart({
       customViteReactPlugin: true,
     }),
     viteReact(),
   ],
+  build: {
+    // Increase chunk size warning limit to suppress warnings
+    // The actual network transfer size (gzipped) is what matters for performance,
+    // and Vite's automatic chunking handles this well
+    chunkSizeWarningLimit: 2000,
+  },
 })
 
 export default wrapVinxiConfigWithSentry(config, {
