@@ -59,9 +59,6 @@ importers:
       '@linear/sdk':
         specifier: ^60.0.0
         version: 60.0.0
-      '@modelcontextprotocol/sdk':
-        specifier: ^1.12.1
-        version: 1.17.5
       '@neondatabase/serverless':
         specifier: ^1.0.1
         version: 1.0.1
@@ -135,8 +132,8 @@ importers:
         specifier: ^1.18.0
         version: 1.18.0
       '@t3-oss/env-core':
-        specifier: ^0.12.0
-        version: 0.12.0(typescript@5.9.2)(zod@4.1.9)
+        specifier: ^0.13.8
+        version: 0.13.8(typescript@5.9.2)(zod@4.1.9)
       '@tabler/icons-react':
         specifier: ^3.35.0
         version: 3.35.0(react@19.1.1)
@@ -3039,13 +3036,16 @@ packages:
   '@standard-schema/utils@0.3.0':
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
-  '@t3-oss/env-core@0.12.0':
-    resolution: {integrity: sha512-lOPj8d9nJJTt81mMuN9GMk8x5veOt7q9m11OSnCBJhwp1QrL/qR+M8Y467ULBSm9SunosryWNbmQQbgoiMgcdw==}
+  '@t3-oss/env-core@0.13.8':
+    resolution: {integrity: sha512-L1inmpzLQyYu4+Q1DyrXsGJYCXbtXjC4cICw1uAKv0ppYPQv656lhZPU91Qd1VS6SO/bou1/q5ufVzBGbNsUpw==}
     peerDependencies:
+      arktype: ^2.1.0
       typescript: '>=5.0.0'
       valibot: ^1.0.0-beta.7 || ^1.0.0
-      zod: ^3.24.0
+      zod: ^3.24.0 || ^4.0.0-beta.0
     peerDependenciesMeta:
+      arktype:
+        optional: true
       typescript:
         optional: true
       valibot:
@@ -10353,7 +10353,7 @@ snapshots:
 
   '@standard-schema/utils@0.3.0': {}
 
-  '@t3-oss/env-core@0.12.0(typescript@5.9.2)(zod@4.1.9)':
+  '@t3-oss/env-core@0.13.8(typescript@5.9.2)(zod@4.1.9)':
     optionalDependencies:
       typescript: 5.9.2
       zod: 4.1.9
