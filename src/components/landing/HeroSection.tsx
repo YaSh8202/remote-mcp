@@ -3,7 +3,7 @@ import { authQueries } from "@/services/queries";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { ArrowRight, Play, X } from "lucide-react";
+import { ArrowRight, Play, Star, X } from "lucide-react";
 import { useState } from "react";
 import { RemoteMcpLogo } from "../icons";
 import { BackgroundBeamsWithCollision } from "../ui/background-beams-with-collision";
@@ -125,6 +125,20 @@ export function HeroSection() {
 										<ArrowRight className="ml-2 h-5 w-5" />
 									</Button>
 								</Link>
+								<a
+									href="https://github.com/YaSh8202/remote-mcp"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<Button
+										size="lg"
+										variant="outline"
+										className="bg-transparent border-white/20 text-white hover:bg-white/10 font-semibold px-8 py-3"
+									>
+										<Star className="mr-2 h-5 w-5" />
+										Star on GitHub
+									</Button>
+								</a>
 							</motion.div>
 
 							{/* Trusted by */}
