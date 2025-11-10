@@ -14,8 +14,8 @@ import {
 } from "@node-oauth/oauth2-server";
 import { McpServer } from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@socotra/modelcontextprotocol-sdk/server/streamableHttp.js";
+import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
-import { createServerFileRoute } from "@tanstack/react-start/server";
 import { toFetchResponse, toReqRes } from "fetch-to-node";
 
 type McpServerWithApps = Awaited<
@@ -203,167 +203,171 @@ const buildMcpServer = async (
 	return server;
 };
 
-export const ServerRoute = createServerFileRoute("/api/mcp/$id").methods({
-	GET: async () => {
-		return json(
-			{
-				jsonrpc: "2.0",
-				error: {
-					code: -32000,
-					message: "Method not allowed.",
-				},
-				id: null,
-			},
-			{ status: 405 },
-		);
-	},
-	DELETE: async () => {
-		return json(
-			{
-				jsonrpc: "2.0",
-				error: {
-					code: -32000,
-					message: "Method not allowed.",
-				},
-				id: null,
-			},
-			{ status: 405 },
-		);
-	},
-
-	POST: async ({ request, params }) => {
-		const body = await request.json();
-		const { req, res } = toReqRes(request);
-		const mcpTokenId = params.id;
-
-		if (!mcpTokenId) {
-			return json(
-				{
-					jsonrpc: "2.0",
-					error: {
-						code: -32602,
-						message: "Invalid parameters - missing id.",
-					},
-					id: null,
-				},
-				{ status: 400 },
-			);
-		}
-
-		let userSession: ISession | undefined;
-
-		try {
-			// Try OAuth2 authentication - this will throw OAuthError if authentication fails
-			userSession = await validateOAuthToken(request);
-		} catch (error) {
-			// Handle OAuth authentication errors
-			if (error instanceof OAuthError) {
-				// console.error("OAuth authentication failed:", error);
+export const Route = createFileRoute("/api/mcp/$id")({
+	server: {
+		handlers: {
+			GET: async () => {
 				return json(
 					{
 						jsonrpc: "2.0",
 						error: {
-							code: -32001, // Authentication error code
-							message: `Authentication failed: ${error.message}`,
-							data: {
-								error: error.name,
-								error_description: error.message,
+							code: -32000,
+							message: "Method not allowed.",
+						},
+						id: null,
+					},
+					{ status: 405 },
+				);
+			},
+			DELETE: async () => {
+				return json(
+					{
+						jsonrpc: "2.0",
+						error: {
+							code: -32000,
+							message: "Method not allowed.",
+						},
+						id: null,
+					},
+					{ status: 405 },
+				);
+			},
+
+			POST: async ({ request, params }) => {
+				const body = await request.json();
+				const { req, res } = toReqRes(request);
+				const mcpTokenId = params.id;
+
+				if (!mcpTokenId) {
+					return json(
+						{
+							jsonrpc: "2.0",
+							error: {
+								code: -32602,
+								message: "Invalid parameters - missing id.",
 							},
+							id: null,
 						},
-						id: null,
-					},
-					{ status: error.code },
-				);
-			}
+						{ status: 400 },
+					);
+				}
 
-			throw error;
-		}
+				let userSession: ISession | undefined;
 
-		if (!userSession) {
-			return json(
-				{
-					jsonrpc: "2.0",
-					error: {
-						code: -32001, // Authentication error code
-						message: "Authentication failed: No valid OAuth token provided",
-						data: {
-							error: "UnauthorizedRequestError",
-							error_description: "No valid OAuth token provided",
+				try {
+					// Try OAuth2 authentication - this will throw OAuthError if authentication fails
+					userSession = await validateOAuthToken(request);
+				} catch (error) {
+					// Handle OAuth authentication errors
+					if (error instanceof OAuthError) {
+						// console.error("OAuth authentication failed:", error);
+						return json(
+							{
+								jsonrpc: "2.0",
+								error: {
+									code: -32001, // Authentication error code
+									message: `Authentication failed: ${error.message}`,
+									data: {
+										error: error.name,
+										error_description: error.message,
+									},
+								},
+								id: null,
+							},
+							{ status: error.code },
+						);
+					}
+
+					throw error;
+				}
+
+				if (!userSession) {
+					return json(
+						{
+							jsonrpc: "2.0",
+							error: {
+								code: -32001, // Authentication error code
+								message: "Authentication failed: No valid OAuth token provided",
+								data: {
+									error: "UnauthorizedRequestError",
+									error_description: "No valid OAuth token provided",
+								},
+							},
+							id: null,
 						},
-					},
-					id: null,
-				},
-				{ status: 401 },
-			);
-		}
+						{ status: 401 },
+					);
+				}
 
-		try {
-			const transport = new StreamableHTTPServerTransport({
-				sessionIdGenerator: undefined,
-			});
+				try {
+					const transport = new StreamableHTTPServerTransport({
+						sessionIdGenerator: undefined,
+					});
 
-			const server = await buildMcpServer(mcpTokenId, userSession);
+					const server = await buildMcpServer(mcpTokenId, userSession);
 
-			res.on("close", async () => {
-				await transport.close();
-				await server.close();
-			});
+					res.on("close", async () => {
+						await transport.close();
+						await server.close();
+					});
 
-			// Connect to the MCP server
-			await server.connect(transport);
+					// Connect to the MCP server
+					await server.connect(transport);
 
-			// Handle the request
-			await transport.handleRequest(req, res, body);
+					// Handle the request
+					await transport.handleRequest(req, res, body);
 
-			return toFetchResponse(res);
-		} catch (error) {
-			console.error("Error handling MCP request:", error);
+					return toFetchResponse(res);
+				} catch (error) {
+					console.error("Error handling MCP request:", error);
 
-			// Handle MCP not found error specifically
-			if (error instanceof McpNotFoundError) {
-				return json(
-					{
-						jsonrpc: "2.0",
-						error: {
-							code: -32601,
-							message: "MCP server not found.",
-						},
-						id: null,
-					},
-					{ status: 404 },
-				);
-			}
+					// Handle MCP not found error specifically
+					if (error instanceof McpNotFoundError) {
+						return json(
+							{
+								jsonrpc: "2.0",
+								error: {
+									code: -32601,
+									message: "MCP server not found.",
+								},
+								id: null,
+							},
+							{ status: 404 },
+						);
+					}
 
-			// Handle authentication errors
-			if (error instanceof McpAuthenticationError) {
-				return json(
-					{
-						jsonrpc: "2.0",
-						error: {
-							code: -32001,
-							message: error.message,
-						},
-						id: null,
-					},
-					{ status: 401 },
-				);
-			}
+					// Handle authentication errors
+					if (error instanceof McpAuthenticationError) {
+						return json(
+							{
+								jsonrpc: "2.0",
+								error: {
+									code: -32001,
+									message: error.message,
+								},
+								id: null,
+							},
+							{ status: 401 },
+						);
+					}
 
-			if (!res.headersSent) {
-				return json(
-					{
-						jsonrpc: "2.0",
-						error: {
-							code: -32603,
-							message: "Internal server error",
-						},
-						id: null,
-					},
-					{
-						status: 500,
-					},
-				);
-			}
-		}
+					if (!res.headersSent) {
+						return json(
+							{
+								jsonrpc: "2.0",
+								error: {
+									code: -32603,
+									message: "Internal server error",
+								},
+								id: null,
+							},
+							{
+								status: 500,
+							},
+						);
+					}
+				}
+			},
+		},
 	},
 });

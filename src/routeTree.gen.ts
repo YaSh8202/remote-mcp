@@ -16,16 +16,29 @@ import { Route as AuthorizeRouteImport } from './routes/authorize'
 import { Route as AuthedRouteRouteImport } from './routes/_authed/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OauthRedirectRouteImport } from './routes/oauth/redirect'
+import { Route as ApiModelsRouteImport } from './routes/api/models'
 import { Route as AuthedSettingsRouteImport } from './routes/_authed/settings'
 import { Route as AuthedRunsRouteImport } from './routes/_authed/runs'
 import { Route as AuthedChatRouteImport } from './routes/_authed/chat'
+import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
+import { Route as DotwellKnownMcpDotjsonRouteImport } from './routes/[.]well-known/mcp[.]json'
+import { Route as ApiChatIndexRouteImport } from './routes/api/chat/index'
 import { Route as AuthedServersIndexRouteImport } from './routes/_authed/servers/index'
 import { Route as AuthedConnectionsIndexRouteImport } from './routes/_authed/connections/index'
 import { Route as AuthedChatIndexRouteImport } from './routes/_authed/chat/index'
 import { Route as AuthedAppsIndexRouteImport } from './routes/_authed/apps/index'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
+import { Route as ApiOauthTokenRouteImport } from './routes/api/oauth/token'
+import { Route as ApiOauthRegisterRouteImport } from './routes/api/oauth/register'
+import { Route as ApiOauthClientRouteImport } from './routes/api/oauth/client'
+import { Route as ApiOauthAuthorizeRouteImport } from './routes/api/oauth/authorize'
+import { Route as ApiMcpIdRouteImport } from './routes/api/mcp.$id'
+import { Route as ApiChatIdRouteImport } from './routes/api/chat/$id'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as AuthedServersIdRouteImport } from './routes/_authed/servers/$id'
 import { Route as AuthedChatChatIdRouteImport } from './routes/_authed/chat/$chatId'
 import { Route as AuthedAppsIdRouteImport } from './routes/_authed/apps/$id'
+import { Route as DotwellKnownOauthAuthorizationServerSplatRouteImport } from './routes/[.]well-known/oauth-authorization-server.$'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -61,6 +74,11 @@ const OauthRedirectRoute = OauthRedirectRouteImport.update({
   path: '/oauth/redirect',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiModelsRoute = ApiModelsRouteImport.update({
+  id: '/api/models',
+  path: '/api/models',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedSettingsRoute = AuthedSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -75,6 +93,22 @@ const AuthedChatRoute = AuthedChatRouteImport.update({
   id: '/chat',
   path: '/chat',
   getParentRoute: () => AuthedRouteRoute,
+} as any)
+const DotwellKnownOauthProtectedResourceRoute =
+  DotwellKnownOauthProtectedResourceRouteImport.update({
+    id: '/.well-known/oauth-protected-resource',
+    path: '/.well-known/oauth-protected-resource',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotwellKnownMcpDotjsonRoute = DotwellKnownMcpDotjsonRouteImport.update({
+  id: '/.well-known/mcp.json',
+  path: '/.well-known/mcp.json',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatIndexRoute = ApiChatIndexRouteImport.update({
+  id: '/api/chat/',
+  path: '/api/chat/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthedServersIndexRoute = AuthedServersIndexRouteImport.update({
   id: '/servers/',
@@ -96,6 +130,46 @@ const AuthedAppsIndexRoute = AuthedAppsIndexRouteImport.update({
   path: '/apps/',
   getParentRoute: () => AuthedRouteRoute,
 } as any)
+const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthTokenRoute = ApiOauthTokenRouteImport.update({
+  id: '/api/oauth/token',
+  path: '/api/oauth/token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthRegisterRoute = ApiOauthRegisterRouteImport.update({
+  id: '/api/oauth/register',
+  path: '/api/oauth/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthClientRoute = ApiOauthClientRouteImport.update({
+  id: '/api/oauth/client',
+  path: '/api/oauth/client',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiOauthAuthorizeRoute = ApiOauthAuthorizeRouteImport.update({
+  id: '/api/oauth/authorize',
+  path: '/api/oauth/authorize',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpIdRoute = ApiMcpIdRouteImport.update({
+  id: '/api/mcp/$id',
+  path: '/api/mcp/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatIdRoute = ApiChatIdRouteImport.update({
+  id: '/api/chat/$id',
+  path: '/api/chat/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthedServersIdRoute = AuthedServersIdRouteImport.update({
   id: '/servers/$id',
   path: '/servers/$id',
@@ -111,6 +185,12 @@ const AuthedAppsIdRoute = AuthedAppsIdRouteImport.update({
   path: '/apps/$id',
   getParentRoute: () => AuthedRouteRoute,
 } as any)
+const DotwellKnownOauthAuthorizationServerSplatRoute =
+  DotwellKnownOauthAuthorizationServerSplatRouteImport.update({
+    id: '/.well-known/oauth-authorization-server/$',
+    path: '/.well-known/oauth-authorization-server/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -118,17 +198,30 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/chat': typeof AuthedChatRouteWithChildren
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
+  '/api/models': typeof ApiModelsRoute
   '/oauth/redirect': typeof OauthRedirectRoute
+  '/.well-known/oauth-authorization-server/$': typeof DotwellKnownOauthAuthorizationServerSplatRoute
   '/apps/$id': typeof AuthedAppsIdRoute
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/mcp/$id': typeof ApiMcpIdRoute
+  '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
+  '/api/oauth/client': typeof ApiOauthClientRoute
+  '/api/oauth/register': typeof ApiOauthRegisterRoute
+  '/api/oauth/token': typeof ApiOauthTokenRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/apps': typeof AuthedAppsIndexRoute
   '/chat/': typeof AuthedChatIndexRoute
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
+  '/api/chat': typeof ApiChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -136,16 +229,29 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/runs': typeof AuthedRunsRoute
   '/settings': typeof AuthedSettingsRoute
+  '/api/models': typeof ApiModelsRoute
   '/oauth/redirect': typeof OauthRedirectRoute
+  '/.well-known/oauth-authorization-server/$': typeof DotwellKnownOauthAuthorizationServerSplatRoute
   '/apps/$id': typeof AuthedAppsIdRoute
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/mcp/$id': typeof ApiMcpIdRoute
+  '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
+  '/api/oauth/client': typeof ApiOauthClientRoute
+  '/api/oauth/register': typeof ApiOauthRegisterRoute
+  '/api/oauth/token': typeof ApiOauthTokenRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/apps': typeof AuthedAppsIndexRoute
   '/chat': typeof AuthedChatIndexRoute
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
+  '/api/chat': typeof ApiChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -155,17 +261,30 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/redirect': typeof RedirectRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/.well-known/mcp.json': typeof DotwellKnownMcpDotjsonRoute
+  '/.well-known/oauth-protected-resource': typeof DotwellKnownOauthProtectedResourceRoute
   '/_authed/chat': typeof AuthedChatRouteWithChildren
   '/_authed/runs': typeof AuthedRunsRoute
   '/_authed/settings': typeof AuthedSettingsRoute
+  '/api/models': typeof ApiModelsRoute
   '/oauth/redirect': typeof OauthRedirectRoute
+  '/.well-known/oauth-authorization-server/$': typeof DotwellKnownOauthAuthorizationServerSplatRoute
   '/_authed/apps/$id': typeof AuthedAppsIdRoute
   '/_authed/chat/$chatId': typeof AuthedChatChatIdRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/mcp/$id': typeof ApiMcpIdRoute
+  '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
+  '/api/oauth/client': typeof ApiOauthClientRoute
+  '/api/oauth/register': typeof ApiOauthRegisterRoute
+  '/api/oauth/token': typeof ApiOauthTokenRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/_authed/apps/': typeof AuthedAppsIndexRoute
   '/_authed/chat/': typeof AuthedChatIndexRoute
   '/_authed/connections/': typeof AuthedConnectionsIndexRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
+  '/api/chat/': typeof ApiChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -175,17 +294,30 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/verify-email'
+    | '/.well-known/mcp.json'
+    | '/.well-known/oauth-protected-resource'
     | '/chat'
     | '/runs'
     | '/settings'
+    | '/api/models'
     | '/oauth/redirect'
+    | '/.well-known/oauth-authorization-server/$'
     | '/apps/$id'
     | '/chat/$chatId'
     | '/servers/$id'
+    | '/api/auth/$'
+    | '/api/chat/$id'
+    | '/api/mcp/$id'
+    | '/api/oauth/authorize'
+    | '/api/oauth/client'
+    | '/api/oauth/register'
+    | '/api/oauth/token'
+    | '/api/trpc/$'
     | '/apps'
     | '/chat/'
     | '/connections'
     | '/servers'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -193,16 +325,29 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/verify-email'
+    | '/.well-known/mcp.json'
+    | '/.well-known/oauth-protected-resource'
     | '/runs'
     | '/settings'
+    | '/api/models'
     | '/oauth/redirect'
+    | '/.well-known/oauth-authorization-server/$'
     | '/apps/$id'
     | '/chat/$chatId'
     | '/servers/$id'
+    | '/api/auth/$'
+    | '/api/chat/$id'
+    | '/api/mcp/$id'
+    | '/api/oauth/authorize'
+    | '/api/oauth/client'
+    | '/api/oauth/register'
+    | '/api/oauth/token'
+    | '/api/trpc/$'
     | '/apps'
     | '/chat'
     | '/connections'
     | '/servers'
+    | '/api/chat'
   id:
     | '__root__'
     | '/'
@@ -211,17 +356,30 @@ export interface FileRouteTypes {
     | '/login'
     | '/redirect'
     | '/verify-email'
+    | '/.well-known/mcp.json'
+    | '/.well-known/oauth-protected-resource'
     | '/_authed/chat'
     | '/_authed/runs'
     | '/_authed/settings'
+    | '/api/models'
     | '/oauth/redirect'
+    | '/.well-known/oauth-authorization-server/$'
     | '/_authed/apps/$id'
     | '/_authed/chat/$chatId'
     | '/_authed/servers/$id'
+    | '/api/auth/$'
+    | '/api/chat/$id'
+    | '/api/mcp/$id'
+    | '/api/oauth/authorize'
+    | '/api/oauth/client'
+    | '/api/oauth/register'
+    | '/api/oauth/token'
+    | '/api/trpc/$'
     | '/_authed/apps/'
     | '/_authed/chat/'
     | '/_authed/connections/'
     | '/_authed/servers/'
+    | '/api/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -231,7 +389,20 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RedirectRoute: typeof RedirectRoute
   VerifyEmailRoute: typeof VerifyEmailRoute
+  DotwellKnownMcpDotjsonRoute: typeof DotwellKnownMcpDotjsonRoute
+  DotwellKnownOauthProtectedResourceRoute: typeof DotwellKnownOauthProtectedResourceRoute
+  ApiModelsRoute: typeof ApiModelsRoute
   OauthRedirectRoute: typeof OauthRedirectRoute
+  DotwellKnownOauthAuthorizationServerSplatRoute: typeof DotwellKnownOauthAuthorizationServerSplatRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiChatIdRoute: typeof ApiChatIdRoute
+  ApiMcpIdRoute: typeof ApiMcpIdRoute
+  ApiOauthAuthorizeRoute: typeof ApiOauthAuthorizeRoute
+  ApiOauthClientRoute: typeof ApiOauthClientRoute
+  ApiOauthRegisterRoute: typeof ApiOauthRegisterRoute
+  ApiOauthTokenRoute: typeof ApiOauthTokenRoute
+  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
+  ApiChatIndexRoute: typeof ApiChatIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -285,6 +456,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OauthRedirectRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/models': {
+      id: '/api/models'
+      path: '/api/models'
+      fullPath: '/api/models'
+      preLoaderRoute: typeof ApiModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/settings': {
       id: '/_authed/settings'
       path: '/settings'
@@ -305,6 +483,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/chat'
       preLoaderRoute: typeof AuthedChatRouteImport
       parentRoute: typeof AuthedRouteRoute
+    }
+    '/.well-known/oauth-protected-resource': {
+      id: '/.well-known/oauth-protected-resource'
+      path: '/.well-known/oauth-protected-resource'
+      fullPath: '/.well-known/oauth-protected-resource'
+      preLoaderRoute: typeof DotwellKnownOauthProtectedResourceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/mcp.json': {
+      id: '/.well-known/mcp.json'
+      path: '/.well-known/mcp.json'
+      fullPath: '/.well-known/mcp.json'
+      preLoaderRoute: typeof DotwellKnownMcpDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/': {
+      id: '/api/chat/'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authed/servers/': {
       id: '/_authed/servers/'
@@ -334,6 +533,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthedAppsIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
     }
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
+      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/token': {
+      id: '/api/oauth/token'
+      path: '/api/oauth/token'
+      fullPath: '/api/oauth/token'
+      preLoaderRoute: typeof ApiOauthTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/register': {
+      id: '/api/oauth/register'
+      path: '/api/oauth/register'
+      fullPath: '/api/oauth/register'
+      preLoaderRoute: typeof ApiOauthRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/client': {
+      id: '/api/oauth/client'
+      path: '/api/oauth/client'
+      fullPath: '/api/oauth/client'
+      preLoaderRoute: typeof ApiOauthClientRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/oauth/authorize': {
+      id: '/api/oauth/authorize'
+      path: '/api/oauth/authorize'
+      fullPath: '/api/oauth/authorize'
+      preLoaderRoute: typeof ApiOauthAuthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp/$id': {
+      id: '/api/mcp/$id'
+      path: '/api/mcp/$id'
+      fullPath: '/api/mcp/$id'
+      preLoaderRoute: typeof ApiMcpIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat/$id': {
+      id: '/api/chat/$id'
+      path: '/api/chat/$id'
+      fullPath: '/api/chat/$id'
+      preLoaderRoute: typeof ApiChatIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authed/servers/$id': {
       id: '/_authed/servers/$id'
       path: '/servers/$id'
@@ -354,6 +609,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/apps/$id'
       preLoaderRoute: typeof AuthedAppsIdRouteImport
       parentRoute: typeof AuthedRouteRoute
+    }
+    '/.well-known/oauth-authorization-server/$': {
+      id: '/.well-known/oauth-authorization-server/$'
+      path: '/.well-known/oauth-authorization-server/$'
+      fullPath: '/.well-known/oauth-authorization-server/$'
+      preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
@@ -405,7 +667,22 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RedirectRoute: RedirectRoute,
   VerifyEmailRoute: VerifyEmailRoute,
+  DotwellKnownMcpDotjsonRoute: DotwellKnownMcpDotjsonRoute,
+  DotwellKnownOauthProtectedResourceRoute:
+    DotwellKnownOauthProtectedResourceRoute,
+  ApiModelsRoute: ApiModelsRoute,
   OauthRedirectRoute: OauthRedirectRoute,
+  DotwellKnownOauthAuthorizationServerSplatRoute:
+    DotwellKnownOauthAuthorizationServerSplatRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiChatIdRoute: ApiChatIdRoute,
+  ApiMcpIdRoute: ApiMcpIdRoute,
+  ApiOauthAuthorizeRoute: ApiOauthAuthorizeRoute,
+  ApiOauthClientRoute: ApiOauthClientRoute,
+  ApiOauthRegisterRoute: ApiOauthRegisterRoute,
+  ApiOauthTokenRoute: ApiOauthTokenRoute,
+  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
+  ApiChatIndexRoute: ApiChatIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
