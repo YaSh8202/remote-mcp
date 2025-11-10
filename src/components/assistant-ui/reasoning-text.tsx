@@ -22,7 +22,10 @@ type ReasoningStatus =
 				| "content-filter";
 			readonly error?: unknown;
 	  }
-	| { readonly type: "requires-action"; readonly reason: "tool-calls" };
+	| {
+			readonly type: "requires-action";
+			readonly reason: "tool-calls" | "interrupt";
+	  };
 
 interface ReasoningTextProps {
 	status: ReasoningStatus;

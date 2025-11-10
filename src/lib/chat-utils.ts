@@ -247,12 +247,14 @@ export function filterMessagesByRole(
 export function dbChatToExternalStoreThread(chat: Chat) {
 	if (chat.archived) {
 		return {
+			id: chat.id,
 			threadId: chat.id,
 			title: chat.title ?? "New Chat",
 			status: "archived",
 		} as ExternalStoreThreadData<"archived">;
 	}
 	return {
+		id: chat.id,
 		threadId: chat.id,
 		title: chat.title ?? "New Chat",
 		status: "regular",

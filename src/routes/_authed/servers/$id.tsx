@@ -11,12 +11,7 @@ import {
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Trash2, Zap } from "lucide-react";
 import { useState } from "react";
-import {
-	ConnectedApps,
-	HowToConnect,
-	ServerDetails,
-	ServerStatsCards,
-} from "./-components";
+import { ConnectedApps, HowToConnect, ServerStatsCards } from "./-components";
 export const Route = createFileRoute("/_authed/servers/$id")({
 	component: RouteComponent,
 });
