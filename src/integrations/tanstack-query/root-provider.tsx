@@ -8,7 +8,7 @@ import { TRPCProvider } from "@/integrations/trpc/react";
 import { env } from "@/env";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
-import { getWebRequest } from "@tanstack/react-start/server";
+import { getRequest } from "@tanstack/react-start/server";
 
 function getUrl() {
 	const base = (() => {
@@ -36,7 +36,7 @@ function getUrl() {
 
 const getRequestHeaders = createServerFn({ method: "GET" }).handler(
 	async () => {
-		const request = getWebRequest();
+		const request = getRequest();
 
 		if (!request) {
 			return {};

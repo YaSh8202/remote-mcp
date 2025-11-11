@@ -8,7 +8,7 @@ import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk
 import { experimental_createMCPClient as createMCPClient } from "ai";
 
 export const mcpServerGetOneOrThrow = createServerFn({ method: "GET" })
-	.validator(z.object({ id: z.string() }))
+	.inputValidator(z.object({ id: z.string() }))
 	.middleware([userRequiredMiddleware])
 	.handler(async ({ data, context: { userSession } }) => {
 		const server = await db.query.mcpServer.findFirst({
@@ -47,7 +47,7 @@ export const ChatMcpServer = z.union([
 export type ToolDescription = { name: string; description?: string };
 
 export const mcpServerListTools = createServerFn({ method: "GET" })
-	.validator(
+	.inputValidator(
 		z.object({
 			servers: z.array(ChatMcpServer),
 		}),
