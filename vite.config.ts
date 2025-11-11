@@ -15,7 +15,11 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart(),
-    nitroV2Plugin(),
+    nitroV2Plugin({
+      externals: {
+        inline: ['zod'],
+      },
+    }),
     viteReact(),
   ],
 })
