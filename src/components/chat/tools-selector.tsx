@@ -1,9 +1,7 @@
+import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
 import { useTRPC } from "@/integrations/trpc/react";
-import {
-	type ToolDescription,
-	mcpServerListTools,
-} from "@/services/mcp-server";
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import type { ToolDescription } from "@/services/mcp-server";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -16,6 +14,7 @@ import {
 	SheetTitle,
 	SheetTrigger,
 } from "../ui/sheet";
+import { LoadingSpinner } from "../ui/spinner";
 import { ToolsSelectionSheet } from "./tools-selection-sheet";
 
 function ToolsSelector() {
@@ -39,6 +38,7 @@ function ToolsSelector() {
 					const { chatMcpServer, mcpServerData } = serverData;
 					if (chatMcpServer.isRemoteMcp && mcpServerData) {
 						return {
+							id: chatMcpServer.id,
 							isRemoteMcp: true as const,
 							mcpServerId: mcpServerData.id,
 							tools: chatMcpServer.tools || [],
@@ -52,6 +52,7 @@ function ToolsSelector() {
 						chatMcpServer.displayName
 					) {
 						return {
+							id: chatMcpServer.id,
 							config: {
 								url: chatMcpServer.config.url,
 								type: chatMcpServer.config.type as "http" | "sse",
@@ -71,15 +72,8 @@ function ToolsSelector() {
 		);
 	}, [mcpServers]);
 
-	const { data: mcpServerTools } = useQuery({
-		queryKey: ["mcpServerListTools", selectedServers],
-		queryFn: () =>
-			mcpServerListTools({
-				data: {
-					servers: selectedServers,
-				},
-			}),
-		enabled: selectedServers.length > 0,
+	const { data: mcpServerTools, isLoading } = useMcpServerListToosl({
+		mcpServers: selectedServers,
 	});
 
 	const selectedToolsCount = useMemo(() => {
@@ -119,7 +113,14 @@ function ToolsSelector() {
 						<span className="text-sm">
 							<IconoirTools />
 						</span>
-						{selectedToolsCount} Tools
+						{isLoading ? (
+							<LoadingSpinner className="h-3 w-3" />
+						) : selectedToolsCount === 0 ? (
+							"No"
+						) : (
+							selectedToolsCount
+						)}{" "}
+						Tools
 					</div>
 					<ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
 				</Button>

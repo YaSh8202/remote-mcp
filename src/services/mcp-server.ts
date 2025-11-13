@@ -7,26 +7,9 @@ import { env } from "@/env";
 import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
 import { experimental_createMCPClient as createMCPClient } from "ai";
 
-export const mcpServerGetOneOrThrow = createServerFn({ method: "GET" })
-	.inputValidator(z.object({ id: z.string() }))
-	.middleware([userRequiredMiddleware])
-	.handler(async ({ data, context: { userSession } }) => {
-		const server = await db.query.mcpServer.findFirst({
-			where: (mcpServer, { eq, and }) =>
-				and(
-					eq(mcpServer.id, data.id),
-					eq(mcpServer.ownerId, userSession.user.id),
-				),
-			with: {
-				apps: true,
-			},
-		});
-		if (!server) throw new Error("MCP server not found");
-		return server;
-	});
-
 export const ChatMcpServer = z.union([
 	z.object({
+		id: z.string(),
 		config: z.object({
 			url: z.url(),
 			type: z.enum(["http", "sse"]),
@@ -38,13 +21,22 @@ export const ChatMcpServer = z.union([
 		includeAllTools: z.boolean(),
 	}),
 	z.object({
+		id: z.string(),
 		isRemoteMcp: z.literal(true),
 		mcpServerId: z.string(),
 		tools: z.array(z.string()),
 		includeAllTools: z.boolean(),
 	}),
 ]);
+
+export type ChatMcpServer = z.infer<typeof ChatMcpServer>;
+
 export type ToolDescription = { name: string; description?: string };
+
+export type ServerToolsList = Array<{
+	name: string;
+	tools: ToolDescription[];
+}>;
 
 export const mcpServerListTools = createServerFn({ method: "GET" })
 	.inputValidator(
@@ -55,7 +47,7 @@ export const mcpServerListTools = createServerFn({ method: "GET" })
 	.middleware([userRequiredMiddleware])
 	.handler(async ({ data, context: { userSession } }) => {
 		if (data.servers.length === 0) {
-			return {};
+			return [] as ServerToolsList;
 		}
 		const allTools = await Promise.all(
 			data.servers.map(async (server) => {
@@ -118,8 +110,5 @@ export const mcpServerListTools = createServerFn({ method: "GET" })
 			}),
 		);
 
-		return allTools as Array<{
-			name: string;
-			tools: ToolDescription[];
-		}>;
+		return allTools as ServerToolsList;
 	});

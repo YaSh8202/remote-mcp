@@ -5,9 +5,9 @@ import {
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import type { ChatMcpServer, McpServer } from "@/db/schema";
+import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
 import { useTRPC } from "@/integrations/trpc/react";
-import { mcpServerListTools } from "@/services/mcp-server";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -48,6 +48,7 @@ export function ToolsSelectionSheet({
 			// Remote MCP server
 			if (chatMcpServer.isRemoteMcp && mcpServerData?.id) {
 				return {
+					id: chatMcpServer.id,
 					isRemoteMcp: true as const,
 					mcpServerId: mcpServerData.id,
 					tools: chatMcpServer.tools || [],
@@ -63,6 +64,7 @@ export function ToolsSelectionSheet({
 				typeof chatMcpServer.config.url === "string"
 			) {
 				return {
+					id: chatMcpServer.id,
 					isRemoteMcp: false as const,
 					config: {
 						url: chatMcpServer.config.url,
@@ -79,38 +81,17 @@ export function ToolsSelectionSheet({
 		})
 		.filter((server): server is NonNullable<typeof server> => server !== null);
 
-	// Query to load tools for all servers
-	const { data: serverToolsData = [], isLoading: isLoadingTools } = useQuery({
-		queryKey: [
-			"mcpServerListTools",
-			mcpServers.map((s) => s.chatMcpServer.id).sort(),
-		],
-		queryFn: async () => {
-			if (serversForToolsQuery.length === 0) {
-				return [];
-			}
-
-			try {
-				const result = await mcpServerListTools({
-					data: { servers: serversForToolsQuery },
-				});
-				return Array.isArray(result) ? result : [];
-			} catch (error) {
-				console.error("Failed to load server tools:", error);
-				return [];
-			}
-		},
-		enabled: serversForToolsQuery.length > 0,
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		retry: false, // Don't retry on errors to avoid spam
-	});
+	const { data: serverToolsData, isLoading: isLoadingTools } =
+		useMcpServerListToosl({
+			mcpServers: serversForToolsQuery,
+		});
 
 	// Convert server tools data to lookup map
 	const serverTools: ServerTools = {};
 	mcpServers.forEach((serverData, index) => {
 		const serverKey =
 			serverData.mcpServerData?.id || serverData.chatMcpServer.id;
-		const toolsForServer = serverToolsData[index]?.tools || [];
+		const toolsForServer = serverToolsData?.[index]?.tools || [];
 		serverTools[serverKey] = toolsForServer;
 	});
 
