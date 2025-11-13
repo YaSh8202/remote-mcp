@@ -7,8 +7,8 @@ import { TRPCProvider } from "@/integrations/trpc/react";
 
 import { env } from "@/env";
 import type { TRPCRouter } from "@/integrations/trpc/router";
-import { createIsomorphicFn, createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { getRequestHeaders } from "@tanstack/react-start/server";
 
 function getUrl() {
 	const base = (() => {
@@ -34,23 +34,9 @@ function getUrl() {
 	return `${base}/api/trpc`;
 }
 
-const getRequestHeaders = createServerFn({ method: "GET" }).handler(
-	async () => {
-		const request = getRequest();
-
-		if (!request) {
-			return {};
-		}
-
-		const headers = new Headers(request.headers);
-
-		return Object.fromEntries(headers);
-	},
-);
-
 const headers = createIsomorphicFn()
 	.client(() => ({}))
-	.server(() => getRequestHeaders());
+	.server(() => Object.fromEntries(getRequestHeaders().entries()));
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [
