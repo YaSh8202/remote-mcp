@@ -17,7 +17,7 @@ const config = defineConfig({
     tanstackStart(),
     nitroV2Plugin({
       externals: {
-        inline: ['zod'],
+        inline: ['zod', 'nanoid'],
       },
     }),
     viteReact(),
