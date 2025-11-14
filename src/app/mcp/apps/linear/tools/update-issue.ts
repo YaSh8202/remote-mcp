@@ -1,6 +1,6 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { LinearClient } from "@linear/sdk";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { formatError, linearAuth } from "../common";
 
 const updateIssueSchema = {

@@ -1,5 +1,5 @@
-import { McpRunStatus } from "@/db/schema";
 import { z } from "zod/v4";
+import { McpRunStatus } from "@/db/schema";
 import { baseTableSearchSchema, useGenericTable } from "./use-generic-table";
 
 // Runs-specific search schema

@@ -1,12 +1,12 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { Thread } from "@/components/assistant-ui/thread";
 import { ChatRuntimeProvider } from "@/components/chat-runtime-provider";
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/integrations/trpc/react";
 import { dbMessageToUIMessage } from "@/lib/chat-utils";
 import { usePageHeader } from "@/store/header-store";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { useMemo } from "react";
 
 export const Route = createFileRoute("/_authed/chat/$chatId")({
 	loader: async ({ context, params }) => {

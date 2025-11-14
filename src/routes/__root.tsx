@@ -1,25 +1,22 @@
+import type { QueryClient } from "@tanstack/react-query";
 import {
+	createRootRouteWithContext,
 	HeadContent,
 	Outlet,
 	Scripts,
-	createRootRouteWithContext,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
-
-import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
-
-import appCss from "../styles.css?url";
-
-import type { QueryClient } from "@tanstack/react-query";
+import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { I18nProvider } from "@/components/i18n-provider.tsx";
 
 import { NotFound } from "@/components/NotFound.tsx";
-import { I18nProvider } from "@/components/i18n-provider.tsx";
 import { ThemeProvider } from "@/components/theme-provider.tsx";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import { authQueries } from "@/services/queries";
-import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import TanStackQueryLayout from "../integrations/tanstack-query/layout.tsx";
+import appCss from "../styles.css?url";
 
 interface MyRouterContext {
 	queryClient: QueryClient;

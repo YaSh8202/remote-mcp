@@ -1,5 +1,7 @@
 "use client";
 
+import { CheckCircle, Copy } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -8,8 +10,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { CheckCircle, Copy } from "lucide-react";
-import { useState } from "react";
 
 interface OtherClientsModalProps {
 	open: boolean;

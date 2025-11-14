@@ -1,3 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
+import {
+	Bot,
+	Brain,
+	Check,
+	ChevronDown,
+	Eye,
+	Plus,
+	Wrench,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Command,
@@ -17,17 +28,6 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import type { LLMProvider, ModelWithProvider } from "@/types/models";
 import { LLMProvider as LLMProviderEnum } from "@/types/models";
-import { useQuery } from "@tanstack/react-query";
-import {
-	Bot,
-	Brain,
-	Check,
-	ChevronDown,
-	Eye,
-	Plus,
-	Wrench,
-} from "lucide-react";
-import { useMemo, useState } from "react";
 import { AddLLMKeyDialog } from "./add-llm-key-dialog";
 import { ProviderLogo } from "./icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -40,7 +40,9 @@ interface ModelSelectorProps {
 
 const ProviderIcon = ({
 	provider,
-}: { provider: LLMProvider }): React.ReactElement => {
+}: {
+	provider: LLMProvider;
+}): React.ReactElement => {
 	return <ProviderLogo provider={provider} size={16} />;
 };
 

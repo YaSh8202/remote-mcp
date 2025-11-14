@@ -1,5 +1,5 @@
-import { AppLogo } from "@/components/AppLogo";
 import { Server } from "lucide-react";
+import { AppLogo } from "@/components/AppLogo";
 
 interface App {
 	name: string;

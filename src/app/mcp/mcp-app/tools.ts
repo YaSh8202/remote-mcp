@@ -1,5 +1,3 @@
-import { McpRunStatus } from "@/db/schema";
-import { mcpRunService } from "@/services/mcp-run-service";
 import type {
 	McpServer,
 	RegisteredTool,
@@ -13,6 +11,8 @@ import type {
 	ToolAnnotations,
 } from "@socotra/modelcontextprotocol-sdk/types.js";
 import type { ZodRawShape, z } from "zod/v4";
+import { McpRunStatus } from "@/db/schema";
+import { mcpRunService } from "@/services/mcp-run-service";
 import type { AppPropValueSchema } from "./property";
 import type { McpAppAuthProperty } from "./property/authentication";
 

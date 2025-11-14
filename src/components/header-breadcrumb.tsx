@@ -1,3 +1,4 @@
+import { MoreHorizontal } from "lucide-react";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -14,7 +15,6 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useHeaderStore } from "@/store/header-store";
-import { MoreHorizontal } from "lucide-react";
 
 function HeaderBreadcrumb() {
 	const { breadcrumbs, actions, title } = useHeaderStore();

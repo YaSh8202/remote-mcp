@@ -1,6 +1,6 @@
-import { env } from "@/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { env } from "@/env";
 
 export const Route = createFileRoute("/.well-known/mcp.json")({
 	server: {

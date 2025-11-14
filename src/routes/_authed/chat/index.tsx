@@ -1,14 +1,3 @@
-import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
-import {
-	ComposerAddAttachment,
-	ComposerAttachments,
-} from "@/components/assistant-ui/attachment";
-import { SendButton, Thread } from "@/components/assistant-ui/thread";
-import { FreeTierProviders } from "@/components/free-tier-providers";
-import { useTRPC } from "@/integrations/trpc/react";
-import { usePageHeader } from "@/store/header-store";
-import { useNewChatStore } from "@/store/new-chat-store";
-import { LLMProvider } from "@/types/models";
 import { useChat } from "@ai-sdk/react";
 import {
 	AssistantRuntimeProvider,
@@ -23,6 +12,17 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useCallback, useRef, useState } from "react";
+import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
+import {
+	ComposerAddAttachment,
+	ComposerAttachments,
+} from "@/components/assistant-ui/attachment";
+import { SendButton, Thread } from "@/components/assistant-ui/thread";
+import { FreeTierProviders } from "@/components/free-tier-providers";
+import { useTRPC } from "@/integrations/trpc/react";
+import { usePageHeader } from "@/store/header-store";
+import { useNewChatStore } from "@/store/new-chat-store";
+import { LLMProvider } from "@/types/models";
 
 export const Route = createFileRoute("/_authed/chat/")({
 	component: ChatPage,

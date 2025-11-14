@@ -1,8 +1,8 @@
+import { generateId, type UIMessage } from "ai";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import { db } from "@/db";
 import { type Chat, chats, messages } from "@/db/schema";
 import { dbMessagesToUIMessages, uiMessageToDbMessage } from "@/lib/chat-utils";
-import { type UIMessage, generateId } from "ai";
-import { and, desc, eq, gt, or } from "drizzle-orm";
 
 /**
  * Creates a new chat for the given user

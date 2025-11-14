@@ -1,3 +1,6 @@
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { CheckCircle, ExternalLink, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { RemoteMcpLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,9 +10,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { CheckCircle, ExternalLink, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/oauth/redirect")({
 	component: OAuthRedirectPage,

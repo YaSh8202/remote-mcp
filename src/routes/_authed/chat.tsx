@@ -1,7 +1,7 @@
+import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useModels } from "@/hooks/use-models";
-import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { Suspense } from "react";
 
 export const Route = createFileRoute("/_authed/chat")({
 	component: ChatLayout,

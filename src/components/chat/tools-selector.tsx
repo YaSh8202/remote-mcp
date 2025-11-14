@@ -1,10 +1,10 @@
-import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
-import { useTRPC } from "@/integrations/trpc/react";
-import type { ToolDescription } from "@/services/mcp-server";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
+import { useTRPC } from "@/integrations/trpc/react";
+import type { ToolDescription } from "@/services/mcp-server";
 import { IconoirTools } from "../icons";
 import { Button } from "../ui/button";
 import {

@@ -1,3 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app";
 import type { OAuth2Property, OAuth2Props } from "@/app/mcp/mcp-app/property";
 import {
@@ -10,9 +13,6 @@ import { oauth2Utils } from "@/lib/oauth2-utils";
 import { isNil } from "@/lib/utils";
 import { resolveValueFromProps } from "@/services/credentials-oauth2-service";
 import type { UpsertOAuth2Request } from "@/types/app-connection";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
 import { AppLogo } from "../AppLogo";
 import { Button } from "../ui/button";
 import { SkeletonList } from "../ui/skeleton";

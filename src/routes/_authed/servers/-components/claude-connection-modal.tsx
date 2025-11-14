@@ -1,3 +1,5 @@
+import { CheckCircle, Copy } from "lucide-react";
+import { useState } from "react";
 import { ClaudeAI } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -6,8 +8,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { CheckCircle, Copy } from "lucide-react";
-import { useState } from "react";
 
 interface ClaudeConnectionModalProps {
 	open: boolean;

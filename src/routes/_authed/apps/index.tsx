@@ -1,3 +1,15 @@
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+	AppWindow,
+	ExternalLink,
+	Link2,
+	Plus,
+	Search,
+	Shield,
+	Zap,
+} from "lucide-react";
+import { useState } from "react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
@@ -13,18 +25,6 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-	AppWindow,
-	ExternalLink,
-	Link2,
-	Plus,
-	Search,
-	Shield,
-	Zap,
-} from "lucide-react";
-import { useState } from "react";
 import { ConnectAppDialog } from "./-components/connect-app-dialog";
 
 export const Route = createFileRoute("/_authed/apps/")({

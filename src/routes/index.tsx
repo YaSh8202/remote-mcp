@@ -1,3 +1,5 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Home, Layers, Mail, Users, Zap } from "lucide-react";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { AvailableAppsSection } from "@/components/landing/AvailableAppsSection";
 import { CTASection } from "@/components/landing/CTASection";
@@ -6,8 +8,6 @@ import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
 import { SocialProofSection } from "@/components/landing/SocialProofSection";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FloatingNav } from "@/components/ui/floating-navbar";
-import { createFileRoute } from "@tanstack/react-router";
-import { Home, Layers, Mail, Users, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/")({
 	component: RouteComponent,

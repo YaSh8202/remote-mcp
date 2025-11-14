@@ -1,3 +1,16 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+	Database,
+	Globe,
+	Languages,
+	Monitor,
+	Palette,
+	Trash2,
+	User,
+} from "lucide-react";
+import { useState } from "react";
+import { useLocalStorage } from "usehooks-ts";
 import { DeleteAccountDialog } from "@/components/delete-account-dialog";
 import { LLMProviderSettings } from "@/components/llm-provider-settings";
 import { useTheme } from "@/components/theme-provider";
@@ -28,19 +41,6 @@ import {
 } from "@/hooks/use-translation";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	Database,
-	Globe,
-	Languages,
-	Monitor,
-	Palette,
-	Trash2,
-	User,
-} from "lucide-react";
-import { useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
 
 export const Route = createFileRoute("/_authed/settings")({
 	component: RouteComponent,

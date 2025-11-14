@@ -1,7 +1,7 @@
+import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { chatMcpServers, chats } from "@/db/schema";
 import { generateId } from "@/lib/id";
-import { and, eq, isNotNull } from "drizzle-orm";
 
 /**
  * Migration script to move selectedServers from chat.metadata to chat_mcp_servers table

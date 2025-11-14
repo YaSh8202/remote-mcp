@@ -1,8 +1,3 @@
-import { useModels } from "@/hooks/use-models";
-import { useTRPC } from "@/integrations/trpc/react";
-import { compositeAdapter } from "@/lib/chat-adapters";
-import { findModelById } from "@/lib/models";
-import { useChatStore } from "@/store/chat-store";
 import { useChat } from "@ai-sdk/react";
 import { AssistantRuntimeProvider } from "@assistant-ui/react";
 import {
@@ -13,6 +8,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { UIMessage } from "ai";
 import { useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
+import { useModels } from "@/hooks/use-models";
+import { useTRPC } from "@/integrations/trpc/react";
+import { compositeAdapter } from "@/lib/chat-adapters";
+import { findModelById } from "@/lib/models";
+import { useChatStore } from "@/store/chat-store";
 
 interface ChatRuntimeProviderProps {
 	children: React.ReactNode;

@@ -6,7 +6,11 @@ import {
 	MessagePrimitive,
 	ThreadPrimitive,
 } from "@assistant-ui/react";
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+	useMutation,
+	useQueryClient,
+	useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
 	ArrowDownIcon,
 	ArrowUpIcon,
@@ -20,8 +24,9 @@ import {
 	RefreshCwIcon,
 	Square,
 } from "lucide-react";
-import { type FC, useState } from "react";
-
+import { domAnimation, LazyMotion, MotionConfig } from "motion/react";
+import * as m from "motion/react-m";
+import { type FC, useEffect, useState } from "react";
 import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import {
 	ComposerAddAttachment,
@@ -42,10 +47,6 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/store/chat-store";
 import { useNewChatStore } from "@/store/new-chat-store";
-import { useMutation } from "@tanstack/react-query";
-import { LazyMotion, MotionConfig, domAnimation } from "motion/react";
-import * as m from "motion/react-m";
-import { useEffect } from "react";
 import { AppLogo } from "../AppLogo";
 import ToolsSelector from "../chat/tools-selector";
 import { MCPIcon } from "../icons";

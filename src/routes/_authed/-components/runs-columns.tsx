@@ -1,12 +1,12 @@
+import type { ColumnDef } from "@tanstack/react-table";
+import { formatDistanceToNow } from "date-fns";
+import { Bot, CircleDashed, Eye, Server } from "lucide-react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { McpRun } from "@/db/schema";
-import type { ColumnDef } from "@tanstack/react-table";
-import { formatDistanceToNow } from "date-fns";
-import { Bot, CircleDashed, Eye, Server } from "lucide-react";
 
 export type RunsTableData = McpRun & {
 	server: {

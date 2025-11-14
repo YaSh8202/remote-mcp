@@ -1,9 +1,9 @@
 "use client";
 
-import { cn } from "@/lib/utils";
 import type { SyntaxHighlighterProps as AUIProps } from "@assistant-ui/react-markdown";
 import type { FC } from "react";
 import ShikiHighlighter, { type ShikiHighlighterProps } from "react-shiki";
+import { cn } from "@/lib/utils";
 
 /**
  * Props for the SyntaxHighlighter component

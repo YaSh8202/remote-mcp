@@ -1,3 +1,12 @@
+import {
+	AttachmentPrimitive,
+	ComposerPrimitive,
+	MessagePrimitive,
+	useAttachment,
+} from "@assistant-ui/react";
+import { FileText, PlusIcon, XIcon } from "lucide-react";
+import { type FC, type PropsWithChildren, useEffect, useState } from "react";
+import { useShallow } from "zustand/shallow";
 import { TooltipIconButton } from "@/components/assistant-ui/tooltip-icon-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -12,15 +21,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import {
-	AttachmentPrimitive,
-	ComposerPrimitive,
-	MessagePrimitive,
-	useAttachment,
-} from "@assistant-ui/react";
-import { FileText, PlusIcon, XIcon } from "lucide-react";
-import { type FC, type PropsWithChildren, useEffect, useState } from "react";
-import { useShallow } from "zustand/shallow";
 
 const useFileSrc = (file: File | undefined) => {
 	const [src, setSrc] = useState<string | undefined>(undefined);

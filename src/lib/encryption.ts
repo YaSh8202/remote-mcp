@@ -1,7 +1,6 @@
 import * as crypto from "node:crypto";
-import { env } from "@/env";
-
 import { z } from "zod/v4";
+import { env } from "@/env";
 
 export const EncryptedObject = z.object({
 	iv: z.string(),

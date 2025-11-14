@@ -21,6 +21,9 @@ export const AppLogo = ({
 				src={logo.url}
 				alt={appName}
 				className={className}
+				loading="lazy"
+				decoding="async"
+				style={{ objectFit: "contain" }}
 				onError={(e) => {
 					const target = e.target as HTMLImageElement;
 					target.src = "/favicon.ico";

@@ -1,6 +1,6 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { BraveSearch } from "brave-search";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { braveAuth } from "../common";
 
 const newsSearchSchema = {

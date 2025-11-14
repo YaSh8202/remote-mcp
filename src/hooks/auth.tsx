@@ -1,5 +1,5 @@
-import { authQueries } from "@/services/queries";
 import { useQuery } from "@tanstack/react-query";
+import { authQueries } from "@/services/queries";
 
 export const useUserSession = () => {
 	const { data: userSession } = useQuery(authQueries.user());

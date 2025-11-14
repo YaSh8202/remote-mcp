@@ -126,7 +126,7 @@ const Theme = ({
 				? defaultTheme
 				: null;
 			const colorScheme = colorSchemes.includes(resolved) ? resolved : fallback;
-			// @ts-ignore
+			// @ts-expect-error
 			d.style.colorScheme = colorScheme;
 		}
 
@@ -144,7 +144,7 @@ const Theme = ({
 			// Save to storage
 			try {
 				localStorage.setItem(storageKey, newTheme);
-			} catch (e) {
+			} catch (_e) {
 				// Unsupported
 			}
 		},
@@ -309,7 +309,7 @@ const getTheme = (key: string, fallback?: string) => {
 	let theme: string | undefined;
 	try {
 		theme = localStorage.getItem(key) || undefined;
-	} catch (e) {
+	} catch (_e) {
 		// Unsupported
 	}
 	return theme || fallback;
@@ -397,7 +397,7 @@ export const script: (...args: any[]) => void = (
 			const isSystem = enableSystem && themeName === "system";
 			const theme = isSystem ? getSystemTheme() : themeName;
 			updateDOM(theme);
-		} catch (e) {
+		} catch (_e) {
 			//
 		}
 	}

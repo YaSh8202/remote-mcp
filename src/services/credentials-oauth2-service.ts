@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/auth";
 import { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
 import { AppConnectionType } from "@/db/schema";
@@ -8,7 +9,6 @@ import type {
 	OAuth2ConnectionValueWithApp,
 	RefreshOAuth2Request,
 } from "@/types/app-connection";
-import axios, { AxiosError } from "axios";
 import { oauth2Util } from "../integrations/trpc/router/app-connection/oauth2-util";
 
 const log = console;

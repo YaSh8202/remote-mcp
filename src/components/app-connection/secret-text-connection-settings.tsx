@@ -1,3 +1,7 @@
+import { KeyRound } from "lucide-react";
+import React from "react";
+import { useFormContext } from "react-hook-form";
+import { z } from "zod/v4";
 import type { SecretTextProperty } from "@/app/mcp/mcp-app/property";
 import {
 	FormControl,
@@ -8,10 +12,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { UpsertSecretTextRequest } from "@/types/app-connection";
-import { KeyRound } from "lucide-react";
-import React from "react";
-import { useFormContext } from "react-hook-form";
-import { z } from "zod/v4";
 
 type SecretTextConnectionSettingsProps = {
 	authProperty: SecretTextProperty<boolean>;

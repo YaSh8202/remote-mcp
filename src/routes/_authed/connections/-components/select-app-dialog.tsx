@@ -1,3 +1,5 @@
+import { useQuery } from "@tanstack/react-query";
+import { Plus } from "lucide-react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
@@ -10,8 +12,6 @@ import {
 	DialogTitle,
 } from "@/components/ui/dialog";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import { Plus } from "lucide-react";
 
 interface SelectAppDialogProps {
 	open: boolean;

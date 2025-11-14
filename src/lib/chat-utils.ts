@@ -1,10 +1,10 @@
-import type { Chat, Message, MessageRole } from "@/db/schema";
-import { MessageStatus } from "@/db/schema";
 import type {
 	ExternalStoreThreadData,
 	ThreadMessageLike,
 } from "@assistant-ui/react";
-import { type UIMessage, createIdGenerator } from "ai";
+import { createIdGenerator, type UIMessage } from "ai";
+import type { Chat, Message, MessageRole } from "@/db/schema";
+import { MessageStatus } from "@/db/schema";
 
 export const generateMessageId = createIdGenerator({
 	prefix: "msg",
