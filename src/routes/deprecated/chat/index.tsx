@@ -1,6 +1,9 @@
-"use client";
-
 import { useChat } from "@ai-sdk/react";
+import {
+	AssistantRuntimeProvider,
+	ComposerPrimitive,
+} from "@assistant-ui/react";
+import { useAISDKRuntime } from "@assistant-ui/react-ai-sdk";
 import {
 	useMutation,
 	useQueryClient,
@@ -8,33 +11,20 @@ import {
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { DefaultChatTransport, type UIMessage } from "ai";
-import { Plus } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import {
-	Conversation,
-	ConversationContent,
-	ConversationEmptyState,
-} from "@/components/ai-elements/conversation";
-import {
-	PromptInput,
-	PromptInputAttachment,
-	PromptInputAttachments,
-	PromptInputBody,
-	PromptInputFooter,
-	PromptInputSubmit,
-	PromptInputTextarea,
-	PromptInputTools,
-} from "@/components/ai-elements/prompt-input";
+	ComposerAddAttachment,
+	ComposerAttachments,
+} from "@/components/assistant-ui/attachment";
+import { SendButton, Thread } from "@/components/assistant-ui/thread";
 import { FreeTierProviders } from "@/components/free-tier-providers";
-import { ModelSelector } from "@/components/model-selector";
-import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
 import { useNewChatStore } from "@/store/new-chat-store";
 import { LLMProvider } from "@/types/models";
 
-export const Route = createFileRoute("/_authed/chat/")({
+export const Route = createFileRoute("/deprecated/chat/")({
 	component: ChatPage,
 });
 
@@ -53,11 +43,6 @@ function ChatPage() {
 	const [addKeyDialogOpen, setAddKeyDialogOpen] = useState(false);
 	const [selectedProvider, setSelectedProvider] = useState<LLMProvider>(
 		LLMProvider.GITHUB_MODELS,
-	);
-
-	// State for model selection
-	const [selectedModel, setSelectedModel] = useState<string>(
-		"github-models:gpt-4o-mini",
 	);
 
 	// New chat store for managing servers before chat creation
@@ -171,6 +156,8 @@ function ChatPage() {
 		},
 	});
 
+	const runtime = useAISDKRuntime(chat);
+
 	usePageHeader({
 		breadcrumbs: [
 			{
@@ -188,115 +175,38 @@ function ChatPage() {
 		llmProviders?.map((p) => p.provider as LLMProvider) || [];
 
 	return (
-		<div className="flex h-full overflow-hidden">
-			<div className="flex-1 h-full overflow-hidden flex flex-col">
-				{hasProviders ? (
-					<>
-						<Conversation className="flex-1">
-							<ConversationContent>
-								<ConversationEmptyState
-									title="Start a new conversation"
-									description="Send a message to begin chatting with AI"
+		<AssistantRuntimeProvider runtime={runtime}>
+			<div className="flex h-full overflow-hidden">
+				<div className="flex-1 h-full overflow-hidden">
+					{hasProviders ? (
+						<Thread isNewChat={true} />
+					) : (
+						<div className="max-w-4xl mx-auto flex flex-col h-full">
+							<div className="flex-1 overflow-y-auto">
+								<FreeTierProviders onProviderSelect={handleProviderSelect} />
+							</div>
+							<ComposerPrimitive.Root className="aui-composer-root relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-[0_9px_9px_0px_rgba(0,0,0,0.01),0_2px_5px_0px_rgba(0,0,0,0.06)] dark:border-muted-foreground/15">
+								<ComposerAttachments />
+								<ComposerPrimitive.Input
+									placeholder="Please add an LLM API key to start chatting..."
+									className="aui-composer-input mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground focus:outline-primary"
+									rows={1}
+									autoFocus
+									aria-label="Message input"
+									disabled={true}
 								/>
-							</ConversationContent>
-						</Conversation>
-
-						{/* Input area */}
-						<div className="sticky bottom-0 mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 bg-background">
-							<PromptInput
-								accept="image/*"
-								multiple
-								onSubmit={async ({ text, files }) => {
-									if (!text.trim() && files.length === 0) return;
-
-									await chat.append({
-										role: "user",
-										parts: [
-											...files.map((file) => ({
-												type: "file" as const,
-												url: file.url,
-												mediaType: file.mediaType,
-												filename: file.filename,
-											})),
-											...(text.trim()
-												? [{ type: "text" as const, text: text.trim() }]
-												: []),
-										],
-									});
-								}}
-								className="relative flex w-full flex-col rounded-3xl border border-border bg-muted shadow-sm"
-							>
-								<PromptInputBody>
-									<PromptInputAttachments>
-										{(attachment) => (
-											<PromptInputAttachment
-												key={attachment.id}
-												data={attachment}
-											/>
-										)}
-									</PromptInputAttachments>
-
-									<PromptInputTextarea
-										placeholder="Send a message..."
-										className="mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground"
-										rows={1}
-										autoFocus
-									/>
-
-									<PromptInputFooter>
-										<PromptInputTools>
-											<ModelSelector
-												selectedModel={selectedModel}
-												onModelSelect={setSelectedModel}
-											/>
-										</PromptInputTools>
-
-										<PromptInputSubmit status={chat.status} />
-									</PromptInputFooter>
-								</PromptInputBody>
-							</PromptInput>
-						</div>
-					</>
-				) : (
-					<div className="max-w-4xl mx-auto flex flex-col h-full">
-						<div className="flex-1 overflow-y-auto">
-							<FreeTierProviders onProviderSelect={handleProviderSelect} />
-						</div>
-						<div className="sticky bottom-0 mx-auto flex w-full max-w-3xl flex-col gap-4 p-4 bg-background">
-							<div className="relative flex w-full flex-col rounded-3xl border border-border bg-muted px-1 pt-2 shadow-sm">
-								<div className="mb-1 max-h-32 min-h-16 w-full resize-none bg-transparent px-3.5 pt-1.5 pb-3 text-base outline-none placeholder:text-muted-foreground text-muted-foreground flex items-center">
-									Please add an LLM API key to start chatting...
-								</div>
-								<div className="relative mx-1 mt-2 mb-2 flex items-center justify-between">
+								<div className="aui-composer-action-wrapper relative mx-1 mt-2 mb-2 flex items-center justify-between">
 									<div className="flex items-center gap-0.5">
-										<Button variant="ghost" size="icon-sm" disabled>
-											<Plus className="size-4" />
-										</Button>
+										<ComposerAddAttachment disabled />
 									</div>
 									<div className="flex items-center gap-2">
-										<Button size="icon-sm" disabled>
-											<svg
-												className="size-4"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												viewBox="0 0 24 24"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<title>Send</title>
-												<path
-													d="m5 12 7-7 7 7M12 5v14"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												/>
-											</svg>
-										</Button>
+										<SendButton disabled={true} />
 									</div>
 								</div>
-							</div>
+							</ComposerPrimitive.Root>
 						</div>
-					</div>
-				)}
+					)}
+				</div>
 			</div>
 
 			<AddLLMKeyDialog
@@ -305,6 +215,6 @@ function ChatPage() {
 				existingProviders={existingProviders}
 				initialProvider={selectedProvider}
 			/>
-		</div>
+		</AssistantRuntimeProvider>
 	);
 }

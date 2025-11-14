@@ -22,11 +22,13 @@ import { Route as AuthedRunsRouteImport } from './routes/_authed/runs'
 import { Route as AuthedChatRouteImport } from './routes/_authed/chat'
 import { Route as DotwellKnownOauthProtectedResourceRouteImport } from './routes/[.]well-known/oauth-protected-resource'
 import { Route as DotwellKnownMcpDotjsonRouteImport } from './routes/[.]well-known/mcp[.]json'
+import { Route as DeprecatedChatIndexRouteImport } from './routes/deprecated/chat/index'
 import { Route as ApiChatIndexRouteImport } from './routes/api/chat/index'
 import { Route as AuthedServersIndexRouteImport } from './routes/_authed/servers/index'
 import { Route as AuthedConnectionsIndexRouteImport } from './routes/_authed/connections/index'
 import { Route as AuthedChatIndexRouteImport } from './routes/_authed/chat/index'
 import { Route as AuthedAppsIndexRouteImport } from './routes/_authed/apps/index'
+import { Route as DeprecatedChatChatIdRouteImport } from './routes/deprecated/chat/$chatId'
 import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
 import { Route as ApiOauthTokenRouteImport } from './routes/api/oauth/token'
 import { Route as ApiOauthRegisterRouteImport } from './routes/api/oauth/register'
@@ -105,6 +107,11 @@ const DotwellKnownMcpDotjsonRoute = DotwellKnownMcpDotjsonRouteImport.update({
   path: '/.well-known/mcp.json',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeprecatedChatIndexRoute = DeprecatedChatIndexRouteImport.update({
+  id: '/deprecated/chat/',
+  path: '/deprecated/chat/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatIndexRoute = ApiChatIndexRouteImport.update({
   id: '/api/chat/',
   path: '/api/chat/',
@@ -129,6 +136,11 @@ const AuthedAppsIndexRoute = AuthedAppsIndexRouteImport.update({
   id: '/apps/',
   path: '/apps/',
   getParentRoute: () => AuthedRouteRoute,
+} as any)
+const DeprecatedChatChatIdRoute = DeprecatedChatChatIdRouteImport.update({
+  id: '/deprecated/chat/$chatId',
+  path: '/deprecated/chat/$chatId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
   id: '/api/trpc/$',
@@ -217,11 +229,13 @@ export interface FileRoutesByFullPath {
   '/api/oauth/register': typeof ApiOauthRegisterRoute
   '/api/oauth/token': typeof ApiOauthTokenRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/deprecated/chat/$chatId': typeof DeprecatedChatChatIdRoute
   '/apps': typeof AuthedAppsIndexRoute
   '/chat/': typeof AuthedChatIndexRoute
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
   '/api/chat': typeof ApiChatIndexRoute
+  '/deprecated/chat': typeof DeprecatedChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -247,11 +261,13 @@ export interface FileRoutesByTo {
   '/api/oauth/register': typeof ApiOauthRegisterRoute
   '/api/oauth/token': typeof ApiOauthTokenRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/deprecated/chat/$chatId': typeof DeprecatedChatChatIdRoute
   '/apps': typeof AuthedAppsIndexRoute
   '/chat': typeof AuthedChatIndexRoute
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
   '/api/chat': typeof ApiChatIndexRoute
+  '/deprecated/chat': typeof DeprecatedChatIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -280,11 +296,13 @@ export interface FileRoutesById {
   '/api/oauth/register': typeof ApiOauthRegisterRoute
   '/api/oauth/token': typeof ApiOauthTokenRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
+  '/deprecated/chat/$chatId': typeof DeprecatedChatChatIdRoute
   '/_authed/apps/': typeof AuthedAppsIndexRoute
   '/_authed/chat/': typeof AuthedChatIndexRoute
   '/_authed/connections/': typeof AuthedConnectionsIndexRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
   '/api/chat/': typeof ApiChatIndexRoute
+  '/deprecated/chat/': typeof DeprecatedChatIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -313,11 +331,13 @@ export interface FileRouteTypes {
     | '/api/oauth/register'
     | '/api/oauth/token'
     | '/api/trpc/$'
+    | '/deprecated/chat/$chatId'
     | '/apps'
     | '/chat/'
     | '/connections'
     | '/servers'
     | '/api/chat'
+    | '/deprecated/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -343,11 +363,13 @@ export interface FileRouteTypes {
     | '/api/oauth/register'
     | '/api/oauth/token'
     | '/api/trpc/$'
+    | '/deprecated/chat/$chatId'
     | '/apps'
     | '/chat'
     | '/connections'
     | '/servers'
     | '/api/chat'
+    | '/deprecated/chat'
   id:
     | '__root__'
     | '/'
@@ -375,11 +397,13 @@ export interface FileRouteTypes {
     | '/api/oauth/register'
     | '/api/oauth/token'
     | '/api/trpc/$'
+    | '/deprecated/chat/$chatId'
     | '/_authed/apps/'
     | '/_authed/chat/'
     | '/_authed/connections/'
     | '/_authed/servers/'
     | '/api/chat/'
+    | '/deprecated/chat/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -402,7 +426,9 @@ export interface RootRouteChildren {
   ApiOauthRegisterRoute: typeof ApiOauthRegisterRoute
   ApiOauthTokenRoute: typeof ApiOauthTokenRoute
   ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
+  DeprecatedChatChatIdRoute: typeof DeprecatedChatChatIdRoute
   ApiChatIndexRoute: typeof ApiChatIndexRoute
+  DeprecatedChatIndexRoute: typeof DeprecatedChatIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -498,6 +524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownMcpDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/deprecated/chat/': {
+      id: '/deprecated/chat/'
+      path: '/deprecated/chat'
+      fullPath: '/deprecated/chat'
+      preLoaderRoute: typeof DeprecatedChatIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat/': {
       id: '/api/chat/'
       path: '/api/chat'
@@ -532,6 +565,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/apps'
       preLoaderRoute: typeof AuthedAppsIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
+    }
+    '/deprecated/chat/$chatId': {
+      id: '/deprecated/chat/$chatId'
+      path: '/deprecated/chat/$chatId'
+      fullPath: '/deprecated/chat/$chatId'
+      preLoaderRoute: typeof DeprecatedChatChatIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/trpc/$': {
       id: '/api/trpc/$'
@@ -682,7 +722,9 @@ const rootRouteChildren: RootRouteChildren = {
   ApiOauthRegisterRoute: ApiOauthRegisterRoute,
   ApiOauthTokenRoute: ApiOauthTokenRoute,
   ApiTrpcSplatRoute: ApiTrpcSplatRoute,
+  DeprecatedChatChatIdRoute: DeprecatedChatChatIdRoute,
   ApiChatIndexRoute: ApiChatIndexRoute,
+  DeprecatedChatIndexRoute: DeprecatedChatIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
