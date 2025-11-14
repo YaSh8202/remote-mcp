@@ -1,7 +1,7 @@
 import {
 	checkSavedAlbumsTool,
-	getAlbumTracksTool,
 	getAlbumsTool,
+	getAlbumTracksTool,
 	saveOrRemoveAlbumsTool,
 } from "./albums";
 import {

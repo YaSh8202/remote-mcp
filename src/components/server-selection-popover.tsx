@@ -1,3 +1,6 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -7,9 +10,6 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
 import { ExternalMCPIcon } from "./icons";
 import { ExternalServerForm } from "./server-selection/external-server-form";
 import { ServerList } from "./server-selection/server-list";

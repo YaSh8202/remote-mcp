@@ -1,3 +1,14 @@
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+	Activity,
+	Calendar,
+	Globe,
+	Plus,
+	Server,
+	Settings,
+	Zap,
+} from "lucide-react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
@@ -13,17 +24,6 @@ import {
 import type { McpApp, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-	Activity,
-	Calendar,
-	Globe,
-	Plus,
-	Server,
-	Settings,
-	Zap,
-} from "lucide-react";
 
 export const Route = createFileRoute("/_authed/servers/")({
 	component: RouteComponent,

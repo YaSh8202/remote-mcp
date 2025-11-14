@@ -1,5 +1,5 @@
-import { Pool } from "pg";
 import type { PoolClient, QueryResult } from "pg";
+import { Pool } from "pg";
 
 export interface PostgreSQLResult {
 	rows: Array<Record<string, unknown>>;
@@ -112,7 +112,7 @@ export class PostgreSQLClient {
 		try {
 			const result = await this.query("SELECT 1 as test");
 			return result.rows.length === 1 && result.rows[0].test === 1;
-		} catch (error) {
+		} catch (_error) {
 			return false;
 		}
 	}

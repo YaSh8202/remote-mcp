@@ -1,11 +1,3 @@
-import { mcpApps } from "@/app/mcp/apps";
-import { db } from "@/db";
-import { AppConnectionType } from "@/db/schema";
-import { env } from "@/env";
-import { oauthServer } from "@/lib/oauth2";
-import { appConnectionService } from "@/services/app-connection-service";
-import { userSettingsService } from "@/services/user-settings-service";
-import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 import {
 	OAuthError,
 	Request as OAuthRequest,
@@ -17,6 +9,14 @@ import { StreamableHTTPServerTransport } from "@socotra/modelcontextprotocol-sdk
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { toFetchResponse, toReqRes } from "fetch-to-node";
+import { mcpApps } from "@/app/mcp/apps";
+import { db } from "@/db";
+import { AppConnectionType } from "@/db/schema";
+import { env } from "@/env";
+import { oauthServer } from "@/lib/oauth2";
+import { appConnectionService } from "@/services/app-connection-service";
+import { userSettingsService } from "@/services/user-settings-service";
+import type { AppConnection, ConnectionValue } from "@/types/app-connection";
 
 type McpServerWithApps = Awaited<
 	ReturnType<typeof db.query.mcpServer.findFirst>

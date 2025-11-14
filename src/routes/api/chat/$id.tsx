@@ -1,3 +1,34 @@
+import {
+	type AnthropicProviderOptions,
+	createAnthropic,
+} from "@ai-sdk/anthropic";
+import {
+	createGoogleGenerativeAI,
+	type GoogleGenerativeAIProviderOptions,
+} from "@ai-sdk/google";
+import { createGroq, type GroqProviderOptions } from "@ai-sdk/groq";
+import { createMistral } from "@ai-sdk/mistral";
+import {
+	createOpenAI,
+	type OpenAIResponsesProviderOptions,
+} from "@ai-sdk/openai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
+import { createFileRoute } from "@tanstack/react-router";
+import {
+	convertToModelMessages,
+	experimental_createMCPClient as createMCPClient,
+	smoothStream,
+	stepCountIs,
+	streamText,
+	type ToolSet,
+	type UIMessage,
+	validateUIMessages,
+} from "ai";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { chatMcpServers, mcpServer } from "@/db/schema";
+import { env } from "@/env";
 import { auth } from "@/lib/auth";
 import { generateMessageId } from "@/lib/chat-utils";
 import {
@@ -10,39 +41,6 @@ import {
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
-import {
-	type AnthropicProviderOptions,
-	createAnthropic,
-} from "@ai-sdk/anthropic";
-import {
-	type GoogleGenerativeAIProviderOptions,
-	createGoogleGenerativeAI,
-} from "@ai-sdk/google";
-import { type GroqProviderOptions, createGroq } from "@ai-sdk/groq";
-import { createMistral } from "@ai-sdk/mistral";
-import {
-	type OpenAIResponsesProviderOptions,
-	createOpenAI,
-} from "@ai-sdk/openai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	type ToolSet,
-	type UIMessage,
-	convertToModelMessages,
-	smoothStream,
-	stepCountIs,
-	streamText,
-	validateUIMessages,
-} from "ai";
-
-import { db } from "@/db";
-import { chatMcpServers, mcpServer } from "@/db/schema";
-import { env } from "@/env";
-import { eq } from "drizzle-orm";
-
-import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
-import { experimental_createMCPClient as createMCPClient } from "ai";
 
 export const Route = createFileRoute("/api/chat/$id")({
 	server: {

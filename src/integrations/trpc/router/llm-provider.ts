@@ -1,3 +1,4 @@
+import { z } from "zod/v4";
 import {
 	addLLMProviderKey,
 	deleteLLMProviderKey,
@@ -9,7 +10,6 @@ import {
 	validateApiKey,
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
-import { z } from "zod/v4";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 export const llmProviderRouter = createTRPCRouter({

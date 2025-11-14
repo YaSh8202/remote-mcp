@@ -4,9 +4,9 @@
  */
 
 import type {
-	ModelWithProvider,
 	ModelsData,
 	ModelsDevResponse,
+	ModelWithProvider,
 } from "@/types/models";
 import { LLMProvider } from "@/types/models";
 

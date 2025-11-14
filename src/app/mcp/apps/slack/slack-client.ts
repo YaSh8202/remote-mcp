@@ -1,6 +1,6 @@
+import { WebClient } from "@slack/web-api";
 import type { OAuth2Props } from "@/app/mcp/mcp-app/property";
 import type { OAuth2Property } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
-import { WebClient } from "@slack/web-api";
 import type { McpRequestHandlerExtra } from "../../mcp-app/tools";
 
 /**

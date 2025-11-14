@@ -1,7 +1,8 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { BadgeCheck, ChevronsUpDown, LogOut } from "lucide-react";
-
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -20,8 +21,6 @@ import {
 } from "@/components/ui/sidebar";
 import { useUserSession } from "@/hooks/auth";
 import { signOut } from "@/lib/auth-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "@tanstack/react-router";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
 

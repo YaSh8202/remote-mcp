@@ -1,7 +1,7 @@
-import i18n from "@/lib/i18n";
 import { type ReactNode, useEffect } from "react";
 import { I18nextProvider } from "react-i18next";
 import { useLocalStorage } from "usehooks-ts";
+import i18n from "@/lib/i18n";
 
 interface I18nProviderProps {
 	children: ReactNode;

@@ -1,3 +1,6 @@
+import * as Sentry from "@sentry/tanstackstart-react";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
 	accounts,
@@ -9,9 +12,6 @@ import {
 	userSettings,
 	users,
 } from "@/db/schema";
-import * as Sentry from "@sentry/tanstackstart-react";
-import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
 import { protectedProcedure } from "../init";
 
 export const userRouter = {

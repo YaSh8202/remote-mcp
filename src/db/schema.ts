@@ -1,6 +1,6 @@
-import type { LLMProvider } from "@/types/models";
 import { relations } from "drizzle-orm";
 import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import type { LLMProvider } from "@/types/models";
 
 export const users = pgTable("users", {
 	id: text("id").primaryKey(),

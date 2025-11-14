@@ -1,7 +1,3 @@
-import { db } from "@/db";
-import { oauthClients } from "@/db/schema";
-import { auth } from "@/lib/auth";
-import { oauthServer } from "@/lib/oauth2";
 import {
 	Response as NodeOAuthResponse,
 	Request,
@@ -9,6 +5,10 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { oauthClients } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { oauthServer } from "@/lib/oauth2";
 
 export const Route = createFileRoute("/api/oauth/authorize")({
 	server: {

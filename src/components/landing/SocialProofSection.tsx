@@ -1,5 +1,5 @@
-import { MdiGithub } from "@/app/mcp/apps/icons";
 import { motion } from "framer-motion";
+import { MdiGithub } from "@/app/mcp/apps/icons";
 
 export function SocialProofSection() {
 	return (

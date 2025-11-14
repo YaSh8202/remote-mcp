@@ -1,7 +1,7 @@
-import { cn } from "@/lib/utils";
 import JsonView from "@uiw/react-json-view";
 import { githubDarkTheme } from "@uiw/react-json-view/githubDark";
 import { githubLightTheme } from "@uiw/react-json-view/githubLight";
+import { cn } from "@/lib/utils";
 import { useTheme } from "../theme-provider";
 
 interface JsonViewerProps {

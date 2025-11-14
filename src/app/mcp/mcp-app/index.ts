@@ -109,8 +109,8 @@ type CreateMcpAppParams<
 
 // Re-export types for external use
 export type {
-	McpAppMetadata,
+	McpAppBase,
 	McpAppCategory,
 	McpAppLogo,
-	McpAppBase,
+	McpAppMetadata,
 } from "./app-metadata";
