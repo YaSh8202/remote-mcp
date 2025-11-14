@@ -38,6 +38,7 @@ export function HeroSection() {
 							animate={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.8 }}
 							className="text-left space-y-8"
+							style={{ willChange: "opacity, transform" }}
 						>
 							{/* Logo */}
 							<motion.div
@@ -159,6 +160,7 @@ export function HeroSection() {
 							animate={{ opacity: 1, x: 0 }}
 							transition={{ duration: 0.8, delay: 0.4 }}
 							className="relative"
+							style={{ willChange: "opacity, transform" }}
 						>
 							{/* Video Container */}
 							<div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700 overflow-hidden shadow-2xl">
@@ -188,9 +190,9 @@ export function HeroSection() {
 											{/* Overlay Text */}
 											<div className="absolute bottom-4 left-4 right-4">
 												<div className="bg-black/40 backdrop-blur-sm rounded-lg p-3 border border-white/20">
-													<h3 className="text-white font-semibold text-sm mb-1">
+													<p className="text-white font-semibold text-sm mb-1">
 														See Remote MCP in Action
-													</h3>
+													</p>
 													<p className="text-gray-300 text-xs">
 														Watch how to connect AI agents to external tools in
 														minutes
@@ -207,6 +209,7 @@ export function HeroSection() {
 												autoPlay
 												muted
 												playsInline
+												preload="metadata"
 												title="Demo: See Remote MCP in Action – how to connect AI agents to external tools in minutes"
 												onEnded={() => {
 													setIsVideoPlaying(false);

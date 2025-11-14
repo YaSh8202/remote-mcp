@@ -200,10 +200,11 @@ export function AvailableAppsSection() {
 														duration: 0.5,
 														delay: categoryIndex * 0.1 + appIndex * 0.05,
 													}}
-													viewport={{ once: true }}
+													viewport={{ once: true, margin: "100px" }}
 													whileHover={{ scale: 1.05 }}
 													onClick={() => setActive(app)}
 													className="bg-neutral-900 border border-neutral-800 rounded-lg p-6 hover:border-neutral-700 transition-all duration-300 cursor-pointer group relative"
+													style={{ willChange: "transform" }}
 												>
 													<div className="flex items-center space-x-4 mb-4 relative z-10">
 														<AppLogo

@@ -44,6 +44,28 @@ import { useLocalStorage } from "usehooks-ts";
 
 export const Route = createFileRoute("/_authed/settings")({
 	component: RouteComponent,
+	head: () => ({
+		meta: [
+			{
+				title: "Settings - Remote MCP",
+			},
+			{
+				name: "description",
+				content:
+					"Manage your Remote MCP account settings, configure AI providers, adjust MCP server preferences, and customize your experience.",
+			},
+			{
+				name: "robots",
+				content: "noindex, nofollow",
+			},
+		],
+		links: [
+			{
+				rel: "canonical",
+				href: "https://remotemcp.tech/settings",
+			},
+		],
+	}),
 });
 
 function RouteComponent() {
