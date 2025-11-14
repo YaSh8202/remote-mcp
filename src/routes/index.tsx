@@ -88,6 +88,19 @@ export const Route = createFileRoute("/")({
 					content: "width=device-width, initial-scale=1",
 				},
 			],
+			links: [
+				// Preload critical assets
+				{
+					rel: "preload",
+					href: "/logo512.png",
+					as: "image",
+				},
+				// Preconnect to external domains
+				{
+					rel: "preconnect",
+					href: "https://github.com",
+				},
+			],
 		};
 	},
 });

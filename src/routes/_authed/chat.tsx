@@ -5,6 +5,28 @@ import { Suspense } from "react";
 
 export const Route = createFileRoute("/_authed/chat")({
 	component: ChatLayout,
+	head: () => ({
+		meta: [
+			{
+				title: "Chat - Remote MCP",
+			},
+			{
+				name: "description",
+				content:
+					"Chat with AI assistants powered by Remote MCP servers. Test your MCP integrations with Claude, GPT-4, and other AI models.",
+			},
+			{
+				name: "robots",
+				content: "noindex, nofollow",
+			},
+		],
+		links: [
+			{
+				rel: "canonical",
+				href: "https://remotemcp.tech/chat",
+			},
+		],
+	}),
 });
 
 const ChatSkeleton = () => (

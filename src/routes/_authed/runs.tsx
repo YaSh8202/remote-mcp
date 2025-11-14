@@ -9,6 +9,28 @@ import { RunsTable } from "./-components/runs-table";
 export const Route = createFileRoute("/_authed/runs")({
 	component: RunsPage,
 	validateSearch: runsSearchSchema,
+	head: () => ({
+		meta: [
+			{
+				title: "Runs - Remote MCP",
+			},
+			{
+				name: "description",
+				content:
+					"View and monitor your MCP server execution logs, track tool invocations, and debug AI assistant interactions.",
+			},
+			{
+				name: "robots",
+				content: "noindex, nofollow",
+			},
+		],
+		links: [
+			{
+				rel: "canonical",
+				href: "https://remotemcp.tech/runs",
+			},
+		],
+	}),
 });
 
 function RunsPage() {
