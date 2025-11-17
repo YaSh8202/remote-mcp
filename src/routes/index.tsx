@@ -89,12 +89,6 @@ export const Route = createFileRoute("/")({
 				},
 			],
 			links: [
-				// Preload critical assets
-				{
-					rel: "preload",
-					href: "/logo512.png",
-					as: "image",
-				},
 				// Preconnect to external domains
 				{
 					rel: "preconnect",
