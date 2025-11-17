@@ -19,6 +19,7 @@ const config = defineConfig({
       externals: {
         inline: ['zod', 'nanoid'],
       },
+      compatibilityDate: '2025-11-13'
     }),
     viteReact(),
   ],

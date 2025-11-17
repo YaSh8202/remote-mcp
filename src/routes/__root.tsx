@@ -44,13 +44,34 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "Remote Mcp",
+				title: "Remote MCP - Cloud MCP Servers for AI Assistants",
+			},
+			{
+				name: "description",
+				content:
+					"Connect AI assistants like Claude and Cursor to your favorite apps. Create and manage MCP servers in the cloud with 159+ tools across GitHub, Slack, YouTube, PostgreSQL, and more.",
+			},
+			{
+				name: "robots",
+				content: "index, follow",
+			},
+			{
+				name: "theme-color",
+				content: "#000000",
 			},
 		],
 		links: [
 			{
 				rel: "stylesheet",
 				href: appCss,
+			},
+			{
+				rel: "icon",
+				href: "/favicon.ico",
+			},
+			{
+				rel: "canonical",
+				href: "https://remotemcp.tech",
 			},
 		],
 	}),

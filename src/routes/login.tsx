@@ -39,6 +39,28 @@ export const Route = createFileRoute("/login")({
 	validateSearch: z.object({
 		from: z.string().optional(),
 	}),
+	head: () => ({
+		meta: [
+			{
+				title: "Login - Remote MCP",
+			},
+			{
+				name: "description",
+				content:
+					"Sign in to Remote MCP to manage your cloud MCP servers and connect AI assistants to your favorite apps. Login with GitHub or Google.",
+			},
+			{
+				name: "robots",
+				content: "noindex, nofollow",
+			},
+		],
+		links: [
+			{
+				rel: "canonical",
+				href: "https://remotemcp.tech/login",
+			},
+		],
+	}),
 });
 
 // Schema for form validation

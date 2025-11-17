@@ -88,6 +88,13 @@ export const Route = createFileRoute("/")({
 					content: "width=device-width, initial-scale=1",
 				},
 			],
+			links: [
+				// Preconnect to external domains
+				{
+					rel: "preconnect",
+					href: "https://github.com",
+				},
+			],
 		};
 	},
 });

@@ -1,3 +1,11 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /chat
+Disallow: /settings
+Disallow: /runs
+Disallow: /servers
+Disallow: /api/
+Disallow: /login
+
+Sitemap: https://remotemcp.tech/sitemap.xml
