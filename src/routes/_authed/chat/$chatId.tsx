@@ -1,12 +1,20 @@
-import { Thread } from "@/components/assistant-ui/thread";
-import { ChatRuntimeProvider } from "@/components/chat-runtime-provider";
+import { Thread } from "@/components/chat-ui/thread";
 import { Button } from "@/components/ui/button";
+import { ChatProvider } from "@/contexts/chat-context";
+import type { Chat, ChatMcpServer, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
 import { dbMessageToUIMessage } from "@/lib/chat-utils";
 import { usePageHeader } from "@/store/header-store";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import { useMemo } from "react";
+
+type ChatWithMcpServers = Chat & {
+	mcpServers?: Array<{
+		chatMcpServer: ChatMcpServer;
+		mcpServerData: McpServer | null;
+	}>;
+};
 
 export const Route = createFileRoute("/_authed/chat/$chatId")({
 	loader: async ({ context, params }) => {
@@ -86,7 +94,7 @@ function ChatPageWithId() {
 	const trpc = useTRPC();
 
 	const { data } = useSuspenseQuery({
-		enabled: chatId,
+		enabled: !!chatId,
 		...trpc.chat.getWithMessages.queryOptions({
 			chatId: chatId,
 		}),
@@ -117,13 +125,18 @@ function ChatPageWithId() {
 		}),
 	});
 
+	const chatWithServers: ChatWithMcpServers = {
+		...chat,
+		mcpServers: chatMcpServers,
+	};
+
 	return (
-		<ChatRuntimeProvider chatId={chatId} messages={uiMessages}>
+		<ChatProvider chatId={chatId} initialMessages={uiMessages}>
 			<div className="flex h-full overflow-hidden">
 				<div className="flex-1 h-full overflow-hidden">
-					<Thread currentChat={{ ...chat, mcpServers: chatMcpServers }} />
+					<Thread currentChat={chatWithServers} />
 				</div>
 			</div>
-		</ChatRuntimeProvider>
+		</ChatProvider>
 	);
 }
