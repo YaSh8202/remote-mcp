@@ -29,7 +29,7 @@ const OAuthProp = z.union([
 type OAuthProp =
 	| ShortTextProperty<boolean>
 	| SecretTextProperty<boolean>
-	// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// biome-ignore lint/suspicious/noExplicitAny: static dropdown needs any
 	| StaticDropdownProperty<any, true>;
 
 export const OAuth2Props = z.record(z.string(), OAuthProp);
@@ -75,7 +75,7 @@ export const OAuth2PropertyValue = z.object({
 	data: z.record(z.string(), z.any()),
 });
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: needed for generic type
 export type OAuth2PropertyValue<T extends OAuth2Props = any> = {
 	access_token: string;
 	props?: OAuthPropsValue<T>;

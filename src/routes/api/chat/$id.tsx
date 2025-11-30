@@ -7,6 +7,7 @@ import {
 	type GoogleGenerativeAIProviderOptions,
 } from "@ai-sdk/google";
 import { createGroq, type GroqProviderOptions } from "@ai-sdk/groq";
+import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import { createMistral } from "@ai-sdk/mistral";
 import {
 	createOpenAI,
@@ -17,7 +18,6 @@ import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
-	experimental_createMCPClient as createMCPClient,
 	smoothStream,
 	stepCountIs,
 	streamText,
@@ -25,6 +25,7 @@ import {
 	type UIMessage,
 	validateUIMessages,
 } from "ai";
+
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { chatMcpServers, mcpServer } from "@/db/schema";
@@ -180,14 +181,12 @@ export const Route = createFileRoute("/api/chat/$id")({
 						);
 
 						// Delete all messages after the user message
-						for (const msg of messagesAfterUser) {
-							if (msg.id) {
-								await deleteMessageAndAfter(
-									currentChatId,
-									msg.id,
-									session.user.id,
-								);
-							}
+						if (messagesAfterUser.length > 0) {
+							await deleteMessageAndAfter(
+								currentChatId,
+								messagesAfterUser[0].id,
+								session.user.id,
+							);
 						}
 
 						// Reload messages after deletion

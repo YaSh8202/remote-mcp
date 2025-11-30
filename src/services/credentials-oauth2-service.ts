@@ -24,7 +24,7 @@ export const credentialsOauth2Service = {
 			};
 			switch (grantType) {
 				case OAuth2GrantType.AUTHORIZATION_CODE: {
-					// biome-ignore lint/style/noNonNullAssertion: <explanation>
+					// biome-ignore lint/style/noNonNullAssertion: redirectUrl is guaranteed to be present for authorization code grant type
 					body.redirect_uri = request.redirectUrl!;
 					body.code = request.code;
 					break;
@@ -53,7 +53,7 @@ export const credentialsOauth2Service = {
 			switch (authorizationMethod) {
 				case OAuth2AuthorizationMethod.BODY:
 					body.client_id = request.clientId;
-					// biome-ignore lint/style/noNonNullAssertion: <explanation>
+					// biome-ignore lint/style/noNonNullAssertion: clientSecret is guaranteed to be present when using BODY authorization method
 					body.client_secret = request.clientSecret!;
 					break;
 				case OAuth2AuthorizationMethod.HEADER:

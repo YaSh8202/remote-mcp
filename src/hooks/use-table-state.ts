@@ -91,7 +91,7 @@ export function useTableState({
 			}
 
 			navigate({
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: TanStack Router's search param types are complex and require type assertion for partial updates
 				search: newSearchParams as any,
 				replace: true,
 			});

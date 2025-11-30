@@ -55,6 +55,7 @@ export function ChatRuntimeProvider({
 			},
 			api: `/api/chat/${chatId}`,
 		}),
+
 		messages: messages,
 		onFinish: () => {
 			queryClient.invalidateQueries({

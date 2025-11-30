@@ -91,7 +91,7 @@ const Theme = ({
 	const attrs = !value ? themes : Object.values(value);
 
 	// apply selected theme function (light, dark, system)
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: Dependencies like value, attribute, and enableColorScheme are stable props and don't need to trigger re-creation
 	const applyTheme = React.useCallback((theme: string | undefined) => {
 		let resolved = theme;
 		if (!resolved) return;
@@ -134,9 +134,9 @@ const Theme = ({
 	}, []);
 
 	// Set theme state and save to local storage
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: storageKey is a stable prop and doesn't need to trigger re-creation
 	const setTheme = React.useCallback(
-		// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+		// biome-ignore lint/suspicious/noExplicitAny: Matches React.SetStateAction<string> signature which accepts function or value
 		(value: any) => {
 			const newTheme = typeof value === "function" ? value(theme) : value;
 			setThemeState(newTheme);
@@ -151,7 +151,7 @@ const Theme = ({
 		[theme],
 	);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: enableSystem and applyTheme are stable and don't need to trigger re-creation
 	const handleMediaQuery = React.useCallback(
 		(e: MediaQueryListEvent | MediaQueryList) => {
 			const newSystemTheme = getSystemTheme(e);
@@ -176,7 +176,7 @@ const Theme = ({
 	}, [handleMediaQuery]);
 
 	// localStorage event handling, allow to sync theme changes between tabs
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: storageKey and defaultTheme are stable props and don't need to trigger re-run
 	React.useEffect(() => {
 		const handleStorage = (e: StorageEvent) => {
 			if (e.key !== storageKey) {
@@ -193,7 +193,7 @@ const Theme = ({
 	}, [setTheme]);
 
 	// Whenever theme or forcedTheme changes, apply it
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// biome-ignore lint/correctness/useExhaustiveDependencies: applyTheme is a stable callback and doesn't need to trigger re-run
 	React.useEffect(() => {
 		applyTheme(forcedTheme ?? theme);
 	}, [forcedTheme, theme]);
@@ -347,7 +347,7 @@ export const getSystemTheme = (e?: MediaQueryList | MediaQueryListEvent) => {
   next-themes can be found at https://github.com/pacocoursey/next-themes under the MIT license.
 */
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Inline script function accepts variable arguments that are JSON-serialized from props
 export const script: (...args: any[]) => void = (
 	attribute,
 	storageKey,

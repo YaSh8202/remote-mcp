@@ -379,7 +379,7 @@ export function PromptInputAttachments({
 
 	return (
 		<div
-			className={cn("flex flex-wrap items-center gap-2 p-3", className)}
+			className={cn("flex flex-wrap items-start gap-2 p-3", className)}
 			{...props}
 		>
 			{attachments.files.map((file) => (

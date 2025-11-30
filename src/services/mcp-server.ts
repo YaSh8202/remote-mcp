@@ -1,6 +1,6 @@
+import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
 import { createServerFn } from "@tanstack/react-start";
-import { experimental_createMCPClient as createMCPClient } from "ai";
 import { z } from "zod/v4";
 import { db } from "@/db";
 import { env } from "@/env";

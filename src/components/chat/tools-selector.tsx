@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
 import { useTRPC } from "@/integrations/trpc/react";
+import { cn } from "@/lib/utils";
 import type { ToolDescription } from "@/services/mcp-server";
 import { IconoirTools } from "../icons";
 import { Button } from "../ui/button";
@@ -108,7 +109,12 @@ function ToolsSelector() {
 	return (
 		<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
 			<SheetTrigger asChild>
-				<Button variant="ghost" className="justify-between px-0">
+				<Button
+					variant="ghost"
+					className={cn("justify-between px-0", {
+						hidden: selectedToolsCount === 0 && !isLoading,
+					})}
+				>
 					<div className="flex items-center gap-2 truncate">
 						<span className="text-sm">
 							<IconoirTools />
