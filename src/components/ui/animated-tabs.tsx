@@ -1,9 +1,9 @@
 "use client";
 
-import { type Tab, useAnimatedTabs } from "@/hooks/use-animated-tabs";
-import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "motion/react";
 import React from "react";
+import { type Tab, useAnimatedTabs } from "@/hooks/use-animated-tabs";
+import { cn } from "@/lib/utils";
 
 interface AnimatedTabsProps {
 	tabs: Tab[];

@@ -1,3 +1,8 @@
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link2, Plus } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { NewConnectionDialog } from "@/components/app-connection/new-connection-dialog";
 import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
@@ -6,14 +11,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
-import { Link2, Plus } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import {
-	type ConnectionWithUsage,
 	ConnectionsTable,
+	type ConnectionWithUsage,
 } from "./-components/connections-table";
 import { EditConnectionDialog } from "./-components/edit-connection-dialog";
 import { SelectAppDialog } from "./-components/select-app-dialog";

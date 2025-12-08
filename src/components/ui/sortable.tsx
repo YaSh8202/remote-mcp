@@ -2,20 +2,20 @@
 
 import {
 	type Announcements,
+	closestCenter,
+	closestCorners,
 	DndContext,
 	type DndContextProps,
 	type DragEndEvent,
-	DragOverlay,
 	type DraggableSyntheticListeners,
+	DragOverlay,
 	type DropAnimation,
+	defaultDropAnimationSideEffects,
 	KeyboardSensor,
 	MouseSensor,
 	type ScreenReaderInstructions,
 	TouchSensor,
 	type UniqueIdentifier,
-	closestCenter,
-	closestCorners,
-	defaultDropAnimationSideEffects,
 	useSensor,
 	useSensors,
 } from "@dnd-kit/core";
@@ -25,10 +25,10 @@ import {
 	restrictToVerticalAxis,
 } from "@dnd-kit/modifiers";
 import {
-	SortableContext,
-	type SortableContextProps,
 	arrayMove,
 	horizontalListSortingStrategy,
+	SortableContext,
+	type SortableContextProps,
 	sortableKeyboardCoordinates,
 	useSortable,
 	verticalListSortingStrategy,
@@ -36,10 +36,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
-
+import * as ReactDOM from "react-dom";
 import { composeEventHandlers, useComposedRefs } from "@/lib/composition";
 import { cn } from "@/lib/utils";
-import * as ReactDOM from "react-dom";
 
 const orientationConfig = {
 	vertical: {

@@ -1,5 +1,7 @@
 "use client";
 
+import { BookOpen, ExternalLink, Settings } from "lucide-react";
+import { useState } from "react";
 import { ClaudeAI, Cursor, VisualStudioCode } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,8 +11,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { BookOpen, ExternalLink, Settings } from "lucide-react";
-import { useState } from "react";
 import { ClaudeConnectionModal } from "./claude-connection-modal";
 import { OtherClientsModal } from "./other-clients-modal";
 

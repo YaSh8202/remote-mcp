@@ -1,8 +1,8 @@
+import { ExternalLink, Gift, Sparkles } from "lucide-react";
 import { ProviderLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LLMProvider } from "@/types/models";
-import { ExternalLink, Gift, Sparkles } from "lucide-react";
 
 interface FreeTierProvider {
 	provider: LLMProvider;

@@ -1,4 +1,3 @@
-import { useDebounce } from "@/hooks/use-debounce";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type {
 	ColumnFiltersState,
@@ -8,6 +7,7 @@ import type {
 	VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export interface TableSearchParams {
 	page: number;

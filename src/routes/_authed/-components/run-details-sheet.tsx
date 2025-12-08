@@ -1,3 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from "date-fns";
+import { AlertCircle, CheckCircle, Clock, Server, Wrench } from "lucide-react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Badge } from "@/components/ui/badge";
@@ -13,9 +16,6 @@ import {
 } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import { formatDistanceToNow } from "date-fns";
-import { AlertCircle, CheckCircle, Clock, Server, Wrench } from "lucide-react";
 import type { RunsTableData } from "./runs-columns";
 
 interface RunDetailsSheetProps {

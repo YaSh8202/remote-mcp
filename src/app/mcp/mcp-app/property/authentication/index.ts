@@ -2,8 +2,8 @@ import { z } from "zod/v4";
 import { PropertyType } from "../input/property-type";
 import { BasicAuthProperty } from "./basic-auth-prop";
 import { CustomAuthProperty, type CustomAuthProps } from "./custom-auth-prop";
-import { OAuth2Property } from "./oauth2-prop";
 import type { OAuth2Props } from "./oauth2-prop";
+import { OAuth2Property } from "./oauth2-prop";
 import { SecretTextProperty } from "./secret-text-property";
 
 export const McpAppAuthProperty = z.union([

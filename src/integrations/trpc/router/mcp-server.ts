@@ -1,9 +1,9 @@
-import { db } from "@/db";
-import { mcpServer } from "@/db/schema";
-import { TRPCError } from "@trpc/server";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { count, eq } from "drizzle-orm";
 import { z } from "zod/v4";
+import { db } from "@/db";
+import { mcpServer } from "@/db/schema";
 import { protectedProcedure } from "../init";
 
 export const findMcpServer = async (id: string, userId: string) => {

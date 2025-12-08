@@ -1,6 +1,6 @@
+import { useQuery } from "@tanstack/react-query";
 import { getModelsData } from "@/lib/models-dev";
 import type { ModelsData } from "@/types/models";
-import { useQuery } from "@tanstack/react-query";
 
 // Fallback empty data to prevent crashes when API is unavailable
 const FALLBACK_MODELS_DATA: ModelsData = {

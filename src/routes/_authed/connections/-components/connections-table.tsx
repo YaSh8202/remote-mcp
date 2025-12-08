@@ -1,3 +1,18 @@
+import { useQuery } from "@tanstack/react-query";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+	type ColumnFiltersState,
+	getCoreRowModel,
+	getFilteredRowModel,
+	getPaginationRowModel,
+	getSortedRowModel,
+	type SortingState,
+	useReactTable,
+	type VisibilityState,
+} from "@tanstack/react-table";
+import { formatDistanceToNow } from "date-fns";
+import { Edit, Link, MoreHorizontal, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { AppLogo } from "@/components/AppLogo";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
@@ -12,21 +27,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { AppConnectionStatus } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-	type ColumnFiltersState,
-	type SortingState,
-	type VisibilityState,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	useReactTable,
-} from "@tanstack/react-table";
-import { formatDistanceToNow } from "date-fns";
-import { Edit, Link, MoreHorizontal, Trash2 } from "lucide-react";
-import { useState } from "react";
 import { ConnectionsTableToolbar } from "./connections-table-toolbar";
 
 export interface ConnectionWithUsage {

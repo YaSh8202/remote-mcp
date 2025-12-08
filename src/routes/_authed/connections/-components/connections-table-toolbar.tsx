@@ -1,11 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
+import type { Table } from "@tanstack/react-table";
+import { Search, X } from "lucide-react";
 import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter";
 import { DataTableViewOptions } from "@/components/data-table/data-table-view-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useQuery } from "@tanstack/react-query";
-import type { Table } from "@tanstack/react-table";
-import { Search, X } from "lucide-react";
 import type { ConnectionWithUsage } from "./connections-table";
 
 interface ConnectionsTableToolbarProps {

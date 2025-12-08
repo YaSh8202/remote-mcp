@@ -1,3 +1,4 @@
+import { Globe } from "lucide-react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import {
@@ -7,7 +8,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { Globe } from "lucide-react";
 
 interface AvailableAppsProps {
 	appsMetadata: McpAppMetadata[];

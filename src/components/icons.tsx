@@ -1,6 +1,6 @@
+import type { SVGProps } from "react";
 import { MdiGithub } from "@/app/mcp/apps/icons";
 import { LLMProvider } from "@/types/models";
-import type { SVGProps } from "react";
 export const MCPIcon = (props: SVGProps<SVGSVGElement>) => (
 	<svg
 		xmlns="http://www.w3.org/2000/svg"

@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
 	type NewUserSettings,
@@ -5,7 +6,6 @@ import {
 	userSettings,
 } from "@/db/schema";
 import { generateId } from "@/lib/id";
-import { eq } from "drizzle-orm";
 
 export interface CreateUserSettingsInput {
 	userId: string;

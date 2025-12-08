@@ -1,5 +1,5 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { slackAuth } from "../common";
 import { createSlackClient, formatSlackError } from "../slack-client";
 

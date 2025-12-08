@@ -1,3 +1,6 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	Collapsible,
@@ -7,9 +10,6 @@ import {
 import type { ChatMcpServer, McpServer } from "@/db/schema";
 import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
-import { useState } from "react";
 
 interface ToolsSelectionSheetProps {
 	chatId: string;

@@ -1,3 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { ExternalLink, Key, Loader2, Shield } from "lucide-react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod/v4";
 import { ProviderLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,13 +33,6 @@ import {
 import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { LLMProvider } from "@/types/models";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Key, Loader2, Shield } from "lucide-react";
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod/v4";
 
 const formSchema = z.object({
 	provider: z.nativeEnum(LLMProvider),
