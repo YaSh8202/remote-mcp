@@ -11,7 +11,6 @@ import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import {
 	Conversation,
 	ConversationContent,
-	ConversationEmptyState,
 	ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
@@ -24,9 +23,9 @@ import {
 	PromptInputSubmit,
 	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
-import { Suggestion, Suggestions } from "@/components/ai-elements/suggestion";
 import { AttachFileButton } from "@/components/chat/attach-file-button";
 import { ServerSelectionBar } from "@/components/chat/server-selection-bar";
+import { SuggestionCard } from "@/components/chat/suggestion-card";
 import { FreeTierProviders } from "@/components/free-tier-providers";
 import { ModelSelector } from "@/components/model-selector";
 import { useTRPC } from "@/integrations/trpc/react";
@@ -40,10 +39,22 @@ export const Route = createFileRoute("/_authed/chat/")({
 });
 
 const EXAMPLE_SUGGESTIONS = [
-	"Help me debug this code",
-	"Generate a SQL query",
-	"Explain this concept",
-	"Review my pull request",
+	{
+		title: "What's the weather",
+		description: "in San Francisco?",
+	},
+	{
+		title: "Help me write an essay",
+		description: "about AI chat applications",
+	},
+	{
+		title: "What are the advantages",
+		description: "of using Assistant Cloud?",
+	},
+	{
+		title: "Write code to",
+		description: "demonstrate topological sorting",
+	},
 ];
 
 function ChatPage() {
@@ -178,8 +189,9 @@ function ChatPage() {
 
 	// Handle suggestion click
 	const handleSuggestionClick = useCallback(
-		async (suggestion: string) => {
-			await handleNewChatSubmit({ text: suggestion, files: [] });
+		async (title: string, description: string) => {
+			const fullText = `${title} ${description}`;
+			await handleNewChatSubmit({ text: fullText, files: [] });
 		},
 		[handleNewChatSubmit],
 	);
@@ -219,58 +231,45 @@ function ChatPage() {
 		<div className="flex h-full flex-col overflow-hidden">
 			<div className="flex-1 overflow-hidden">
 				<Conversation className="h-full">
-					<ConversationContent className="max-w-4xl mx-auto">
+					<ConversationContent className="max-w-4xl mx-auto flex flex-col h-full">
 						{hasProviders ? (
-							<ConversationEmptyState className="min-h-[60vh]">
-								<div className="space-y-8 w-full max-w-2xl">
-									{/* Welcome Section */}
-									<div className="space-y-3 text-center">
-										<div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-2">
-											<svg
-												className="w-8 h-8 text-primary"
-												fill="none"
-												stroke="currentColor"
-												viewBox="0 0 24 24"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<title>Chat Icon</title>
-												<path
-													strokeLinecap="round"
-													strokeLinejoin="round"
-													strokeWidth={2}
-													d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-												/>
-											</svg>
-										</div>
+							<>
+								{/* Welcome Section - at the top */}
+								<div className="pt-8 pb-4">
+									<div className="space-y-2">
 										<h1 className="text-3xl font-bold tracking-tight">
-											Start a conversation
+											Hello there!
 										</h1>
-										<p className="text-muted-foreground text-lg">
-											Ask questions, get help with code, or explore with AI
-											assistants
+										<p className="text-muted-foreground text-base">
+											How can I help you today?
 										</p>
 									</div>
+								</div>
 
-									{/* Suggestions */}
-									<div className="space-y-3">
-										<p className="text-sm text-muted-foreground text-center">
-											Try one of these:
-										</p>
-										<Suggestions className="justify-center">
-											{EXAMPLE_SUGGESTIONS.map((suggestion) => (
-												<Suggestion
-													key={suggestion}
-													suggestion={suggestion}
-													onClick={handleSuggestionClick}
-													className="bg-background hover:bg-accent transition-colors"
-												/>
-											))}
-										</Suggestions>
+								{/* Spacer to push suggestions to bottom */}
+								<div className="flex-1" />
+
+								{/* Suggestion Cards - positioned at bottom above input */}
+								<div className="pb-4">
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-4xl mx-auto">
+										{EXAMPLE_SUGGESTIONS.map((suggestion) => (
+											<SuggestionCard
+												key={suggestion.title}
+												title={suggestion.title}
+												description={suggestion.description}
+												onClick={() =>
+													handleSuggestionClick(
+														suggestion.title,
+														suggestion.description,
+													)
+												}
+											/>
+										))}
 									</div>
 
 									{/* MCP Servers Info (if any selected) */}
 									{selectedServerIds.length > 0 && (
-										<div className="rounded-lg border border-border bg-muted/50 p-4">
+										<div className="rounded-lg border border-border bg-muted/50 p-4 mt-4 max-w-4xl mx-auto">
 											<p className="text-sm text-muted-foreground">
 												<span className="font-medium text-foreground">
 													{selectedServerIds.length}
@@ -281,7 +280,7 @@ function ChatPage() {
 										</div>
 									)}
 								</div>
-							</ConversationEmptyState>
+							</>
 						) : (
 							<div className="h-full flex flex-col">
 								<div className="flex-1 overflow-y-auto">
