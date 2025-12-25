@@ -102,7 +102,7 @@ export function NavMain() {
 										</Link>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
-										<SidebarMenuSub>
+										<SidebarMenuSub className="mr-0">
 											<div className="px-2 py-2">
 												<ThreadList />
 											</div>
