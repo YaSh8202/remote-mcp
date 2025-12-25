@@ -1,8 +1,7 @@
 import { useChat } from "@ai-sdk/react";
-import { AssistantChatTransport } from "@assistant-ui/react-ai-sdk";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import type { UIMessage } from "ai";
+import { DefaultChatTransport, type UIMessage } from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import {
@@ -154,7 +153,7 @@ function ChatPageWithId() {
 	// Use useChat hook for message handling
 	const { messages, sendMessage, status, regenerate } = useChat({
 		id: chatId,
-		transport: new AssistantChatTransport({
+		transport: new DefaultChatTransport({
 			prepareSendMessagesRequest: ({ messages, ...rest }) => {
 				if (!model) {
 					throw new Error("Model not selected");
