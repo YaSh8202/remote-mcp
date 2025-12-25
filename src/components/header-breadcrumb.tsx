@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { ChevronRight, MoreHorizontal } from "lucide-react";
 import {
 	Breadcrumb,
 	BreadcrumbItem,
@@ -24,30 +24,48 @@ function HeaderBreadcrumb() {
 			<div className="flex min-w-0 flex-1 items-center gap-2 overflow-hidden">
 				<Breadcrumb>
 					<BreadcrumbList>
-						{breadcrumbs.map((item, index) => (
-							<BreadcrumbItem key={`${item.label}-${index}`}>
-								{item.href ? (
-									<BreadcrumbLink
-										href={item.href}
-										className="max-w-[120px] sm:max-w-[150px] truncate"
-									>
-										{item.label}
-									</BreadcrumbLink>
-								) : (
-									<BreadcrumbPage className="max-w-[120px] sm:max-w-[150px] truncate">
-										{item.label}
-									</BreadcrumbPage>
-								)}
-								{index < breadcrumbs.length - 1 && (
-									<BreadcrumbSeparator className="hidden sm:block" />
-								)}
-							</BreadcrumbItem>
-						))}
+						{breadcrumbs.flatMap((item, index) => {
+							const breadcrumbItem = (
+								<BreadcrumbItem key={`${item.label}-${index}`}>
+									{item.href ? (
+										<BreadcrumbLink
+											href={item.href}
+											className="max-w-[120px] sm:max-w-[150px] truncate"
+										>
+											{item.label}
+										</BreadcrumbLink>
+									) : (
+										<BreadcrumbPage className="max-w-[120px] sm:max-w-[150px] truncate">
+											{item.label}
+										</BreadcrumbPage>
+									)}
+								</BreadcrumbItem>
+							);
+
+							// Add separator after item if not the last one
+							if (index < breadcrumbs.length - 1) {
+								return [
+									breadcrumbItem,
+									<BreadcrumbSeparator
+										key={`separator-${index}`}
+										className="hidden sm:block"
+									/>,
+								];
+							}
+
+							return [breadcrumbItem];
+						})}
 					</BreadcrumbList>
 				</Breadcrumb>
 				{title && (
 					<>
-						<BreadcrumbSeparator className="hidden sm:block" />
+						<div
+							role="presentation"
+							aria-hidden="true"
+							className="hidden sm:block"
+						>
+							<ChevronRight className="size-3.5" />
+						</div>
 						{typeof title === "string" ? (
 							<h1
 								className="truncate text-base font-semibold md:text-lg max-w-[150px] sm:max-w-[200px] md:max-w-none"

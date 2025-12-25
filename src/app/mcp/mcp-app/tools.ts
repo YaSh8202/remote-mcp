@@ -2,14 +2,14 @@ import type {
 	McpServer,
 	RegisteredTool,
 	ToolCallback,
-} from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
-import type { RequestHandlerExtra } from "@socotra/modelcontextprotocol-sdk/shared/protocol.js";
+} from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { RequestHandlerExtra } from "@modelcontextprotocol/sdk/shared/protocol.js";
 import type {
 	CallToolResult,
 	ServerNotification,
 	ServerRequest,
 	ToolAnnotations,
-} from "@socotra/modelcontextprotocol-sdk/types.js";
+} from "@modelcontextprotocol/sdk/types.js";
 import type { ZodRawShape, z } from "zod/v4";
 import { McpRunStatus } from "@/db/schema";
 import { mcpRunService } from "@/services/mcp-run-service";

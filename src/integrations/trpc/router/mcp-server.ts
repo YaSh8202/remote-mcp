@@ -151,7 +151,7 @@ export const mcpServerRouter = {
 			try {
 				// Import the MCP SDK
 				const { StreamableHTTPClientTransport } = await import(
-					"@socotra/modelcontextprotocol-sdk/client/streamableHttp.js"
+					"@modelcontextprotocol/sdk/client/streamableHttp.js"
 				);
 
 				// Create a transport for the external server

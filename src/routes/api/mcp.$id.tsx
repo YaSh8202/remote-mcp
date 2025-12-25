@@ -1,11 +1,11 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
 	OAuthError,
 	Request as OAuthRequest,
 	Response as OAuthResponse,
 	UnauthorizedRequestError,
 } from "@node-oauth/oauth2-server";
-import { McpServer } from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@socotra/modelcontextprotocol-sdk/server/streamableHttp.js";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { toFetchResponse, toReqRes } from "fetch-to-node";

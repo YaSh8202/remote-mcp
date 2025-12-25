@@ -1,7 +1,11 @@
 import { useChat } from "@ai-sdk/react";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
-import { DefaultChatTransport, type UIMessage } from "ai";
+import {
+	DefaultChatTransport,
+	lastAssistantMessageIsCompleteWithApprovalResponses,
+	type UIMessage,
+} from "ai";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import {
@@ -151,36 +155,41 @@ function ChatPageWithId() {
 	}, [modelsData, selectedModel]);
 
 	// Use useChat hook for message handling
-	const { messages, sendMessage, status, regenerate } = useChat({
-		id: chatId,
-		transport: new DefaultChatTransport({
-			prepareSendMessagesRequest: ({ messages, ...rest }) => {
-				if (!model) {
-					throw new Error("Model not selected");
-				}
+	const { messages, sendMessage, status, regenerate, addToolApprovalResponse } =
+		useChat({
+			id: chatId,
+			transport: new DefaultChatTransport({
+				prepareSendMessagesRequest: ({ messages, ...rest }) => {
+					if (!model) {
+						throw new Error("Model not selected");
+					}
 
-				return {
-					body: {
-						message: messages[messages.length - 1],
-						provider: selectedProvider,
-						model,
-						...rest,
-					},
-				};
+					return {
+						body: {
+							message: messages[messages.length - 1],
+							provider: selectedProvider,
+							model,
+							...rest,
+						},
+					};
+				},
+				api: `/api/chat/${chatId}`,
+			}),
+			messages: uiMessages,
+
+			// Auto-continue after all approvals are submitted
+			sendAutomaticallyWhen:
+				lastAssistantMessageIsCompleteWithApprovalResponses,
+
+			onFinish: () => {
+				queryClient.invalidateQueries({
+					queryKey: trpc.chat.getWithMessages.queryKey(),
+				});
 			},
-			api: `/api/chat/${chatId}`,
-		}),
-		messages: uiMessages,
-
-		onFinish: () => {
-			queryClient.invalidateQueries({
-				queryKey: trpc.chat.getWithMessages.queryKey(),
-			});
-		},
-		onError: (error) => {
-			toast.error(`Error sending message: ${error.message}`);
-		},
-	});
+			onError: (error) => {
+				toast.error(`Error sending message: ${error.message}`);
+			},
+		});
 
 	// Handle first message with "pending" status
 	const isFirstMessageSendRef = useRef(false);
@@ -235,6 +244,7 @@ function ChatPageWithId() {
 											messageId: message.id,
 										})
 									}
+									onToolApproval={addToolApprovalResponse}
 								/>
 							))
 						)}

@@ -4,6 +4,15 @@ import type { ChatStatus, UIMessage } from "ai";
 import { CheckIcon, CopyIcon, RefreshCwIcon } from "lucide-react";
 import { useCallback, useState } from "react";
 import {
+	Confirmation,
+	ConfirmationAccepted,
+	ConfirmationAction,
+	ConfirmationActions,
+	ConfirmationRejected,
+	ConfirmationRequest,
+	ConfirmationTitle,
+} from "@/components/ai-elements/confirmation";
+import {
 	Message,
 	MessageAttachment,
 	MessageAttachments,
@@ -35,6 +44,11 @@ export type MessageRendererProps = {
 	isLastMessage: boolean;
 	status: ChatStatus;
 	onRegenerate: () => void;
+	onToolApproval?: (params: {
+		id: string;
+		approved: boolean;
+		reason?: string;
+	}) => void;
 };
 
 export function MessageRenderer({
@@ -42,6 +56,7 @@ export function MessageRenderer({
 	isLastMessage,
 	status,
 	onRegenerate,
+	onToolApproval,
 }: MessageRendererProps) {
 	console.log("🚀 ~ MessageRenderer ~ message:", message);
 	const [copied, setCopied] = useState(false);
@@ -103,19 +118,72 @@ export function MessageRenderer({
 								</Reasoning>
 							);
 
-						case "dynamic-tool": {
+						case "dynamic-tool":
+						// case "tool-${string}"
+						case part.type.startsWith("tool-") ? part.type : null: {
 							// Type guard for tool call
 							if (!("toolCallId" in part)) return null;
 
 							return (
 								<Tool key={partIndex} className="overflow-hidden">
 									<ToolHeader
-										title={part.toolName}
+										title={
+											"toolName" in part
+												? part.toolName
+												: part.type.startsWith("tool-")
+													? part.type.slice(5)
+													: "Tool"
+										}
 										type="tool-call"
 										state={part.state}
 									/>
 									<ToolContent>
 										<ToolInput input={JSON.stringify(part.input, null, 2)} />
+
+										{/* Approval UI */}
+										<Confirmation approval={part.approval} state={part.state}>
+											<ConfirmationRequest>
+												<ConfirmationTitle>
+													This tool requires approval to execute
+												</ConfirmationTitle>
+												<ConfirmationActions>
+													<ConfirmationAction
+														onClick={() => {
+															if (part.approval?.id)
+																onToolApproval?.({
+																	id: part.approval?.id,
+																	approved: true,
+																});
+														}}
+													>
+														Approve
+													</ConfirmationAction>
+													<ConfirmationAction
+														variant="outline"
+														onClick={() => {
+															if (part.approval?.id)
+																onToolApproval?.({
+																	id: part.approval?.id,
+																	approved: false,
+																	reason: "User rejected",
+																});
+														}}
+													>
+														Reject
+													</ConfirmationAction>
+												</ConfirmationActions>
+											</ConfirmationRequest>
+
+											<ConfirmationAccepted>
+												Tool execution approved
+											</ConfirmationAccepted>
+
+											<ConfirmationRejected>
+												Tool execution rejected
+											</ConfirmationRejected>
+										</Confirmation>
+
+										{/* Existing output rendering */}
 										{part.state === "output-available" && (
 											<ToolOutput
 												output={JSON.stringify(part.output, null, 2)}

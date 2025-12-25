@@ -14,7 +14,7 @@ import {
 	type OpenAIResponsesProviderOptions,
 } from "@ai-sdk/openai";
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
@@ -72,6 +72,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 					}: {
 						message: UIMessage;
 						system?: string;
+
 						chatId?: string;
 						provider?: LLMProvider;
 						model?: string;
@@ -239,7 +240,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 						throw new Error("Failed to get or create chat ID");
 					}
 					// Convert UI messages to model messages format (AI SDK v5)
-					const modelMessages = convertToModelMessages(allMessages);
+					const modelMessages = await convertToModelMessages(allMessages);
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
