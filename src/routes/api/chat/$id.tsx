@@ -1,9 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import {
-	convertToModelMessages,
-	smoothStream,
+	createAgentUIStreamResponse,
 	stepCountIs,
-	streamText,
+	ToolLoopAgent,
 	type UIMessage,
 	validateUIMessages,
 } from "ai";
@@ -45,7 +44,6 @@ export const Route = createFileRoute("/api/chat/$id")({
 					// Default: Handle chat streaming
 					const {
 						message,
-						system,
 						provider = LLMProvider.OPENAI, // Default to OpenAI
 						model,
 						trigger,
@@ -219,31 +217,24 @@ export const Route = createFileRoute("/api/chat/$id")({
 						throw new Error("Failed to get or create chat ID");
 					}
 					// Convert UI messages to model messages format (AI SDK v5)
-					const modelMessages = await convertToModelMessages(allMessages);
+					// const modelMessages = await convertToModelMessages(allMessages);
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
 					const tools = await getChatTools(session.user.id, currentChatId);
 
-					const result = streamText({
+					const codeAgent = new ToolLoopAgent({
 						model: aiSdkModel,
-						system,
-						messages: modelMessages,
 						temperature: 0.7,
 						tools,
 						stopWhen: stepCountIs(25),
 						providerOptions: getProviderOptions(),
-						experimental_transform: [
-							smoothStream({
-								chunking: "word",
-							}),
-						],
 					});
 
-					result.consumeStream();
-
 					// Return the UI message stream response (AI SDK v5)
-					return result.toUIMessageStreamResponse({
+					return createAgentUIStreamResponse({
+						agent: codeAgent,
+						uiMessages: allMessages,
 						headers: {
 							"X-Chat-ID": currentChatId, // Include chat ID for frontend navigation
 						},

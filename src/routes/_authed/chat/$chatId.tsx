@@ -242,6 +242,9 @@ function ChatPageWithId() {
 									onRegenerate={() =>
 										regenerate({
 											messageId: message.id,
+											body: {
+												trigger: "regenerate-message",
+											},
 										})
 									}
 									onToolApproval={addToolApprovalResponse}

@@ -331,7 +331,7 @@ export function ChatInputArea({
 								onModelSelect={onModelSelect}
 								disabled={!hasValidKeys}
 							/>
-							<ToolsSelector />
+							{selectedServerIds.length > 0 && <ToolsSelector />}
 						</div>
 						<PromptInputSubmit status={status} />
 					</PromptInputFooter>
