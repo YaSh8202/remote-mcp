@@ -20,8 +20,8 @@ import {
 	PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { AttachFileButton } from "@/components/chat/attach-file-button";
+import ToolsSelector from "@/components/chat/chat-tools-selector";
 import { ServerSelectionBar } from "@/components/chat/server-selection-bar";
-import ToolsSelector from "@/components/chat/tools-selector";
 import { ModelSelector } from "@/components/model-selector";
 import { Button } from "@/components/ui/button";
 import type { ChatMcpServer, McpServer } from "@/db/schema";

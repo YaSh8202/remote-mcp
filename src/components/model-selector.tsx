@@ -165,6 +165,7 @@ export function ModelSelector({
 						aria-expanded={open}
 						className="justify-between max-w-[300px]"
 						disabled={disabled}
+						size={"sm"}
 					>
 						<div className="flex items-center gap-2 truncate">
 							{selectedModelInfo && (
