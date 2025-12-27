@@ -21,7 +21,7 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSub,
 } from "@/components/ui/sidebar";
-import { ThreadList } from "./assistant-ui/thread-list";
+import { ThreadList } from "./chat/thread-list";
 
 const items = [
 	{
