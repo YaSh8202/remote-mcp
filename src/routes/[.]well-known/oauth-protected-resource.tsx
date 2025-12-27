@@ -6,11 +6,7 @@ export const Route = createFileRoute("/.well-known/oauth-protected-resource")({
 	server: {
 		handlers: {
 			GET: async () => {
-				const baseUrl =
-					env.SERVER_URL ||
-					(process.env.NODE_ENV === "production"
-						? "https://remotemcp.tech"
-						: "http://localhost:3000");
+				const baseUrl = env.SERVER_URL;
 
 				return json({
 					resource_name: "Remote MCP",

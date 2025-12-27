@@ -3,7 +3,7 @@ import { z } from "zod/v4";
 
 export const env = createEnv({
 	server: {
-		SERVER_URL: z.url().optional(),
+		SERVER_URL: z.url().optional().default("http://localhost:3000"),
 		DATABASE_URL: z.string().min(1),
 		GOOGLE_CLIENT_ID: z.string().min(1).optional(),
 		GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
@@ -30,7 +30,7 @@ export const env = createEnv({
 
 	client: {
 		VITE_APP_TITLE: z.string().min(1).optional(),
-		VITE_SENTRY_DSN: z.string().url().optional(),
+		VITE_SENTRY_DSN: z.url().optional(),
 		VITE_SENTRY_ORG: z.string().min(1).optional(),
 		VITE_SENTRY_PROJECT: z.string().min(1).optional(),
 	},

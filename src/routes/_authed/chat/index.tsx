@@ -266,19 +266,6 @@ function ChatPage() {
 											/>
 										))}
 									</div>
-
-									{/* MCP Servers Info (if any selected) */}
-									{selectedServerIds.length > 0 && (
-										<div className="rounded-lg border border-border bg-muted/50 p-4 mt-4 max-w-4xl mx-auto">
-											<p className="text-sm text-muted-foreground">
-												<span className="font-medium text-foreground">
-													{selectedServerIds.length}
-												</span>{" "}
-												MCP server{selectedServerIds.length > 1 ? "s" : ""}{" "}
-												selected and ready to use
-											</p>
-										</div>
-									)}
 								</div>
 							</>
 						) : (

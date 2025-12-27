@@ -58,7 +58,6 @@ export function MessageRenderer({
 	onRegenerate,
 	onToolApproval,
 }: MessageRendererProps) {
-	console.log("🚀 ~ MessageRenderer ~ message:", message);
 	const [copied, setCopied] = useState(false);
 
 	const handleCopy = useCallback(async () => {
