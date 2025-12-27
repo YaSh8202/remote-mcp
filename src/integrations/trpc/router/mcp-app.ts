@@ -1,13 +1,13 @@
+import * as Sentry from "@sentry/tanstackstart-react";
+import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
+import { eq } from "drizzle-orm";
+import { z } from "zod/v4";
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { mcpApps as mcpAppsTable } from "@/db/schema";
 import { getOAuthAppSecrets } from "@/env";
 import { isNil } from "@/lib/utils";
-import * as Sentry from "@sentry/tanstackstart-react";
-import { TRPCError } from "@trpc/server";
-import type { TRPCRouterRecord } from "@trpc/server";
-import { eq } from "drizzle-orm";
-import { z } from "zod/v4";
 import { protectedProcedure, publicProcedure } from "../init";
 
 export const mcpAppRouter = {

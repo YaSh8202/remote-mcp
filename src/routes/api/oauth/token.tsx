@@ -1,7 +1,7 @@
-import { oauthServer } from "@/lib/oauth2";
 import { Request, Response } from "@node-oauth/oauth2-server";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { oauthServer } from "@/lib/oauth2";
 
 export const Route = createFileRoute("/api/oauth/token")({
 	server: {

@@ -1,3 +1,7 @@
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -14,11 +18,6 @@ import {
 import { useUserSession } from "@/hooks/auth";
 import { authClient } from "@/lib/auth-client";
 import { authQueries } from "@/services/queries";
-import { useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useRouter } from "@tanstack/react-router";
-import { useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/verify-email")({
 	component: VerifyEmailPage,

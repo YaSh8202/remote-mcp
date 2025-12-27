@@ -1,3 +1,11 @@
+import { useQuery } from "@tanstack/react-query";
+import {
+	createFileRoute,
+	useNavigate,
+	useSearch,
+} from "@tanstack/react-router";
+import { ExternalLink, Shield } from "lucide-react";
+import { z } from "zod/v4";
 import { RemoteMcpLogo } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,14 +17,6 @@ import {
 } from "@/components/ui/card";
 import { useOAuthClient } from "@/hooks/use-oauth-client";
 import { authQueries } from "@/services/queries";
-import { useQuery } from "@tanstack/react-query";
-import {
-	createFileRoute,
-	useNavigate,
-	useSearch,
-} from "@tanstack/react-router";
-import { ExternalLink, Shield } from "lucide-react";
-import { z } from "zod/v4";
 
 const searchSchema = z.object({
 	client_id: z.string().catch(""),

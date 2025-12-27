@@ -3,42 +3,37 @@
 // Block tools
 export {
 	appendBlockChildrenTool,
-	retrieveBlockTool,
-	retrieveBlockChildrenTool,
 	deleteBlockTool,
+	retrieveBlockChildrenTool,
+	retrieveBlockTool,
 	updateBlockTool,
 } from "./blocks";
-
-// Page tools
-export {
-	retrievePageTool,
-	updatePagePropertiesTool,
-} from "./pages";
-
-// User tools
-export {
-	listAllUsersTool,
-	retrieveUserTool,
-	retrieveBotUserTool,
-} from "./users";
-
-// Database tools
-export {
-	createDatabaseTool,
-	queryDatabaseTool,
-	retrieveDatabaseTool,
-	updateDatabaseTool,
-	createDatabaseItemTool,
-} from "./databases";
-
 // Comment tools
 export {
 	createCommentTool,
 	retrieveCommentsTool,
 } from "./comments";
-
+// Database tools
+export {
+	createDatabaseItemTool,
+	createDatabaseTool,
+	queryDatabaseTool,
+	retrieveDatabaseTool,
+	updateDatabaseTool,
+} from "./databases";
+// Page tools
+export {
+	retrievePageTool,
+	updatePagePropertiesTool,
+} from "./pages";
 // Search tools
 export { searchTool } from "./search";
+// User tools
+export {
+	listAllUsersTool,
+	retrieveBotUserTool,
+	retrieveUserTool,
+} from "./users";
 
 // Import tools for the array
 import {
@@ -48,15 +43,7 @@ import {
 	retrieveBlockTool,
 	updateBlockTool,
 } from "./blocks";
-
-import { retrievePageTool, updatePagePropertiesTool } from "./pages";
-
-import {
-	listAllUsersTool,
-	retrieveBotUserTool,
-	retrieveUserTool,
-} from "./users";
-
+import { createCommentTool, retrieveCommentsTool } from "./comments";
 import {
 	createDatabaseItemTool,
 	createDatabaseTool,
@@ -64,10 +51,13 @@ import {
 	retrieveDatabaseTool,
 	updateDatabaseTool,
 } from "./databases";
-
-import { createCommentTool, retrieveCommentsTool } from "./comments";
-
+import { retrievePageTool, updatePagePropertiesTool } from "./pages";
 import { searchTool } from "./search";
+import {
+	listAllUsersTool,
+	retrieveBotUserTool,
+	retrieveUserTool,
+} from "./users";
 
 // All tools array for easy importing
 export const notionTools = [

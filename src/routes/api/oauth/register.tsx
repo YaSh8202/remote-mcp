@@ -1,10 +1,10 @@
 import { randomBytes } from "node:crypto";
-import { db } from "@/db";
-import { OAuthClientGrant, OAuthClientScope, oauthClients } from "@/db/schema";
-import { generateId } from "@/lib/id";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { z } from "zod/v4";
+import { db } from "@/db";
+import { OAuthClientGrant, OAuthClientScope, oauthClients } from "@/db/schema";
+import { generateId } from "@/lib/id";
 
 const registrationSchema = z.object({
 	redirect_uris: z.array(z.string().url()).min(1),

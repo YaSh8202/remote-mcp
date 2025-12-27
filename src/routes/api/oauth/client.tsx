@@ -1,8 +1,8 @@
-import { db } from "@/db";
-import { oauthClients } from "@/db/schema";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { oauthClients } from "@/db/schema";
 
 export const Route = createFileRoute("/api/oauth/client")({
 	server: {

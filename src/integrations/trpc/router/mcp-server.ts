@@ -1,9 +1,10 @@
-import { db } from "@/db";
-import { mcpServer } from "@/db/schema";
-import { TRPCError } from "@trpc/server";
+import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
 import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError } from "@trpc/server";
 import { count, eq } from "drizzle-orm";
 import { z } from "zod/v4";
+import { db } from "@/db";
+import { mcpServer } from "@/db/schema";
 import { protectedProcedure } from "../init";
 
 export const findMcpServer = async (id: string, userId: string) => {
@@ -150,10 +151,7 @@ export const mcpServerRouter = {
 			try {
 				// Import the MCP SDK
 				const { StreamableHTTPClientTransport } = await import(
-					"@socotra/modelcontextprotocol-sdk/client/streamableHttp.js"
-				);
-				const { experimental_createMCPClient: createMCPClient } = await import(
-					"ai"
+					"@modelcontextprotocol/sdk/client/streamableHttp.js"
 				);
 
 				// Create a transport for the external server

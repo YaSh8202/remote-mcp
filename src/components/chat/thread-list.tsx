@@ -79,7 +79,7 @@ const ThreadListNew: FC = () => {
 	return (
 		<Link to="/chat">
 			<Button
-				className="data-active:bg-muted hover:bg-muted flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start"
+				className="data-active:bg-muted hover:bg-muted flex items-center justify-start gap-1 rounded-lg px-2.5 py-2 text-start w-full"
 				variant="ghost"
 			>
 				<PlusIcon />
@@ -145,9 +145,9 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 				activeProps={{
 					"data-active": true,
 				}}
-				className="data-active:bg-muted hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring flex items-center gap-2 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2"
+				className="group/item data-active:bg-muted hover:bg-muted focus-visible:bg-muted focus-visible:ring-ring flex items-center gap-2 rounded-lg transition-all focus-visible:outline-none focus-visible:ring-2"
 			>
-				<span className="flex-grow px-3 py-2 text-start min-w-0">
+				<span className="flex-grow pl-3 py-2 text-start min-w-0">
 					<p className={cn("text-sm truncate")}>{chat.title || "New Chat"}</p>
 				</span>
 
@@ -156,7 +156,7 @@ const ThreadListItem: FC<{ chat: Chat }> = ({ chat }) => {
 						<Button
 							variant="ghost"
 							size="sm"
-							className="hover:text-foreground/60 text-foreground h-8 w-8 p-0"
+							className="hover:text-foreground/60 text-foreground h-8 w-8 p-0 opacity-0 group-hover/item:opacity-100 transition-opacity"
 							onClick={(e) => e.preventDefault()}
 						>
 							<MoreVertical className="h-4 w-4" />

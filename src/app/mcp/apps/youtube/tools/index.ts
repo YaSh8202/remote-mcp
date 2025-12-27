@@ -1,45 +1,4 @@
 // Video management tools
-import {
-	getVideoCommentsTool,
-	getVideoStatsTool,
-	getVideoTool,
-	searchVideosTool,
-} from "./videos";
-
-// Channel management tools
-import {
-	getChannelByUsernameTool,
-	getChannelPlaylistsTool,
-	getChannelTool,
-	getChannelVideosTool,
-	searchChannelsTool,
-} from "./channels";
-
-// Playlist management tools
-import {
-	getPlaylistItemsTool,
-	getPlaylistTool,
-	getPlaylistVideoDetailsTool,
-	searchPlaylistsTool,
-} from "./playlists";
-
-// Transcript management tools
-import {
-	getTranscriptLanguagesTool,
-	getTranscriptSummaryTool,
-	getTranscriptTextTool,
-	getTranscriptTool,
-	searchTranscriptTool,
-} from "./transcripts";
-
-// Analytics tools
-import {
-	compareVideosTool,
-	getChannelAnalyticsTool,
-	getTrendingVideosTool,
-	getVideoAnalyticsTool,
-	getVideoCategoresTool,
-} from "./analytics";
 
 // Analysis tools
 import {
@@ -48,6 +7,43 @@ import {
 	generateTimestampsTool,
 	generateVideoSummaryTool,
 } from "./analysis";
+// Analytics tools
+import {
+	compareVideosTool,
+	getChannelAnalyticsTool,
+	getTrendingVideosTool,
+	getVideoAnalyticsTool,
+	getVideoCategoresTool,
+} from "./analytics";
+// Channel management tools
+import {
+	getChannelByUsernameTool,
+	getChannelPlaylistsTool,
+	getChannelTool,
+	getChannelVideosTool,
+	searchChannelsTool,
+} from "./channels";
+// Playlist management tools
+import {
+	getPlaylistItemsTool,
+	getPlaylistTool,
+	getPlaylistVideoDetailsTool,
+	searchPlaylistsTool,
+} from "./playlists";
+// Transcript management tools
+import {
+	getTranscriptLanguagesTool,
+	getTranscriptSummaryTool,
+	getTranscriptTextTool,
+	getTranscriptTool,
+	searchTranscriptTool,
+} from "./transcripts";
+import {
+	getVideoCommentsTool,
+	getVideoStatsTool,
+	getVideoTool,
+	searchVideosTool,
+} from "./videos";
 
 export const youtubeTools = [
 	// Video management tools

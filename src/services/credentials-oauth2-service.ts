@@ -1,3 +1,4 @@
+import axios, { AxiosError } from "axios";
 import { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/auth";
 import { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
 import { AppConnectionType } from "@/db/schema";
@@ -8,7 +9,6 @@ import type {
 	OAuth2ConnectionValueWithApp,
 	RefreshOAuth2Request,
 } from "@/types/app-connection";
-import axios, { AxiosError } from "axios";
 import { oauth2Util } from "../integrations/trpc/router/app-connection/oauth2-util";
 
 const log = console;
@@ -24,7 +24,7 @@ export const credentialsOauth2Service = {
 			};
 			switch (grantType) {
 				case OAuth2GrantType.AUTHORIZATION_CODE: {
-					// biome-ignore lint/style/noNonNullAssertion: <explanation>
+					// biome-ignore lint/style/noNonNullAssertion: redirectUrl is guaranteed to be present for authorization code grant type
 					body.redirect_uri = request.redirectUrl!;
 					body.code = request.code;
 					break;
@@ -53,7 +53,7 @@ export const credentialsOauth2Service = {
 			switch (authorizationMethod) {
 				case OAuth2AuthorizationMethod.BODY:
 					body.client_id = request.clientId;
-					// biome-ignore lint/style/noNonNullAssertion: <explanation>
+					// biome-ignore lint/style/noNonNullAssertion: clientSecret is guaranteed to be present when using BODY authorization method
 					body.client_secret = request.clientSecret!;
 					break;
 				case OAuth2AuthorizationMethod.HEADER:

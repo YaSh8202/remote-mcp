@@ -1,8 +1,8 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { BraveSearch } from "brave-search";
 import { SafeSearchLevel } from "brave-search/dist/types.js";
 import imageToBase64 from "image-to-base64";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { braveAuth } from "../common";
 
 const imageSearchSchema = {
@@ -62,7 +62,7 @@ export const braveImageSearchTool = createParameterizedTool({
 						data: base64,
 						mimeType: "image/png",
 					});
-				} catch (imageError) {
+				} catch (_imageError) {
 					// If we can't fetch a specific image, continue with the next one
 					imageContents.push({
 						type: "text" as const,

@@ -1,15 +1,3 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
-import { AppLogo } from "@/components/AppLogo";
-import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
-import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { useTRPC } from "@/integrations/trpc/react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
 	Activity,
@@ -22,6 +10,18 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
+import { AppLogo } from "@/components/AppLogo";
+import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
+import { Button } from "@/components/ui/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { useTRPC } from "@/integrations/trpc/react";
 import { AddAppDialog } from "./add-app-dialog";
 import { ConfigureAppDialog } from "./configure-app-dialog";
 

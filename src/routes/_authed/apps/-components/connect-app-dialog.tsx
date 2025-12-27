@@ -1,3 +1,7 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { ChevronLeft, Plus, Server } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { Button } from "@/components/ui/button";
@@ -19,10 +23,6 @@ import {
 } from "@/components/ui/select";
 import type { AppConnectionSchema, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronLeft, Plus, Server } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
 import { NewConnectionDialog } from "../../../../components/app-connection/new-connection-dialog";
 
 interface ConnectAppDialogProps {

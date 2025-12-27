@@ -1,3 +1,14 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import {
+	Activity,
+	AppWindow,
+	ChevronRight,
+	Link2,
+	MessageSquare,
+	Server,
+	Settings2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -10,18 +21,7 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSub,
 } from "@/components/ui/sidebar";
-import { Link, useRouterState } from "@tanstack/react-router";
-import {
-	Activity,
-	AppWindow,
-	ChevronRight,
-	Link2,
-	MessageSquare,
-	Server,
-	Settings2,
-} from "lucide-react";
-import { useEffect, useState } from "react";
-import { ThreadList } from "./assistant-ui/thread-list";
+import { ThreadList } from "./chat/thread-list";
 
 const items = [
 	{
@@ -102,7 +102,7 @@ export function NavMain() {
 										</Link>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
-										<SidebarMenuSub>
+										<SidebarMenuSub className="mr-0">
 											<div className="px-2 py-2">
 												<ThreadList />
 											</div>

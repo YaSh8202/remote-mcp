@@ -1,7 +1,7 @@
 import type {
 	McpServer,
 	RegisteredTool,
-} from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
+} from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import type {
 	McpAppBase,
@@ -109,8 +109,8 @@ type CreateMcpAppParams<
 
 // Re-export types for external use
 export type {
-	McpAppMetadata,
+	McpAppBase,
 	McpAppCategory,
 	McpAppLogo,
-	McpAppBase,
+	McpAppMetadata,
 } from "./app-metadata";

@@ -1,7 +1,7 @@
 import { Gitlab } from "@gitbeaker/rest";
 import { z } from "zod";
-import { gitlabAuth } from ".";
 import { createParameterizedTool } from "../../mcp-app/tools";
+import { gitlabAuth } from ".";
 
 // Helper function to format errors for MCP responses
 const formatErrorResponse = (error: Error) => ({

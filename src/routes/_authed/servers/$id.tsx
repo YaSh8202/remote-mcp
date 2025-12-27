@@ -1,8 +1,3 @@
-import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
-import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
-import EditableText from "@/components/ui/editable-text";
-import { useTRPC } from "@/integrations/trpc/react";
-import { usePageHeader } from "@/store/header-store";
 import {
 	useMutation,
 	useQueryClient,
@@ -11,6 +6,11 @@ import {
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Trash2, Zap } from "lucide-react";
 import { useState } from "react";
+import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
+import { ConfirmationDeleteDialog } from "@/components/delete-dialog";
+import EditableText from "@/components/ui/editable-text";
+import { useTRPC } from "@/integrations/trpc/react";
+import { usePageHeader } from "@/store/header-store";
 import { ConnectedApps, HowToConnect, ServerStatsCards } from "./-components";
 export const Route = createFileRoute("/_authed/servers/$id")({
 	component: RouteComponent,

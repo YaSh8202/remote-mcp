@@ -1,7 +1,7 @@
+import { and, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/db";
 import { chatMcpServers, chats } from "@/db/schema";
 import { generateId } from "@/lib/id";
-import { and, eq, isNotNull } from "drizzle-orm";
 
 /**
  * Migration script to move selectedServers from chat.metadata to chat_mcp_servers table
@@ -55,7 +55,6 @@ async function migrateSelectedServers() {
 
 					// Remove selectedServers from metadata
 					const updatedMetadata = { ...metadata };
-					// biome-ignore lint/performance/noDelete: Need to remove selectedServers property from existing metadata object during migration
 					delete updatedMetadata.selectedServers;
 
 					// Update the chat to remove selectedServers from metadata
