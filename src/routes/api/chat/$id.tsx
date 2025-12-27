@@ -1,35 +1,13 @@
-import {
-	type AnthropicProviderOptions,
-	createAnthropic,
-} from "@ai-sdk/anthropic";
-import {
-	createGoogleGenerativeAI,
-	type GoogleGenerativeAIProviderOptions,
-} from "@ai-sdk/google";
-import { createGroq, type GroqProviderOptions } from "@ai-sdk/groq";
-import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
-import { createMistral } from "@ai-sdk/mistral";
-import {
-	createOpenAI,
-	type OpenAIResponsesProviderOptions,
-} from "@ai-sdk/openai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { createFileRoute } from "@tanstack/react-router";
 import {
 	convertToModelMessages,
 	smoothStream,
 	stepCountIs,
 	streamText,
-	type ToolSet,
 	type UIMessage,
 	validateUIMessages,
 } from "ai";
 
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
-import { chatMcpServers, mcpServer } from "@/db/schema";
-import { env } from "@/env";
 import { auth } from "@/lib/auth";
 import { generateMessageId } from "@/lib/chat-utils";
 import {
@@ -42,6 +20,8 @@ import {
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
+import { getAIModel, getProviderOptions } from "./-libs/models";
+import { getChatTools } from "./-libs/tools";
 
 export const Route = createFileRoute("/api/chat/$id")({
 	server: {
@@ -72,7 +52,6 @@ export const Route = createFileRoute("/api/chat/$id")({
 					}: {
 						message: UIMessage;
 						system?: string;
-
 						chatId?: string;
 						provider?: LLMProvider;
 						model?: string;
@@ -123,7 +102,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 					}
 
 					// Load existing messages from database
-					const { chat, messages: existingMessages } = await loadChat(
+					const { messages: existingMessages } = await loadChat(
 						requestChatId,
 						session.user.id,
 					);
@@ -244,89 +223,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
-					const tools: ToolSet = {};
-
-					// Get chat MCP servers from the new table
-					const chatMcpServersData = await db
-						.select({
-							chatMcpServer: chatMcpServers,
-							mcpServerData: mcpServer,
-						})
-						.from(chatMcpServers)
-						.leftJoin(mcpServer, eq(chatMcpServers.mcpServerId, mcpServer.id))
-						.where(eq(chatMcpServers.chatId, chat.id));
-
-					for (const {
-						chatMcpServer: chatServer,
-						mcpServerData: serverData,
-					} of chatMcpServersData) {
-						if (chatServer.isRemoteMcp && serverData) {
-							// Handle remote MCP server
-							const httpTransport = new StreamableHTTPClientTransport(
-								new URL(`${env.SERVER_URL}/api/mcp/${serverData.token}`),
-								{
-									requestInit: {
-										headers: {
-											"x-API-Key": env.MCP_SERVER_API_KEY,
-											"X-User-Id": session.user.id,
-										},
-									},
-								},
-							);
-
-							const mcpClient = await createMCPClient({
-								transport: httpTransport,
-							});
-
-							const serverTools = await mcpClient.tools();
-
-							// Filter tools based on chat MCP server configuration
-							if (chatServer.includeAllTools) {
-								Object.assign(tools, serverTools);
-							} else if (chatServer.tools && Array.isArray(chatServer.tools)) {
-								// Only include selected tools
-								for (const toolName of chatServer.tools) {
-									if (serverTools[toolName]) {
-										tools[toolName] = serverTools[toolName];
-									}
-								}
-							}
-						} else if (!chatServer.isRemoteMcp && chatServer.config) {
-							// Handle direct MCP server configuration
-							const { url, headers } = chatServer.config;
-							if (url) {
-								const httpTransport = new StreamableHTTPClientTransport(
-									new URL(url),
-									{
-										requestInit: {
-											headers: headers as Record<string, string> | undefined,
-										},
-									},
-								);
-
-								const mcpClient = await createMCPClient({
-									transport: httpTransport,
-								});
-
-								const serverTools = await mcpClient.tools();
-
-								// Filter tools based on chat MCP server configuration
-								if (chatServer.includeAllTools) {
-									Object.assign(tools, serverTools);
-								} else if (
-									chatServer.tools &&
-									Array.isArray(chatServer.tools)
-								) {
-									// Only include selected tools
-									for (const toolName of chatServer.tools) {
-										if (serverTools[toolName]) {
-											tools[toolName] = serverTools[toolName];
-										}
-									}
-								}
-							}
-						}
-					}
+					const tools = await getChatTools(session.user.id, currentChatId);
 
 					const result = streamText({
 						model: aiSdkModel,
@@ -335,25 +232,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 						temperature: 0.7,
 						tools,
 						stopWhen: stepCountIs(25),
-						providerOptions: {
-							openai: {
-								reasoningEffort: "medium",
-								reasoningSummary: "auto",
-								textVerbosity: "medium",
-							} satisfies OpenAIResponsesProviderOptions,
-							anthropic: {
-								thinking: { type: "enabled", budgetTokens: 12000 },
-								sendReasoning: true,
-							} satisfies AnthropicProviderOptions,
-							google: {
-								thinkingConfig: {
-									includeThoughts: true,
-								},
-							} satisfies GoogleGenerativeAIProviderOptions,
-							grok: {
-								reasoningEffort: "medium",
-							} satisfies GroqProviderOptions,
-						},
+						providerOptions: getProviderOptions(),
 						experimental_transform: [
 							smoothStream({
 								chunking: "word",
@@ -394,57 +273,3 @@ export const Route = createFileRoute("/api/chat/$id")({
 		},
 	},
 });
-
-function getAIModel(
-	provider: LLMProvider,
-	model: string | undefined,
-	apiKey: string,
-) {
-	switch (provider) {
-		case LLMProvider.OPENAI:
-			return createOpenAI({
-				apiKey: apiKey,
-			})(model || "gpt-4o-mini");
-
-		case LLMProvider.ANTHROPIC:
-			return createAnthropic({
-				apiKey: apiKey,
-			})(model || "claude-3-5-sonnet-20241022");
-
-		case LLMProvider.GOOGLE:
-			return createGoogleGenerativeAI({
-				apiKey: apiKey,
-			})(model || "gemini-2.0-flash-exp");
-
-		case LLMProvider.MISTRAL:
-			return createMistral({
-				apiKey: apiKey,
-			})(model || "mistral-small-latest");
-
-		case LLMProvider.GROQ:
-			// Groq is OpenAI-compatible, use createOpenAI with Groq's base URL
-			return createGroq({
-				apiKey: apiKey,
-				// baseURL: "https://api.groq.com/openai/v1",
-			})(model || "llama-3.3-70b-versatile");
-
-		case LLMProvider.ALIBABA:
-			// Alibaba Cloud (Qwen) uses OpenAI-compatible API
-			return createOpenAICompatible({
-				apiKey: apiKey,
-				baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-				name: "alibaba",
-			})(model || "qwen3-max");
-
-		case LLMProvider.GITHUB_MODELS:
-			// GitHub Models uses OpenAI-compatible API
-			return createOpenAICompatible({
-				apiKey: apiKey,
-				baseURL: "https://models.github.ai/inference",
-				name: "github-models",
-			})(model || "gpt-4.1-mini");
-
-		default:
-			throw new Error(`Unsupported provider: ${provider}`);
-	}
-}
