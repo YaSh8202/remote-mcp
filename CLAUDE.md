@@ -31,8 +31,9 @@ Remote MCP is a cloud platform for creating Model Context Protocol (MCP) servers
 - **Database:** PostgreSQL + Drizzle ORM
 - **Auth:** Better Auth with OAuth (Google, GitHub)
 - **API:** Dual layer - tRPC + TanStack Router server functions
-- **MCP:** `@socotra/modelcontextprotocol-sdk` for protocol implementation
-- **UI:** shadcn/ui + Tailwind CSS 4
+- **MCP:** `@modelcontextprotocol/sdk` for protocol implementation
+- **AI SDK:** Vercel AI SDK v6.0.1 with `ToolLoopAgent` pattern
+- **UI:** Custom AI Elements component library + shadcn/ui + Tailwind CSS 4
 - **Testing:** Vitest + Testing Library
 
 ### Critical Data Flow
@@ -43,10 +44,112 @@ Remote MCP is a cloud platform for creating Model Context Protocol (MCP) servers
 5. Tool invocations logged to `mcp_run` table
 
 ### MCP Server Endpoint (`/api/mcp/$id`)
-- **Transport:** Server-Sent Events (SSE)
+- **Transport:** Server-Sent Events (SSE) via `StreamableHTTPClientTransport`
 - **Auth:** OAuth 2.1 bearer tokens OR internal API key (`X-API-Key`)
 - **Session caching:** Validated tokens cached in `sessionCache` Map
 - **Tool execution:** Proxied through `src/app/mcp/apps/{app}/tools/`
+
+## AI SDK v6 Integration (Critical Pattern)
+
+**Chat route (`src/routes/api/chat/$id.tsx`)** uses AI SDK v6's `ToolLoopAgent`:
+
+```typescript
+const codeAgent = new ToolLoopAgent({
+	model: aiSdkModel,
+	temperature: 0.7,
+	tools,
+	stopWhen: stepCountIs(25),  // Max 25 tool loop iterations
+	providerOptions: getProviderOptions(),
+});
+
+return createAgentUIStreamResponse({
+	agent: codeAgent,
+	uiMessages: allMessages,  // Uses validateUIMessages(), no manual conversion
+	sendReasoning: true,       // Enables thinking/reasoning tokens
+	onFinish: async ({ messages }) => {
+		await saveChat({ chatId, messages, userId });
+	},
+	generateMessageId,
+});
+```
+
+**Key features:**
+- **UIMessage format:** Messages stored as `parts` arrays (text, file, tool-call, tool-result, reasoning)
+- **Tool approval:** Built-in approval workflow for dangerous tools
+- **Reasoning support:** Automatic handling of Claude's thinking, OpenAI's reasoning, Google's thoughts
+- **Provider options:** Each provider has custom config in `src/routes/api/chat/-libs/models.ts`
+
+**Provider-specific reasoning config:**
+```typescript
+{
+	openai: { reasoningEffort: "medium", textVerbosity: "medium" },
+	anthropic: { thinking: { type: "enabled", budgetTokens: 12000 }, sendReasoning: true },
+	google: { thinkingConfig: { includeThoughts: true } },
+}
+```
+
+## MCP Tools Integration Pattern
+
+**File: `src/routes/api/chat/-libs/tools.ts`**
+
+**Dual MCP server support:**
+1. **Remote MCP servers:** Internal servers created by users (uses `env.MCP_SERVER_API_KEY` for auth)
+2. **External MCP servers:** Direct URL connections with custom headers
+
+**Per-chat tool configuration:**
+- `chatMcpServers` table tracks which tools are enabled per chat
+- Can enable all tools (`includeAllTools: true`) or cherry-pick specific tools
+- Uses `@ai-sdk/mcp` with `StreamableHTTPClientTransport` from `@modelcontextprotocol/sdk`
+
+**Flow:**
+```typescript
+// For each chat, fetch configured MCP servers
+const chatMcpServers = await db.query.chatMcpServers.findMany()
+
+// Connect to each MCP server
+const mcpClient = await createMCPClient({ transport: httpTransport })
+const serverTools = await mcpClient.tools()
+
+// Filter based on chat config
+if (includeAllTools) {
+	Object.assign(tools, serverTools)
+} else {
+	// Only include selected tools
+	tools[toolName] = serverTools[toolName]
+}
+```
+
+## AI Elements Component Library (Custom Chat UI)
+
+**Migration from assistant-ui:**
+- Replaced `@assistant-ui/react` with custom components in `src/components/ai-elements/`
+- 30+ components using composition pattern with context-based state sharing
+- Uses `use-stick-to-bottom` for auto-scroll behavior
+
+**Key components:**
+- **Conversation:** `Conversation`, `ConversationContent`, `ConversationScrollButton`
+- **Message:** `Message`, `MessageContent`, `MessageResponse`, `MessageAttachment`, `MessageBranch`
+- **Prompt:** `PromptInput` with file attachments and drag-and-drop
+- **Tool UI:** `Tool`, `ToolHeader`, `ToolContent`, `ToolInput`, `ToolOutput` with approval states
+- **Reasoning:** `Reasoning`, `ReasoningContent`, `ReasoningTrigger` - collapsible reasoning display
+- **Confirmation:** `Confirmation`, `ConfirmationRequest`, `ConfirmationActions` - tool approval system
+- **Sources:** `Sources`, `SourcesTrigger`, `SourcesContent`, `Source` - citation management
+
+**Component pattern:** All components use composition (e.g., `Message.Content`, `Tool.Header`)
+
+**Message renderer (`src/components/chat/message-renderer.tsx`):**
+```typescript
+message.parts.map((part) => {
+	switch (part.type) {
+		case "text": return <MessageResponse>{part.text}</MessageResponse>
+		case "reasoning": return <Reasoning><ReasoningContent>{part.text}</ReasoningContent></Reasoning>
+		case "tool-${toolName}": // Dynamic tool parts
+		case "dynamic-tool": return <Tool>...</Tool>
+		case "file": return <MessageAttachment data={part} />
+		case "source-url": return <Source href={part.url} />
+	}
+})
+```
 
 ## Routing Patterns
 
@@ -54,6 +157,7 @@ Remote MCP is a cloud platform for creating Model Context Protocol (MCP) servers
 - `src/routes/_authed/` → Protected routes (auth required)
 - `src/routes/api/` → API endpoints
 - `src/routes/[.]well-known/` → OAuth/MCP discovery endpoints
+- `src/routes/api/chat/-libs/` → Route-local utilities (note `-libs` prefix)
 
 **Route params:** Use `$` prefix (e.g., `$id.tsx` → `/servers/:id`)
 
@@ -70,11 +174,11 @@ Remote MCP is a cloud platform for creating Model Context Protocol (MCP) servers
 Use for route-specific logic:
 ```typescript
 export const myFunction = createServerFn({ method: "GET" })
-  .validator(z.object({ id: z.string() }))
-  .middleware([userRequiredMiddleware])
-  .handler(async ({ data, context }) => {
-    // context.userSession available
-  });
+	.validator(z.object({ id: z.string() }))
+	.middleware([userRequiredMiddleware])
+	.handler(async ({ data, context }) => {
+		// context.userSession available
+	});
 ```
 
 **Auth middleware:**
@@ -85,11 +189,11 @@ export const myFunction = createServerFn({ method: "GET" })
 Use for client-side data fetching:
 ```typescript
 export const myRouter = createTRPCRouter({
-  myQuery: protectedProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ ctx, input }) => {
-      // ctx.user and ctx.session available
-    }),
+	myQuery: protectedProcedure
+		.input(z.object({ id: z.string() }))
+		.query(async ({ ctx, input }) => {
+			// ctx.user and ctx.session available
+		}),
 });
 ```
 
@@ -116,22 +220,22 @@ Apps live in `src/app/mcp/apps/{app-name}/`:
 **Tool pattern:**
 ```typescript
 export const myTool = createParameterizedTool({
-  name: "myToolName",
-  auth: myAppAuth,
-  description: "What this tool does",
-  paramsSchema: {
-    param1: z.string().describe("Param description"),
-  },
-  callback: async (args, extra) => {
-    // extra.auth → decrypted OAuth tokens
-    // extra.loggingContext → for audit trail
-    return { content: [{ type: "text", text: "..." }] };
-  },
+	name: "myToolName",
+	auth: myAppAuth,
+	description: "What this tool does",
+	paramsSchema: {
+		param1: z.string().describe("Param description"),
+	},
+	callback: async (args, extra) => {
+		// extra.auth → decrypted OAuth tokens
+		// extra.loggingContext → for audit trail
+		return { content: [{ type: "text", text: "..." }] };
+	},
 });
 ```
 
 **Credential security:**
-- All tokens encrypted via `encryptObject()` from `src/lib/encryption.ts`
+- All tokens encrypted via `encryptObject()` from `src/lib/encryption.ts` (AES-256-CBC)
 - Stored in `app_connection.connectionValue` (JSONB)
 - Never log decrypted credentials
 
@@ -141,15 +245,26 @@ export const myTool = createParameterizedTool({
 
 **Key tables:**
 - `users`, `sessions`, `accounts` → Better Auth
+- `chats`, `messages` → Chat storage with JSONB `parts` arrays (AI SDK v6 format)
+- `chatMcpServers` → Junction table for per-chat tool filtering
 - `mcp_server` → User-created servers with OAuth credentials
 - `app_connection` → Encrypted app credentials
 - `mcp_run` → Tool execution audit log
+- `llmProviderKeys` → User API keys for OpenAI/Anthropic/etc (encrypted)
 - `oauth_clients`, `oauth_access_tokens` → OAuth 2.1 implementation
 
 **Patterns:**
 - Text IDs via `generateId()` from `src/lib/id.ts` OR `ai` package
+- Messages use `createIdGenerator({ prefix: "msg" })` from `ai` package
 - Timestamps: `createdAt`, `updatedAt` with timezone
 - Encrypted data: JSONB columns + `encryptObject()`
+
+**Message storage:**
+```typescript
+// Messages stored with "parts" array (AI SDK v6 format)
+content: jsonb("content").$type<MessagePart[]>().notNull()
+// Parts can be: text, file, tool-call, tool-result, reasoning, source-url, etc.
+```
 
 ## UI Components
 
@@ -159,34 +274,62 @@ pnpx shadcn@latest add <component>
 ```
 
 **Key components:**
+- `src/components/ai-elements/` → Custom chat UI library
+- `src/components/chat/` → App-specific chat components
 - `src/components/app-sidebar.tsx` → Main navigation
 - `src/components/model-selector.tsx` → LLM provider selection
-- `src/components/assistant-ui/` → Chat interface (`@assistant-ui/react`)
 - `src/components/data-table/` → Reusable tables (TanStack Table)
 
 **Styling:** Tailwind CSS 4 with tab indentation (Biome enforced)
 
-## LLM Integration (Vercel AI SDK)
+## LLM Integration (Vercel AI SDK v6)
 
 **Multi-provider support:** 7+ providers via unified interface
-- `src/lib/chat-adapters.ts` → Handles attachments (images, text)
 - `src/lib/models-dev.ts` → Fetches model data from models.dev API (24h cache)
 - `src/types/models.ts` → `LLMProvider` enum with validation
+- `src/routes/api/chat/-libs/models.ts` → Provider-specific reasoning config
 
 **Chat architecture:**
 - Messages stored as JSONB with `MessagePart[]` content
-- Supports tool calls, reasoning, images
-- Use `generateId()` from `ai` package for IDs
+- Supports tool calls, reasoning, images, file attachments
+- Use `generateMessageId` from `ai` package for IDs
 - Token usage tracked in `tokenUsage` field
+
+**State management (Zustand):**
+- `src/store/chat-store.ts` → Model selection (persisted with backward-compatible migration)
+- `src/store/new-chat-store.ts` → Pre-chat server selection
+- `src/store/header-store.ts` → Breadcrumb state
+
+## Key Library Utilities
+
+**`src/lib/chat-utils.ts`:**
+- `generateMessageId` → Uses AI SDK's `createIdGenerator({ prefix: "msg" })`
+
+**`src/lib/composition.ts`:**
+- `composeRefs()`, `useComposedRefs()` → Radix UI ref composition pattern
+
+**`src/lib/encryption.ts`:**
+- AES-256-CBC with random IVs
+- Returns `{ iv: string, data: string }` objects stored as JSONB
+
+**`src/lib/oauth2.ts`:**
+- Full OAuth 2.1 server implementation
+- Uses `@node-oauth/oauth2-server` library
+- Custom database model adapter for Drizzle ORM
+
+**`src/lib/models-dev.ts`:**
+- Fetches model metadata from `models.dev` API
+- 24-hour caching for model lists
 
 ## Key Conventions
 
 1. **Zod:** Import from `zod/v4` (not default)
-2. **IDs:** Use `generateId()` from `src/lib/id.ts` OR `ai` package
-3. **Client components:** Add `"use client"` only for interactive UI/hooks
+2. **IDs:** Use `generateId()` from `src/lib/id.ts` OR `ai` package; for messages use `createIdGenerator({ prefix: "msg" })`
+3. **Client components:** Add `"use client"` only for interactive UI/hooks/browser APIs
 4. **Path aliases:** Use `@/` prefix for all internal imports
 5. **Error handling:** Return `{ content: [...], isError: true }` from tool callbacks
 6. **Async/await:** Always use async/await (no promise chaining)
+7. **Streamdown:** Use `streamdown` package for streaming markdown rendering
 
 ## Environment Variables
 
@@ -201,6 +344,24 @@ pnpx shadcn@latest add <component>
 - `GITHUB_CLIENT_ID`, `GITHUB_CLIENT_SECRET`
 - `OAUTH_APP_SECRETS` → JSON with MCP app secrets
 - Sentry: `VITE_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`
+
+## Testing
+
+**Vitest + Testing Library:**
+```bash
+pnpm test  # Run all tests
+```
+
+**Pattern:** Extract pure functions for testing (avoid React rendering in tests)
+```typescript
+// Extract parsing logic to pure functions
+function parseJsonSchema(schema) { ... }
+
+// Test just the logic
+describe("Schema Parser", () => {
+	it("should parse basic JSON schema", () => { ... })
+})
+```
 
 ## Code Quality
 

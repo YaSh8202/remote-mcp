@@ -1,6 +1,6 @@
-import { env } from "@/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { env } from "@/env";
 
 export const Route = createFileRoute(
 	"/.well-known/oauth-authorization-server/$",
@@ -8,12 +8,7 @@ export const Route = createFileRoute(
 	server: {
 		handlers: {
 			GET: async () => {
-				// Use SERVER_URL if provided, otherwise default based on environment
-				const issuer =
-					env.SERVER_URL ||
-					(process.env.NODE_ENV === "production"
-						? "https://remotemcp.tech"
-						: "http://localhost:3000");
+				const issuer = env.SERVER_URL;
 				return json(
 					{
 						issuer: issuer,

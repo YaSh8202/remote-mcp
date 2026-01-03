@@ -1,6 +1,3 @@
-import { MdiGithub } from "@/app/mcp/apps/icons";
-import { GoogleIcon, RemoteMcpLogo } from "@/components/icons";
-import { LoadingSpinner } from "@/components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
@@ -8,6 +5,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod/v4";
+import { MdiGithub } from "@/app/mcp/apps/icons";
+import { GoogleIcon, RemoteMcpLogo } from "@/components/icons";
+import { LoadingSpinner } from "@/components/ui/spinner";
 import { Button } from "../components/ui/button";
 import {
 	Card,

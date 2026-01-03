@@ -1,7 +1,7 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { BraveSearch } from "brave-search";
 import { SafeSearchLevel } from "brave-search/dist/types.js";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { braveAuth } from "../common";
 
 // Custom local search implementation
@@ -200,7 +200,7 @@ export const braveLocalSearchTool = createParameterizedTool({
 						},
 					],
 				};
-			} catch (apiError) {
+			} catch (_apiError) {
 				// If POI/description API calls fail, return basic location info
 				const basicResults = webResult.locations.results
 					.slice(0, args.count || 10)

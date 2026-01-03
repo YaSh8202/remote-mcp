@@ -1,8 +1,8 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Activity, BarChart3, Server, Zap } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { useTRPC } from "@/integrations/trpc/react";
 
 interface ServerStatsCardsProps {
 	serverApps: Array<{ tools: string[] }>;

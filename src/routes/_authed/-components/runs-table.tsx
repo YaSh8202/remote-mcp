@@ -1,10 +1,3 @@
-import { DataTable } from "@/components/data-table/data-table";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import { Card } from "@/components/ui/card";
-import { McpRunStatus } from "@/db/schema";
-import { createFilterOptions } from "@/hooks/use-generic-table";
-import { useRunsTable } from "@/hooks/use-runs-table";
-import { useTRPC } from "@/integrations/trpc/react";
 import { useQuery } from "@tanstack/react-query";
 import {
 	getCoreRowModel,
@@ -16,6 +9,13 @@ import {
 	useReactTable,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { DataTable } from "@/components/data-table/data-table";
+import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
+import { Card } from "@/components/ui/card";
+import { McpRunStatus } from "@/db/schema";
+import { createFilterOptions } from "@/hooks/use-generic-table";
+import { useRunsTable } from "@/hooks/use-runs-table";
+import { useTRPC } from "@/integrations/trpc/react";
 import { RunDetailsSheet } from "./run-details-sheet";
 import { createRunsColumns } from "./runs-columns";
 import { RunsTableSkeleton } from "./runs-table-skeleton";

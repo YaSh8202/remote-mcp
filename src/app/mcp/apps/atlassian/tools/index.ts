@@ -1,4 +1,17 @@
 // Jira tools
+
+// Confluence tools
+import {
+	addPageCommentTool,
+	createPageTool,
+	getCommentsTool,
+	getPageChildrenTool,
+	getPageTool,
+	searchConfluenceTool,
+	updatePageTool,
+} from "./confluence";
+// Context tools
+import { getAccessibleResourcesTool, getAtlassianUserTool } from "./context";
 import {
 	addCommentTool,
 	addWorklogTool,
@@ -12,20 +25,6 @@ import {
 	transitionIssueTool,
 	updateIssueTool,
 } from "./jira";
-
-// Confluence tools
-import {
-	addPageCommentTool,
-	createPageTool,
-	getCommentsTool,
-	getPageChildrenTool,
-	getPageTool,
-	searchConfluenceTool,
-	updatePageTool,
-} from "./confluence";
-
-// Context tools
-import { getAccessibleResourcesTool, getAtlassianUserTool } from "./context";
 
 export const atlassianTools = [
 	// Context tools

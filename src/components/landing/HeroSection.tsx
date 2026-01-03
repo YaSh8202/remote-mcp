@@ -1,10 +1,10 @@
-import { useTRPC } from "@/integrations/trpc/react";
-import { authQueries } from "@/services/queries";
 import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Play, Star, X } from "lucide-react";
 import { useState } from "react";
+import { useTRPC } from "@/integrations/trpc/react";
+import { authQueries } from "@/services/queries";
 import { RemoteMcpLogo } from "../icons";
 import { BackgroundBeamsWithCollision } from "../ui/background-beams-with-collision";
 import { Button } from "../ui/button";

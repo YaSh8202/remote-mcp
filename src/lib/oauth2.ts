@@ -1,4 +1,13 @@
 import { randomBytes } from "node:crypto";
+import type {
+	AuthorizationCode,
+	Client,
+	RefreshToken,
+	Token,
+	User,
+} from "@node-oauth/oauth2-server";
+import OAuth2Server from "@node-oauth/oauth2-server";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import {
 	type NewOAuthAccessToken,
@@ -7,15 +16,6 @@ import {
 	oauthClients,
 } from "@/db/schema";
 import { generateId } from "@/lib/id";
-import OAuth2Server from "@node-oauth/oauth2-server";
-import type {
-	AuthorizationCode,
-	Client,
-	RefreshToken,
-	Token,
-	User,
-} from "@node-oauth/oauth2-server";
-import { and, eq } from "drizzle-orm";
 
 export const oauthServer = new OAuth2Server({
 	allowEmptyState: true,

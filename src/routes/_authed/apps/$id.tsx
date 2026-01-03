@@ -1,3 +1,7 @@
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ArrowLeft, Code, Plus, Settings, Shield, Zap } from "lucide-react";
+import { useState } from "react";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import { AppLogo } from "@/components/AppLogo";
 import { SchemaDisplay } from "@/components/SchemaDisplay";
@@ -21,10 +25,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
 import { usePageHeader } from "@/store/header-store";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Code, Plus, Settings, Shield, Zap } from "lucide-react";
-import { useState } from "react";
 import { ConnectAppDialog } from "./-components/connect-app-dialog";
 
 const NotFoundComponent = () => {

@@ -1,6 +1,6 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { Octokit } from "octokit";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { formatError, githubAuth } from "../common";
 
 // Get commit details

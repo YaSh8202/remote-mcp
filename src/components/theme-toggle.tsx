@@ -1,8 +1,8 @@
+import * as SwitchPrimitives from "@radix-ui/react-switch";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
 import { TooltipWrapper } from "@/components/tooltip-wrapper";
 import { cn } from "@/lib/utils";
-import * as SwitchPrimitives from "@radix-ui/react-switch";
-import { Moon, Sun } from "lucide-react";
 
 export function ThemeToggle() {
 	const { currentMode: theme, setTheme } = useTheme();

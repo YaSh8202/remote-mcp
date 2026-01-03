@@ -1,7 +1,7 @@
+import { z } from "zod/v4";
 import { OAuth2AuthorizationMethod } from "@/app/mcp/mcp-app/property";
 import type { OAuth2GrantType } from "@/app/mcp/mcp-app/property/authentication/oauth2-prop";
 import { type AppConnectionSchema, AppConnectionType } from "@/db/schema";
-import { z } from "zod/v4";
 
 export type BaseOAuth2ConnectionValue = {
 	expires_in?: number;

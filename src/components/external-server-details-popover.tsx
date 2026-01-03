@@ -1,3 +1,4 @@
+import { Link2, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Popover,
@@ -5,7 +6,6 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import type { ChatMcpServer } from "@/db/schema";
-import { Link2, Trash2 } from "lucide-react";
 
 interface ExternalServerDetailsPopoverProps {
 	children: React.ReactNode;

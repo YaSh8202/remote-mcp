@@ -1,3 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod/v4";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import {
 	type OAuth2Property,
@@ -32,11 +37,6 @@ import {
 	UpsertOAuth2Request,
 	UpsertSecretTextRequest,
 } from "@/types/app-connection";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod/v4";
 import { AppLogo } from "../AppLogo";
 import { ViewMarkdown } from "../markdown";
 import { SecretTextConnectionSettings } from "./secret-text-connection-settings";
@@ -171,7 +171,9 @@ export const NewConnectionDialog = React.memo(
 
 		const handleSubmit = ({
 			request,
-		}: { request: UpsertAppConnectionRequestBody }) => {
+		}: {
+			request: UpsertAppConnectionRequestBody;
+		}) => {
 			// Double-check for duplicate names before submitting
 			if (existingDisplayNames.includes(request.displayName)) {
 				form.setError("request.displayName", {

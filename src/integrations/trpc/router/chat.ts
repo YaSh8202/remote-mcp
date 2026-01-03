@@ -1,19 +1,18 @@
 import { TRPCError } from "@trpc/server";
+import type { UIMessage } from "ai";
 import { generateId } from "ai";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v4";
-
 import { db } from "@/db";
 import {
-	MessageRole,
-	MessageStatus,
 	chatMcpServers,
 	chats,
+	MessageRole,
+	MessageStatus,
 	mcpServer,
 	messages,
 } from "@/db/schema";
 import { saveChat } from "@/services/chat-service";
-import type { UIMessage } from "ai";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 // Zod schemas for input validation
@@ -132,12 +131,13 @@ export const chatRouter = createTRPCRouter({
 		.input(createChatSchema)
 		.mutation(async ({ ctx, input }) => {
 			const chatId = generateId();
+			const truncatedTitle = input.title ? input.title.slice(0, 64) : undefined;
 
 			const newChat = await db
 				.insert(chats)
 				.values({
 					id: chatId,
-					title: input.title,
+					title: truncatedTitle,
 					ownerId: ctx.user.id,
 					metadata: input.metadata || {},
 				})

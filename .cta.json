@@ -1,5 +1,5 @@
 {
-  "projectName": "mcp-one",
+  "projectName": "remote-mcp",
   "mode": "file-router",
   "typescript": true,
   "tailwind": true,

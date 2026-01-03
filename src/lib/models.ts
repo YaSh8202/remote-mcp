@@ -1,7 +1,7 @@
 import type {
 	LLMProvider,
-	ModelWithProvider,
 	ModelsData,
+	ModelWithProvider,
 } from "../types/models";
 
 /**

@@ -1,3 +1,14 @@
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import {
+	OAuthError,
+	Request as OAuthRequest,
+	Response as OAuthResponse,
+	UnauthorizedRequestError,
+} from "@node-oauth/oauth2-server";
+import { createFileRoute } from "@tanstack/react-router";
+import { json } from "@tanstack/react-start";
+import { toFetchResponse, toReqRes } from "fetch-to-node";
 import { mcpApps } from "@/app/mcp/apps";
 import { db } from "@/db";
 import { AppConnectionType } from "@/db/schema";
@@ -6,17 +17,6 @@ import { oauthServer } from "@/lib/oauth2";
 import { appConnectionService } from "@/services/app-connection-service";
 import { userSettingsService } from "@/services/user-settings-service";
 import type { AppConnection, ConnectionValue } from "@/types/app-connection";
-import {
-	OAuthError,
-	Request as OAuthRequest,
-	Response as OAuthResponse,
-	UnauthorizedRequestError,
-} from "@node-oauth/oauth2-server";
-import { McpServer } from "@socotra/modelcontextprotocol-sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@socotra/modelcontextprotocol-sdk/server/streamableHttp.js";
-import { createFileRoute } from "@tanstack/react-router";
-import { json } from "@tanstack/react-start";
-import { toFetchResponse, toReqRes } from "fetch-to-node";
 
 type McpServerWithApps = Awaited<
 	ReturnType<typeof db.query.mcpServer.findFirst>

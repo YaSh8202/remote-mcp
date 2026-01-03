@@ -1,11 +1,11 @@
-import { db } from "@/db";
-import { appConnections, mcpApps } from "@/db/schema";
-import { appConnectionService } from "@/services/app-connection-service";
-import { UpsertAppConnectionRequestBody } from "@/types/app-connection";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
+import { db } from "@/db";
+import { appConnections, mcpApps } from "@/db/schema";
+import { appConnectionService } from "@/services/app-connection-service";
+import { UpsertAppConnectionRequestBody } from "@/types/app-connection";
 import { protectedProcedure } from "../../init";
 
 export const appConnectionRouter = {

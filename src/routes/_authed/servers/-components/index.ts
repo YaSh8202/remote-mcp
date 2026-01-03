@@ -1,8 +1,8 @@
 export { AddAppDialog } from "./add-app-dialog";
 export { AvailableApps } from "./available-apps";
 export { ClaudeConnectionModal } from "./claude-connection-modal";
-export { ConnectedApps } from "./connected-apps";
 export { ConfigureAppDialog } from "./configure-app-dialog";
+export { ConnectedApps } from "./connected-apps";
 export { HowToConnect } from "./how-to-connect";
 export { OtherClientsModal } from "./other-clients-modal";
 export { QuickActions } from "./quick-actions";

@@ -1,3 +1,12 @@
+import { createFileRoute } from "@tanstack/react-router";
+import {
+	createAgentUIStreamResponse,
+	stepCountIs,
+	ToolLoopAgent,
+	type UIMessage,
+	validateUIMessages,
+} from "ai";
+
 import { auth } from "@/lib/auth";
 import { generateMessageId } from "@/lib/chat-utils";
 import {
@@ -10,39 +19,8 @@ import {
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
 import { LLMProvider } from "@/types/models";
-import {
-	type AnthropicProviderOptions,
-	createAnthropic,
-} from "@ai-sdk/anthropic";
-import {
-	type GoogleGenerativeAIProviderOptions,
-	createGoogleGenerativeAI,
-} from "@ai-sdk/google";
-import { type GroqProviderOptions, createGroq } from "@ai-sdk/groq";
-import { createMistral } from "@ai-sdk/mistral";
-import {
-	type OpenAIResponsesProviderOptions,
-	createOpenAI,
-} from "@ai-sdk/openai";
-import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
-import { createFileRoute } from "@tanstack/react-router";
-import {
-	type ToolSet,
-	type UIMessage,
-	convertToModelMessages,
-	smoothStream,
-	stepCountIs,
-	streamText,
-	validateUIMessages,
-} from "ai";
-
-import { db } from "@/db";
-import { chatMcpServers, mcpServer } from "@/db/schema";
-import { env } from "@/env";
-import { eq } from "drizzle-orm";
-
-import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
-import { experimental_createMCPClient as createMCPClient } from "ai";
+import { getAIModel, getProviderOptions } from "./-libs/models";
+import { getChatTools } from "./-libs/tools";
 
 export const Route = createFileRoute("/api/chat/$id")({
 	server: {
@@ -66,7 +44,6 @@ export const Route = createFileRoute("/api/chat/$id")({
 					// Default: Handle chat streaming
 					const {
 						message,
-						system,
 						provider = LLMProvider.OPENAI, // Default to OpenAI
 						model,
 						trigger,
@@ -123,7 +100,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 					}
 
 					// Load existing messages from database
-					const { chat, messages: existingMessages } = await loadChat(
+					const { messages: existingMessages } = await loadChat(
 						requestChatId,
 						session.user.id,
 					);
@@ -182,14 +159,12 @@ export const Route = createFileRoute("/api/chat/$id")({
 						);
 
 						// Delete all messages after the user message
-						for (const msg of messagesAfterUser) {
-							if (msg.id) {
-								await deleteMessageAndAfter(
-									currentChatId,
-									msg.id,
-									session.user.id,
-								);
-							}
+						if (messagesAfterUser.length > 0) {
+							await deleteMessageAndAfter(
+								currentChatId,
+								messagesAfterUser[0].id,
+								session.user.id,
+							);
 						}
 
 						// Reload messages after deletion
@@ -242,131 +217,24 @@ export const Route = createFileRoute("/api/chat/$id")({
 						throw new Error("Failed to get or create chat ID");
 					}
 					// Convert UI messages to model messages format (AI SDK v5)
-					const modelMessages = convertToModelMessages(allMessages);
+					// const modelMessages = await convertToModelMessages(allMessages);
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
-					const tools: ToolSet = {};
+					const tools = await getChatTools(session.user.id, currentChatId);
 
-					// Get chat MCP servers from the new table
-					const chatMcpServersData = await db
-						.select({
-							chatMcpServer: chatMcpServers,
-							mcpServerData: mcpServer,
-						})
-						.from(chatMcpServers)
-						.leftJoin(mcpServer, eq(chatMcpServers.mcpServerId, mcpServer.id))
-						.where(eq(chatMcpServers.chatId, chat.id));
-
-					for (const {
-						chatMcpServer: chatServer,
-						mcpServerData: serverData,
-					} of chatMcpServersData) {
-						if (chatServer.isRemoteMcp && serverData) {
-							// Handle remote MCP server
-							const httpTransport = new StreamableHTTPClientTransport(
-								new URL(`${env.SERVER_URL}/api/mcp/${serverData.token}`),
-								{
-									requestInit: {
-										headers: {
-											"x-API-Key": env.MCP_SERVER_API_KEY,
-											"X-User-Id": session.user.id,
-										},
-									},
-								},
-							);
-
-							const mcpClient = await createMCPClient({
-								transport: httpTransport,
-							});
-
-							const serverTools = await mcpClient.tools();
-
-							// Filter tools based on chat MCP server configuration
-							if (chatServer.includeAllTools) {
-								Object.assign(tools, serverTools);
-							} else if (chatServer.tools && Array.isArray(chatServer.tools)) {
-								// Only include selected tools
-								for (const toolName of chatServer.tools) {
-									if (serverTools[toolName]) {
-										tools[toolName] = serverTools[toolName];
-									}
-								}
-							}
-						} else if (!chatServer.isRemoteMcp && chatServer.config) {
-							// Handle direct MCP server configuration
-							const { url, headers } = chatServer.config;
-							if (url) {
-								const httpTransport = new StreamableHTTPClientTransport(
-									new URL(url),
-									{
-										requestInit: {
-											headers: headers as Record<string, string> | undefined,
-										},
-									},
-								);
-
-								const mcpClient = await createMCPClient({
-									transport: httpTransport,
-								});
-
-								const serverTools = await mcpClient.tools();
-
-								// Filter tools based on chat MCP server configuration
-								if (chatServer.includeAllTools) {
-									Object.assign(tools, serverTools);
-								} else if (
-									chatServer.tools &&
-									Array.isArray(chatServer.tools)
-								) {
-									// Only include selected tools
-									for (const toolName of chatServer.tools) {
-										if (serverTools[toolName]) {
-											tools[toolName] = serverTools[toolName];
-										}
-									}
-								}
-							}
-						}
-					}
-
-					const result = streamText({
+					const codeAgent = new ToolLoopAgent({
 						model: aiSdkModel,
-						system,
-						messages: modelMessages,
 						temperature: 0.7,
 						tools,
 						stopWhen: stepCountIs(25),
-						providerOptions: {
-							openai: {
-								reasoningEffort: "medium",
-								reasoningSummary: "auto",
-								textVerbosity: "medium",
-							} satisfies OpenAIResponsesProviderOptions,
-							anthropic: {
-								thinking: { type: "enabled", budgetTokens: 12000 },
-								sendReasoning: true,
-							} satisfies AnthropicProviderOptions,
-							google: {
-								thinkingConfig: {
-									includeThoughts: true,
-								},
-							} satisfies GoogleGenerativeAIProviderOptions,
-							grok: {
-								reasoningEffort: "medium",
-							} satisfies GroqProviderOptions,
-						},
-						experimental_transform: [
-							smoothStream({
-								chunking: "word",
-							}),
-						],
+						providerOptions: getProviderOptions(),
 					});
 
-					result.consumeStream();
-
 					// Return the UI message stream response (AI SDK v5)
-					return result.toUIMessageStreamResponse({
+					return createAgentUIStreamResponse({
+						agent: codeAgent,
+						uiMessages: allMessages,
 						headers: {
 							"X-Chat-ID": currentChatId, // Include chat ID for frontend navigation
 						},
@@ -396,57 +264,3 @@ export const Route = createFileRoute("/api/chat/$id")({
 		},
 	},
 });
-
-function getAIModel(
-	provider: LLMProvider,
-	model: string | undefined,
-	apiKey: string,
-) {
-	switch (provider) {
-		case LLMProvider.OPENAI:
-			return createOpenAI({
-				apiKey: apiKey,
-			})(model || "gpt-4o-mini");
-
-		case LLMProvider.ANTHROPIC:
-			return createAnthropic({
-				apiKey: apiKey,
-			})(model || "claude-3-5-sonnet-20241022");
-
-		case LLMProvider.GOOGLE:
-			return createGoogleGenerativeAI({
-				apiKey: apiKey,
-			})(model || "gemini-2.0-flash-exp");
-
-		case LLMProvider.MISTRAL:
-			return createMistral({
-				apiKey: apiKey,
-			})(model || "mistral-small-latest");
-
-		case LLMProvider.GROQ:
-			// Groq is OpenAI-compatible, use createOpenAI with Groq's base URL
-			return createGroq({
-				apiKey: apiKey,
-				// baseURL: "https://api.groq.com/openai/v1",
-			})(model || "llama-3.3-70b-versatile");
-
-		case LLMProvider.ALIBABA:
-			// Alibaba Cloud (Qwen) uses OpenAI-compatible API
-			return createOpenAICompatible({
-				apiKey: apiKey,
-				baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-				name: "alibaba",
-			})(model || "qwen3-max");
-
-		case LLMProvider.GITHUB_MODELS:
-			// GitHub Models uses OpenAI-compatible API
-			return createOpenAICompatible({
-				apiKey: apiKey,
-				baseURL: "https://models.github.ai/inference",
-				name: "github-models",
-			})(model || "gpt-4.1-mini");
-
-		default:
-			throw new Error(`Unsupported provider: ${provider}`);
-	}
-}

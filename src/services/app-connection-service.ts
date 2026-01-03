@@ -1,3 +1,4 @@
+import { count, eq } from "drizzle-orm";
 import { mcpApps } from "@/app/mcp/apps";
 import type { McpApp } from "@/app/mcp/mcp-app";
 import { PropertyType } from "@/app/mcp/mcp-app/property";
@@ -6,8 +7,8 @@ import {
 	type AppConnectionSchema,
 	AppConnectionStatus,
 	AppConnectionType,
-	type NewAppConnection,
 	appConnections,
+	type NewAppConnection,
 } from "@/db/schema";
 import { getOAuthAppSecrets } from "@/env";
 import { oauth2Util } from "@/integrations/trpc/router/app-connection/oauth2-util";
@@ -21,7 +22,6 @@ import type {
 	SecretTextConnectionValue,
 	UpsertAppConnectionRequestBody,
 } from "@/types/app-connection";
-import { count, eq } from "drizzle-orm";
 
 const appConnectionHandler = {
 	decryptConnection(encryptedConnection: AppConnectionSchema): AppConnection {
@@ -77,13 +77,7 @@ export const appConnectionService = {
 		}
 	},
 
-	async getOne({
-		id,
-		ownerId,
-	}: {
-		id: string;
-		ownerId: string;
-	}) {
+	async getOne({ id, ownerId }: { id: string; ownerId: string }) {
 		const encryptedAppConnection = await db.query.appConnections.findFirst({
 			where: (appConnections, { eq, and }) =>
 				and(eq(appConnections.id, id), eq(appConnections.ownerId, ownerId)),

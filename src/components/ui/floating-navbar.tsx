@@ -1,6 +1,4 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { authQueries } from "@/services/queries";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -10,6 +8,8 @@ import {
 	useScroll,
 } from "motion/react";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { authQueries } from "@/services/queries";
 
 export const FloatingNav = ({
 	navItems,

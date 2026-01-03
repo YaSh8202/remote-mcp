@@ -1,11 +1,10 @@
-import { db } from "@/db";
+import { experimental_createMCPClient as createMCPClient } from "@ai-sdk/mcp";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod/v4";
-import { userRequiredMiddleware } from "./auth.api";
-
+import { db } from "@/db";
 import { env } from "@/env";
-import { StreamableHTTPClientTransport } from "@socotra/modelcontextprotocol-sdk/client/streamableHttp.js";
-import { experimental_createMCPClient as createMCPClient } from "ai";
+import { userRequiredMiddleware } from "./auth.api";
 
 export const ChatMcpServer = z.union([
 	z.object({

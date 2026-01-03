@@ -1,3 +1,6 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	Popover,
@@ -5,9 +8,6 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
 import { AppLogo } from "./AppLogo";
 
 interface ServerDetailsPopoverProps {

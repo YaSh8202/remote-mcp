@@ -1,6 +1,6 @@
-import { auth } from "@/lib/auth";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { auth } from "@/lib/auth";
 
 export const Route = createFileRoute("/api/chat/")({
 	server: {

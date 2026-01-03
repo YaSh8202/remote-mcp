@@ -1,4 +1,3 @@
-import { useDebounce } from "@/hooks/use-debounce";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type {
 	ColumnFiltersState,
@@ -8,6 +7,7 @@ import type {
 	VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export interface TableSearchParams {
 	page: number;
@@ -91,7 +91,7 @@ export function useTableState({
 			}
 
 			navigate({
-				// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// biome-ignore lint/suspicious/noExplicitAny: TanStack Router's search param types are complex and require type assertion for partial updates
 				search: newSearchParams as any,
 				replace: true,
 			});

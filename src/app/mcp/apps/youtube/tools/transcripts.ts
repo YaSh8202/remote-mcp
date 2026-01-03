@@ -1,6 +1,6 @@
-import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { YoutubeTranscript } from "youtube-transcript";
 import { z } from "zod";
+import { createParameterizedTool } from "@/app/mcp/mcp-app/tools";
 import { youtubeAuth } from "../common";
 
 // Get video transcript
@@ -251,7 +251,7 @@ export const getTranscriptLanguagesTool = createParameterizedTool({
 				try {
 					await YoutubeTranscript.fetchTranscript(args.videoId, { lang });
 					availableLanguages.push(lang);
-				} catch (error) {
+				} catch (_error) {
 					// Language not available, continue
 				}
 			}

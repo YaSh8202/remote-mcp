@@ -1,6 +1,6 @@
-import { LLMProvider } from "@/types/models";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { LLMProvider } from "@/types/models";
 
 interface ChatStore {
 	selectedModel: string;
@@ -48,7 +48,7 @@ const customStorage = createJSONStorage(() => ({
 					JSON.stringify(parsed.state.selectedProvider),
 				);
 			}
-		} catch (e) {
+		} catch (_e) {
 			// If parsing fails, just store in new format
 		}
 	},

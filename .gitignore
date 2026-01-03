@@ -19,3 +19,4 @@ app.config.timestamp_*.js
 .nitro
 .tanstack
 env.sh
+.env*.local

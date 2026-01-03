@@ -1,6 +1,6 @@
-import type { ModelsDevResponse } from "@/types/models";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import type { ModelsDevResponse } from "@/types/models";
 
 const MODELS_DEV_API_URL = "https://models.dev/api.json";
 

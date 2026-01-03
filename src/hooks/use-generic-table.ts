@@ -1,4 +1,3 @@
-import { useDebounce } from "@/hooks/use-debounce";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import type {
 	ColumnFiltersState,
@@ -9,6 +8,7 @@ import type {
 } from "@tanstack/react-table";
 import * as React from "react";
 import { z } from "zod/v4";
+import { useDebounce } from "@/hooks/use-debounce";
 
 // Base search params schema that can be extended
 export const baseTableSearchSchema = z.object({

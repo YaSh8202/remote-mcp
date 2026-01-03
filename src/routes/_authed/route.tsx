@@ -1,22 +1,21 @@
+import { useQueryErrorResetBoundary } from "@tanstack/react-query";
+import {
+	createFileRoute,
+	Outlet,
+	redirect,
+	useRouter,
+} from "@tanstack/react-router";
+import { Suspense, useEffect } from "react";
 import { AppSidebar } from "@/components/app-sidebar";
 import HeaderBreadcrumb from "@/components/header-breadcrumb";
-import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
-
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
 	SidebarInset,
 	SidebarProvider,
 	SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { useQueryErrorResetBoundary } from "@tanstack/react-query";
-import {
-	Outlet,
-	createFileRoute,
-	redirect,
-	useRouter,
-} from "@tanstack/react-router";
-import { Suspense, useEffect } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createFileRoute("/_authed")({
 	beforeLoad: ({ context, location }) => {

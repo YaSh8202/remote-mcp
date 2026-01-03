@@ -1,16 +1,12 @@
-import { env } from "@/env";
 import { createFileRoute } from "@tanstack/react-router";
 import { json } from "@tanstack/react-start";
+import { env } from "@/env";
 
 export const Route = createFileRoute("/.well-known/mcp.json")({
 	server: {
 		handlers: {
 			GET: async () => {
-				const endpoint =
-					env.SERVER_URL ||
-					(process.env.NODE_ENV === "production"
-						? "https://remotemcp.tech"
-						: "http://localhost:3000");
+				const endpoint = env.SERVER_URL;
 				return json(
 					{
 						version: "1.0",

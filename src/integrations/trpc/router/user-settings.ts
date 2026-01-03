@@ -1,7 +1,7 @@
-import { userSettingsService } from "@/services/user-settings-service";
 import * as Sentry from "@sentry/tanstackstart-react";
 import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { z } from "zod/v4";
+import { userSettingsService } from "@/services/user-settings-service";
 import { protectedProcedure } from "../init";
 
 const updateUserSettingsSchema = z.object({
