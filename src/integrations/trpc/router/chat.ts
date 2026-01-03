@@ -131,12 +131,13 @@ export const chatRouter = createTRPCRouter({
 		.input(createChatSchema)
 		.mutation(async ({ ctx, input }) => {
 			const chatId = generateId();
+			const truncatedTitle = input.title ? input.title.slice(0, 64) : undefined;
 
 			const newChat = await db
 				.insert(chats)
 				.values({
 					id: chatId,
-					title: input.title,
+					title: truncatedTitle,
 					ownerId: ctx.user.id,
 					metadata: input.metadata || {},
 				})

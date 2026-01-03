@@ -22,6 +22,10 @@ export const getChatTools = async (
 		.leftJoin(mcpServer, eq(chatMcpServers.mcpServerId, mcpServer.id))
 		.where(eq(chatMcpServers.chatId, chatId));
 
+	if (chatMcpServersData.length === 0) {
+		return tools;
+	}
+
 	for (const {
 		chatMcpServer: chatServer,
 		mcpServerData: serverData,
