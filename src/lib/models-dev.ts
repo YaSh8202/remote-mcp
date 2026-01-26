@@ -3,8 +3,6 @@ import { fetchModels } from "tokenlens";
 import type { ModelsData, ModelWithProvider } from "@/types/models";
 import { LLMProvider } from "@/types/models";
 
-const MAX_MODELS_PER_PROVIDER = 15; // Show only latest 7 models per provider
-
 /**
  * Provider ID mapping between our LLMProvider enum and models.dev IDs
  */
@@ -61,15 +59,14 @@ export function processModelsDevData(modelsDevData: {
 
 		// Sort by release date and take latest 5
 		const sortedModels = sortModelsByDate(Object.values(providerModels));
-		const latestModels = sortedModels.slice(0, MAX_MODELS_PER_PROVIDER);
 
 		providers.push({
 			id: providerId,
 			name: providerData.name || providerData.id,
-			models: latestModels,
+			models: sortedModels.filter((m) => !m.id.includes("embedding")),
 		});
 
-		allModels.push(...latestModels);
+		allModels.push(...sortedModels);
 	}
 
 	return {
