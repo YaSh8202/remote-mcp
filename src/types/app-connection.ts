@@ -33,6 +33,11 @@ export type SecretTextConnectionValue = {
 	secret_text: string;
 };
 
+export type CustomAuthConnectionValue = {
+	type: AppConnectionType.CUSTOM_AUTH;
+	props: Record<string, unknown>;
+};
+
 export type AppConnectionValue<
 	T extends AppConnectionType = AppConnectionType,
 > = T extends AppConnectionType.SECRET_TEXT
@@ -41,7 +46,9 @@ export type AppConnectionValue<
 		? OAuth2ConnectionValueWithApp
 		: T extends AppConnectionType.NO_AUTH
 			? NoAuthConnectionValue
-			: never;
+			: T extends AppConnectionType.CUSTOM_AUTH
+				? CustomAuthConnectionValue
+				: never;
 
 export type OAuth2Service<CONNECTION_VALUE extends BaseOAuth2ConnectionValue> =
 	{
@@ -120,10 +127,24 @@ export const UpsertSecretTextRequest = z.object({
 	}),
 });
 
+export type UpsertSecretTextRequest = z.infer<typeof UpsertSecretTextRequest>;
+
+export const UpsertCustomAuthRequest = z.object({
+	...commonAuthProps.shape,
+	type: z.literal(AppConnectionType.CUSTOM_AUTH),
+	value: z.object({
+		type: z.literal(AppConnectionType.CUSTOM_AUTH),
+		props: z.record(z.string(), z.any()),
+	}),
+});
+
+export type UpsertCustomAuthRequest = z.infer<typeof UpsertCustomAuthRequest>;
+
 export const UpsertAppConnectionRequestBody = z.discriminatedUnion("type", [
 	UpsertSecretTextRequest,
 	UpsertOAuth2Request,
 	UpsertNoAuthRequest,
+	UpsertCustomAuthRequest,
 ]);
 
 export type UpsertAppConnectionRequestBody = z.infer<
