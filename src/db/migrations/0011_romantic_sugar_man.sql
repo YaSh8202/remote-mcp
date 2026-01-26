@@ -1,0 +1,2 @@
+ALTER TABLE "messages" ALTER COLUMN "metadata" SET DEFAULT '{"modelId":null,"cost":null,"totalUsage":null,"status":null,"messageTokens":0}'::jsonb;--> statement-breakpoint
+ALTER TABLE "messages" DROP COLUMN "token_usage";
