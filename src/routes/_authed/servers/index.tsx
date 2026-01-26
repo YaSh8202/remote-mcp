@@ -53,7 +53,7 @@ function ServerCard({ server, appsMetadata }: ServerCardProps) {
 		const appMetadata = appsMetadata.find((app) => app.name === appName);
 
 		if (!appMetadata) {
-			throw new Error(`App metadata not found for ${appName}`);
+			return undefined;
 		}
 		return appMetadata.logo;
 	};

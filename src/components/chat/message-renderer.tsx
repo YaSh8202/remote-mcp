@@ -1,8 +1,8 @@
 "use client";
 
-import type { ChatStatus, UIMessage } from "ai";
-import { CheckIcon, CopyIcon, RefreshCwIcon } from "lucide-react";
-import { useCallback, useState } from "react";
+import type { ChatStatus } from "ai";
+import { CheckIcon, CopyIcon, Cpu, RefreshCwIcon } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import {
 	Confirmation,
 	ConfirmationAccepted,
@@ -38,6 +38,10 @@ import {
 	ToolOutput,
 } from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
+import { useModels } from "@/hooks/use-models";
+import type { UIMessage } from "@/types/chat";
+import { ProviderLogo } from "../icons";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 
 export type MessageRendererProps = {
 	message: UIMessage;
@@ -59,6 +63,14 @@ export function MessageRenderer({
 	onToolApproval,
 }: MessageRendererProps) {
 	const [copied, setCopied] = useState(false);
+	const { getModel } = useModels();
+	const modelInfo = useMemo(
+		() =>
+			message.metadata?.modelId
+				? getModel(message.metadata.modelId)
+				: undefined,
+		[message, getModel],
+	);
 
 	const handleCopy = useCallback(async () => {
 		const textParts = message.parts
@@ -82,7 +94,7 @@ export function MessageRenderer({
 	);
 
 	return (
-		<Message from={message.role} key={message.id}>
+		<Message className="group" from={message.role} key={message.id}>
 			{/* Render file attachments before content */}
 			{fileAttachments.length > 0 && (
 				<MessageAttachments className="mb-2">
@@ -227,32 +239,71 @@ export function MessageRenderer({
 			</MessageContent>
 
 			{/* Message Actions (only for assistant messages) */}
-			{message.role === "assistant" && (
-				<div className="mt-2 flex items-center gap-1">
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-8 w-8"
-						onClick={handleCopy}
-						title="Copy message"
-					>
-						{copied ? (
-							<CheckIcon className="h-4 w-4" />
-						) : (
-							<CopyIcon className="h-4 w-4" />
-						)}
-					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="h-8 w-8"
-						onClick={onRegenerate}
-						title="Regenerate"
-					>
-						<RefreshCwIcon className="h-4 w-4" />
-					</Button>
-				</div>
-			)}
+			{message.role === "assistant" &&
+				(status !== "streaming" || !isLastMessage) && (
+					<div className="mt-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8"
+									onClick={handleCopy}
+									title="Copy message"
+								>
+									{copied ? (
+										<CheckIcon className="h-4 w-4" />
+									) : (
+										<CopyIcon className="h-4 w-4" />
+									)}
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>{copied ? "Copied!" : "Copy"}</TooltipContent>
+						</Tooltip>
+						<Tooltip>
+							<TooltipTrigger>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="h-8 w-8"
+									onClick={onRegenerate}
+									title="Regenerate"
+								>
+									<RefreshCwIcon className="h-4 w-4" />
+								</Button>
+							</TooltipTrigger>
+							<TooltipContent>Retry</TooltipContent>
+						</Tooltip>
+						<div className="flex items-center gap-2.5 ml-2">
+							{modelInfo && (
+								<div className="flex items-center gap-2">
+									<ProviderLogo provider={modelInfo.provider} size={14} />
+									<p className="text-muted-foreground text-xs">
+										{modelInfo.name}
+									</p>
+								</div>
+							)}
+							{!!message.metadata?.messageTokens && (
+								<div className="flex items-center gap-1">
+									<Cpu className="h-3 w-3 text-muted-foreground" />
+									<p className="text-muted-foreground text-xs">
+										{new Intl.NumberFormat("en-US", {
+											notation: "compact",
+										}).format(message.metadata.messageTokens)}
+										&nbsp;Tokens
+									</p>
+								</div>
+							)}
+							{!!message.metadata?.cost?.totalUSD && (
+								<div className="flex items-center gap-1">
+									<p className="text-muted-foreground text-xs">
+										${message.metadata.cost.totalUSD.toFixed(4)}
+									</p>
+								</div>
+							)}
+						</div>
+					</div>
+				)}
 		</Message>
 	);
 }

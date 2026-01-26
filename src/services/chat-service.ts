@@ -1,8 +1,9 @@
-import { generateId, type UIMessage } from "ai";
+import { generateId } from "ai";
 import { and, desc, eq, gt, or } from "drizzle-orm";
 import { db } from "@/db";
 import { type Chat, chats, messages } from "@/db/schema";
 import { dbMessagesToUIMessages, uiMessageToDbMessage } from "@/lib/chat-utils";
+import type { MessageMetadata, UIMessage } from "@/types/chat";
 
 /**
  * Creates a new chat for the given user
@@ -237,6 +238,48 @@ export async function updateChatTitle(
 	await db
 		.update(chats)
 		.set({ title, updatedAt: new Date() })
+		.where(eq(chats.id, chatId));
+}
+
+/**
+ * Adds a single message to an existing chat
+ */
+export async function addMessageToChat({
+	chatId,
+	userId,
+	message,
+	messageMetadata,
+}: {
+	chatId: string;
+	userId: string;
+	message: Omit<UIMessage, "metadata">;
+	messageMetadata: MessageMetadata;
+}): Promise<void> {
+	// Verify chat ownership
+	const chat = await db
+		.select()
+		.from(chats)
+		.where(and(eq(chats.id, chatId), eq(chats.ownerId, userId)))
+		.limit(1);
+
+	if (!chat[0]) {
+		throw new Error("Chat not found or access denied");
+	}
+
+	// Create complete UIMessage with metadata
+	const completeMessage: UIMessage = {
+		...message,
+		metadata: messageMetadata,
+	};
+
+	// Convert to DB format and insert
+	const dbMessage = uiMessageToDbMessage(completeMessage, chatId);
+	await db.insert(messages).values(dbMessage);
+
+	// Update chat timestamps
+	await db
+		.update(chats)
+		.set({ updatedAt: new Date(), lastMessagedAt: new Date() })
 		.where(eq(chats.id, chatId));
 }
 
