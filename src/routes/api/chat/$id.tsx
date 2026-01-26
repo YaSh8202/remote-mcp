@@ -225,7 +225,11 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
-					const tools = await getChatTools(session.user.id, currentChatId);
+					// Fetch models data upfront to avoid async call in onFinish callback
+					const [tools, modelsData] = await Promise.all([
+						getChatTools(session.user.id, currentChatId),
+						fetchModels(),
+					]);
 
 					let usage: LanguageModelUsage | undefined;
 					const codeAgent = new ToolLoopAgent({
@@ -255,7 +259,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 							const cost = getTokenCosts({
 								modelId,
 								usage: usage,
-								providers: await fetchModels(),
+								providers: modelsData,
 							});
 
 							await addMessageToChat({
