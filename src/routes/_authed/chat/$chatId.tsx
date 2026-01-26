@@ -191,7 +191,6 @@ function ChatPageWithId() {
 			toast.error(`Error sending message: ${error.message}`);
 		},
 	});
-	console.log("🚀 ~ ChatPageWithId ~ messages:", messages);
 
 	// Handle first message with "pending" status
 	const isFirstMessageSendRef = useRef(false);
