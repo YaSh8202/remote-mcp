@@ -257,7 +257,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 						onFinish: async ({ responseMessage }) => {
 							const modelId = `${provider}:${model}`;
 							const cost = getTokenCosts({
-								modelId,
+								modelId: `${provider}/${model}`,
 								usage: usage,
 								providers: modelsData,
 							});
