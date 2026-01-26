@@ -1,5 +1,3 @@
-"use client";
-
 import {
 	useMutation,
 	useQueryClient,
@@ -26,14 +24,12 @@ import { ModelSelector } from "@/components/model-selector";
 import { Button } from "@/components/ui/button";
 import type { ChatMcpServer, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
-import type { LLMProvider } from "@/types/models";
+import ChatContext from "./chat-context";
 
 export type ChatInputAreaProps = {
 	onSubmit: (input: PromptInputMessage) => Promise<void>;
 	status?: ChatStatus;
-	selectedModel: string;
-	onModelSelect: (model: string, provider: LLMProvider) => void;
-	chatId?: string;
+	chatId: string;
 	currentChatServers?: Array<{
 		chatMcpServer: ChatMcpServer;
 		mcpServerData: McpServer | null;
@@ -48,8 +44,6 @@ export type ChatInputAreaProps = {
 export function ChatInputArea({
 	onSubmit,
 	status,
-	selectedModel,
-	onModelSelect,
 	chatId,
 	currentChatServers = [],
 	selectedServerIds: externalSelectedServerIds,
@@ -326,14 +320,13 @@ export function ChatInputArea({
 					<PromptInputFooter className="flex items-center justify-between px-3 py-2">
 						<div className="flex items-center gap-2">
 							<AttachFileButton />
-							<ModelSelector
-								selectedModel={selectedModel}
-								onModelSelect={onModelSelect}
-								disabled={!hasValidKeys}
-							/>
+							<ModelSelector disabled={!hasValidKeys} />
 							{selectedServerIds.length > 0 && <ToolsSelector />}
 						</div>
-						<PromptInputSubmit status={status} />
+						<div className="flex items-center gap-2">
+							<ChatContext chatId={chatId} />
+							<PromptInputSubmit status={status} />
+						</div>
 					</PromptInputFooter>
 				</PromptInput>
 			</div>

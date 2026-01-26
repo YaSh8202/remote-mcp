@@ -1,11 +1,11 @@
-import { useChat } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk-tools/store";
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
 import {
 	DefaultChatTransport,
 	lastAssistantMessageIsCompleteWithApprovalResponses,
-	type UIMessage,
 } from "ai";
+import { countTokens } from "gpt-tokenizer";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 import {
@@ -19,12 +19,11 @@ import { ChatInputArea } from "@/components/chat/chat-input-area";
 import { MessageRenderer } from "@/components/chat/message-renderer";
 import { Button } from "@/components/ui/button";
 import type { Chat, ChatMcpServer, McpServer } from "@/db/schema";
-import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { dbMessageToUIMessage } from "@/lib/chat-utils";
-import { findModelById } from "@/lib/models";
-import { useChatStore } from "@/store/chat-store";
+import { useChatModel } from "@/store/chat-store";
 import { usePageHeader } from "@/store/header-store";
+import type { UIMessage } from "@/types/chat";
 
 export const Route = createFileRoute("/_authed/chat/$chatId")({
 	loader: async ({ context, params }) => {
@@ -109,17 +108,16 @@ function ChatPageWithId() {
 	const { chatId } = Route.useParams();
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
-	const modelsData = useModels();
-	const { selectedModel, selectedProvider, setSelectedModel } = useChatStore();
+	const chatModel = useChatModel();
 
-	const { data } = useSuspenseQuery({
+	const {
+		data: { chat, messages: dbMessages },
+	} = useSuspenseQuery({
 		enabled: !!chatId,
 		...trpc.chat.getWithMessages.queryOptions({
 			chatId: chatId,
 		}),
 	});
-
-	const { chat, messages: dbMessages } = data ?? {};
 
 	const uiMessages = useMemo(() => {
 		if (!dbMessages) return [];
@@ -149,73 +147,90 @@ function ChatPageWithId() {
 		[chat, chatMcpServers],
 	);
 
-	const model = useMemo(() => {
-		const modelInfo = findModelById(modelsData, selectedModel);
-		return modelInfo?.id ?? selectedModel;
-	}, [modelsData, selectedModel]);
-
 	// Use useChat hook for message handling
-	const { messages, sendMessage, status, regenerate, addToolApprovalResponse } =
-		useChat({
-			id: chatId,
-			transport: new DefaultChatTransport({
-				prepareSendMessagesRequest: ({ messages, ...rest }) => {
-					if (!model) {
-						throw new Error("Model not selected");
-					}
+	const {
+		messages,
+		sendMessage,
+		status,
+		regenerate,
+		addToolApprovalResponse,
+		setMessages,
+	} = useChat<UIMessage>({
+		id: chatId,
+		transport: new DefaultChatTransport({
+			prepareSendMessagesRequest: ({ messages, ...rest }) => {
+				const lastMessage = messages[messages.length - 1];
+				if (!lastMessage.metadata?.modelId) {
+					throw new Error("Model ID not found in message metadata");
+				}
 
-					return {
-						body: {
-							message: messages[messages.length - 1],
-							provider: selectedProvider,
-							model,
-							...rest,
-						},
-					};
-				},
-				api: `/api/chat/${chatId}`,
-			}),
-			messages: uiMessages,
-
-			// Auto-continue after all approvals are submitted
-			sendAutomaticallyWhen:
-				lastAssistantMessageIsCompleteWithApprovalResponses,
-
-			onFinish: () => {
-				queryClient.invalidateQueries({
-					queryKey: trpc.chat.getWithMessages.queryKey(),
-				});
+				const [provider, model] = lastMessage.metadata.modelId.split(":");
+				return {
+					body: {
+						message: messages[messages.length - 1],
+						provider,
+						model,
+						...rest,
+					},
+				};
 			},
-			onError: (error) => {
-				toast.error(`Error sending message: ${error.message}`);
-			},
-		});
+			api: `/api/chat/${chatId}`,
+		}),
+		messages: uiMessages,
+
+		// Auto-continue after all approvals are submitted
+		sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
+
+		onFinish: async () => {
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+			queryClient.invalidateQueries({
+				queryKey: trpc.chat.getWithMessages.queryKey(),
+			});
+		},
+		onError: (error) => {
+			toast.error(`Error sending message: ${error.message}`);
+		},
+	});
 
 	// Handle first message with "pending" status
 	const isFirstMessageSendRef = useRef(false);
 
 	useEffect(() => {
 		if (messages.length !== 1 || isFirstMessageSendRef.current) return;
-		const message = messages[0] as UIMessage<{ status: string }>;
+		const message = messages[0] as UIMessage;
 		if (message.role === "user" && message.metadata?.status === "pending") {
 			sendMessage();
 			isFirstMessageSendRef.current = true;
 		}
 	}, [messages, sendMessage]);
 
+	useEffect(() => {
+		setMessages(uiMessages);
+	}, [uiMessages, setMessages]);
+
 	// Handle message submission
 	const handleSubmit = useCallback(
 		async (input: PromptInputMessage) => {
 			if (!input.text && !input.files?.length) return;
 
-			if (!model) {
+			if (!chatModel) {
 				toast.error("Please select a model before sending a message.");
 				return;
 			}
 
-			await sendMessage({ text: input.text, files: input.files });
+			await sendMessage({
+				text: input.text,
+				files: input.files,
+				metadata: {
+					modelId: chatModel.fullId,
+					cost: null,
+					status: null,
+					totalUsage: null,
+					messageTokens: countTokens(input.text || ""),
+				},
+			});
 		},
-		[model, sendMessage],
+		[chatModel, sendMessage],
 	);
 
 	return (
@@ -267,8 +282,6 @@ function ChatPageWithId() {
 				currentChatServers={currentChat.mcpServers}
 				onSubmit={handleSubmit}
 				status={status}
-				selectedModel={selectedModel}
-				onModelSelect={setSelectedModel}
 			/>
 		</div>
 	);

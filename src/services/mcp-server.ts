@@ -30,7 +30,11 @@ export const ChatMcpServer = z.union([
 
 export type ChatMcpServer = z.infer<typeof ChatMcpServer>;
 
-export type ToolDescription = { name: string; description?: string };
+export type ToolDescription = {
+	name: string;
+	description?: string;
+	inputSchema?: object;
+};
 
 export type ServerToolsList = Array<{
 	name: string;
@@ -96,9 +100,14 @@ export const mcpServerListTools = createServerFn({ method: "GET" })
 				const parsedTools: ToolDescription[] = [];
 
 				for (const key in tools) {
+					const tool = tools[key];
 					parsedTools.push({
 						name: key,
-						description: tools[key].description,
+						description: tool.description,
+						inputSchema:
+							"jsonSchema" in tool.inputSchema
+								? tool.inputSchema.jsonSchema
+								: undefined,
 					});
 				}
 

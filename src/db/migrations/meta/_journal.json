@@ -78,6 +78,13 @@
 			"when": 1758959759803,
 			"tag": "0010_acoustic_magus",
 			"breakpoints": true
+		},
+		{
+			"idx": 11,
+			"version": "7",
+			"when": 1769431363819,
+			"tag": "0011_romantic_sugar_man",
+			"breakpoints": true
 		}
 	]
 }

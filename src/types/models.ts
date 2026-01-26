@@ -1,3 +1,4 @@
+import type { ProviderInfo, ProviderModel } from "@tokenlens/core";
 import { z } from "zod/v4";
 
 export enum LLMProvider {
@@ -10,7 +11,9 @@ export enum LLMProvider {
 	MISTRAL = "mistral",
 }
 
-export const LLMProviderSchema = z.nativeEnum(LLMProvider);
+export const supportedLLMProviders = Object.values(LLMProvider);
+
+export const LLMProviderSchema = z.enum(LLMProvider);
 
 // ============================================================================
 // Models.dev API Types - Using directly as our data model
@@ -21,53 +24,12 @@ export const LLMProviderSchema = z.nativeEnum(LLMProvider);
  * https://github.com/sst/models.dev
  */
 
-export interface ModelsDevModel {
-	id: string;
-	name: string;
-	attachment: boolean;
-	reasoning: boolean;
-	temperature: boolean;
-	tool_call: boolean;
-	knowledge?: string;
-	release_date: string;
-	last_updated: string;
-	modalities: {
-		input: string[];
-		output: string[];
-	};
-	open_weights: boolean;
-	cost: {
-		input: number;
-		output: number;
-		cache_read?: number;
-		cache_write?: number;
-		reasoning?: number;
-		input_audio?: number;
-		output_audio?: number;
-	};
-	limit: {
-		context: number;
-		output: number;
-	};
-	status?: string;
-}
-
-export interface ModelsDevProvider {
-	id: string;
-	env: string[];
-	npm: string;
-	api?: string;
-	name: string;
-	doc: string;
-	models: Record<string, ModelsDevModel>;
-}
-
-export type ModelsDevResponse = Record<string, ModelsDevProvider>;
+export type ModelsDevResponse = Record<string, ProviderInfo>;
 
 /**
  * Extended model with provider info for easier access
  */
-export interface ModelWithProvider extends ModelsDevModel {
+export interface ModelWithProvider extends ProviderModel {
 	provider: LLMProvider;
 	providerName: string;
 	fullId: string; // provider:modelId format

@@ -1,3 +1,4 @@
+import { Provider as AISDKToolsStoreProvider } from "@ai-sdk-tools/store";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,7 +50,9 @@ function ChatLayout() {
 		<div className="absolute left-3 right-3 md:left-4 md:right-4 top-14 bottom-[env(safe-area-inset-bottom)] flex h-auto">
 			<div className="flex-1 overflow-hidden">
 				<Suspense fallback={<ChatSkeleton />}>
-					<Outlet />
+					<AISDKToolsStoreProvider>
+						<Outlet />
+					</AISDKToolsStoreProvider>
 				</Suspense>
 			</div>
 		</div>

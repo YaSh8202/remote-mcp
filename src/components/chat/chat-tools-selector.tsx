@@ -23,7 +23,7 @@ import {
 	ToolSelectorToolInfo,
 	ToolSelectorTrigger,
 } from "@/components/ai-elements/tool-selector";
-import { useMcpServerListToosl } from "@/hooks/query-hooks/use-mcp-server-list-tools";
+import { useChatTools } from "@/features/chat/hooks/use-chat-tools";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import type { ToolDescription } from "@/services/mcp-server";
@@ -53,7 +53,6 @@ function ToolsSelector() {
 
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
-
 	const { data: mcpServers } = useSuspenseQuery({
 		enabled: !!chatId,
 		...trpc.chat.listMcpServers.queryOptions({
@@ -61,50 +60,11 @@ function ToolsSelector() {
 		}),
 	});
 
-	const selectedServers = useMemo(() => {
-		return (
-			mcpServers
-				?.map((serverData) => {
-					const { chatMcpServer, mcpServerData } = serverData;
-					if (chatMcpServer.isRemoteMcp && mcpServerData) {
-						return {
-							id: chatMcpServer.id,
-							isRemoteMcp: true as const,
-							mcpServerId: mcpServerData.id,
-							tools: chatMcpServer.tools || [],
-							includeAllTools: chatMcpServer.includeAllTools,
-						};
-					}
-					if (
-						!chatMcpServer.isRemoteMcp &&
-						chatMcpServer.config?.url &&
-						chatMcpServer.config?.type &&
-						chatMcpServer.displayName
-					) {
-						return {
-							id: chatMcpServer.id,
-							config: {
-								url: chatMcpServer.config.url,
-								type: chatMcpServer.config.type as "http" | "sse",
-								headers: chatMcpServer.config.headers,
-							},
-							displayName: chatMcpServer.displayName,
-							isRemoteMcp: false as const,
-							tools: chatMcpServer.tools || [],
-							includeAllTools: chatMcpServer.includeAllTools,
-						};
-					}
-					return null;
-				})
-				.filter(
-					(server): server is NonNullable<typeof server> => server !== null,
-				) || []
-		);
-	}, [mcpServers]);
-
-	const { data: mcpServerTools, isLoading } = useMcpServerListToosl({
-		mcpServers: selectedServers,
-	});
+	const {
+		data: mcpServerTools,
+		isLoading,
+		selectedServers,
+	} = useChatTools(chatId);
 
 	// Build server tools lookup
 	const serverToolsMap = useMemo(() => {

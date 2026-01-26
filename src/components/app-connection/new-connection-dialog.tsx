@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod/v4";
 import type { McpAppMetadata } from "@/app/mcp/mcp-app/app-metadata";
 import {
+	type CustomAuthProperty,
+	type CustomAuthProps,
 	type OAuth2Property,
 	type OAuth2Props,
 	PropertyType,
@@ -34,11 +36,13 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { isNil } from "@/lib/utils";
 import {
 	UpsertAppConnectionRequestBody,
+	UpsertCustomAuthRequest,
 	UpsertOAuth2Request,
 	UpsertSecretTextRequest,
 } from "@/types/app-connection";
 import { AppLogo } from "../AppLogo";
 import { ViewMarkdown } from "../markdown";
+import { CustomAuthConnectionSettings } from "./custom-auth-connection-settings";
 import { SecretTextConnectionSettings } from "./secret-text-connection-settings";
 
 const newConnectionSchema = z.object({
@@ -80,6 +84,23 @@ function createDefaultValues(
 					code_challenge: "",
 				},
 			};
+		case PropertyType.CUSTOM_AUTH: {
+			const defaultProps: Record<string, unknown> = {};
+			if (app.auth.props) {
+				for (const key of Object.keys(app.auth.props)) {
+					defaultProps[key] = "";
+				}
+			}
+			return {
+				displayName: suggestedDisplayName,
+				appName: app.name,
+				type: AppConnectionType.CUSTOM_AUTH,
+				value: {
+					type: AppConnectionType.CUSTOM_AUTH,
+					props: defaultProps,
+				},
+			};
+		}
 		default:
 			throw new Error(`Unsupported property type: ${app.auth}`);
 	}
@@ -103,6 +124,10 @@ function buildConnectionSchema(auth: McpAppMetadata["auth"]) {
 		case PropertyType.SECRET_TEXT:
 			return z.object({
 				request: UpsertSecretTextRequest,
+			});
+		case PropertyType.CUSTOM_AUTH:
+			return z.object({
+				request: UpsertCustomAuthRequest,
 			});
 
 		default: {
@@ -266,6 +291,13 @@ export const NewConnectionDialog = React.memo(
 										{app.auth?.type === PropertyType.SECRET_TEXT && (
 											<SecretTextConnectionSettings
 												authProperty={app.auth as SecretTextProperty<boolean>}
+											/>
+										)}
+										{app.auth?.type === PropertyType.CUSTOM_AUTH && (
+											<CustomAuthConnectionSettings
+												authProperty={
+													app.auth as CustomAuthProperty<CustomAuthProps>
+												}
 											/>
 										)}
 									</div>

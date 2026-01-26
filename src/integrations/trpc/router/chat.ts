@@ -1,18 +1,11 @@
 import { TRPCError } from "@trpc/server";
-import type { UIMessage } from "ai";
 import { generateId } from "ai";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v4";
 import { db } from "@/db";
-import {
-	chatMcpServers,
-	chats,
-	MessageRole,
-	MessageStatus,
-	mcpServer,
-	messages,
-} from "@/db/schema";
+import { chatMcpServers, chats, mcpServer, messages } from "@/db/schema";
 import { saveChat } from "@/services/chat-service";
+import type { UIMessage } from "@/types/chat";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 // Zod schemas for input validation
@@ -26,56 +19,6 @@ const updateChatSchema = z.object({
 	id: z.string(),
 	title: z.string().optional(),
 	archived: z.boolean().optional(),
-	metadata: z.record(z.string(), z.unknown()).optional(),
-});
-
-const messagePartSchema = z.object({
-	type: z.string(),
-	text: z.string().optional(),
-	// Tool call parts
-	toolCallId: z.string().optional(),
-	toolName: z.string().optional(),
-	input: z.record(z.string(), z.unknown()).optional(),
-	output: z.record(z.string(), z.unknown()).optional(),
-	result: z.record(z.string(), z.unknown()).optional(),
-	isError: z.boolean().optional(),
-	// File/image parts
-	data: z.string().optional(),
-	url: z.string().optional(),
-	mediaType: z.string().optional(),
-	filename: z.string().optional(),
-	// Reasoning parts
-	reasoning: z.string().optional(),
-});
-
-const createMessageSchema = z.object({
-	chatId: z.string(),
-	role: z.nativeEnum(MessageRole),
-	content: z.array(messagePartSchema),
-	status: z.nativeEnum(MessageStatus).optional(),
-	parentId: z.string().optional(),
-	branchIndex: z.string().optional(),
-	tokenUsage: z
-		.object({
-			promptTokens: z.number().optional(),
-			completionTokens: z.number().optional(),
-			totalTokens: z.number().optional(),
-		})
-		.optional(),
-	metadata: z.record(z.string(), z.unknown()).optional(),
-});
-
-const updateMessageSchema = z.object({
-	id: z.string(),
-	content: z.array(messagePartSchema).optional(),
-	status: z.nativeEnum(MessageStatus).optional(),
-	tokenUsage: z
-		.object({
-			promptTokens: z.number().optional(),
-			completionTokens: z.number().optional(),
-			totalTokens: z.number().optional(),
-		})
-		.optional(),
 	metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
@@ -143,7 +86,7 @@ export const chatRouter = createTRPCRouter({
 				})
 				.returning();
 
-			const messages = input.messages as UIMessage[] | undefined;
+			const messages = input.messages;
 
 			if (messages && messages?.length > 0) {
 				const chat = newChat[0];
@@ -252,92 +195,6 @@ export const chatRouter = createTRPCRouter({
 				.orderBy(messages.createdAt)
 				.limit(input.limit)
 				.offset(input.offset);
-		}),
-
-	// Create a new message
-	createMessage: protectedProcedure
-		.input(createMessageSchema)
-		.mutation(async ({ ctx, input }) => {
-			// Verify chat ownership
-			const chat = await db
-				.select()
-				.from(chats)
-				.where(and(eq(chats.id, input.chatId), eq(chats.ownerId, ctx.user.id)))
-				.limit(1);
-
-			if (!chat[0]) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Chat not found",
-				});
-			}
-
-			const messageId = generateId();
-
-			const newMessage = await db
-				.insert(messages)
-				.values({
-					id: messageId,
-					chatId: input.chatId,
-					role: input.role,
-					content: input.content,
-					status: input.status || MessageStatus.COMPLETE,
-					parentId: input.parentId,
-					branchIndex: input.branchIndex || "0",
-					tokenUsage: input.tokenUsage,
-					metadata: input.metadata || {},
-				})
-				.returning();
-
-			// Update chat's updatedAt and lastMessagedAt timestamp
-			await db
-				.update(chats)
-				.set({
-					updatedAt: new Date(),
-					lastMessagedAt: new Date(),
-				})
-				.where(eq(chats.id, input.chatId));
-
-			return newMessage[0];
-		}),
-
-	// Update a message
-	updateMessage: protectedProcedure
-		.input(updateMessageSchema)
-		.mutation(async ({ ctx, input }) => {
-			const { id, ...updateData } = input;
-
-			// Verify message exists and chat ownership
-			const messageWithChat = await db
-				.select({
-					message: messages,
-					chat: chats,
-				})
-				.from(messages)
-				.leftJoin(chats, eq(messages.chatId, chats.id))
-				.where(eq(messages.id, id))
-				.limit(1);
-
-			if (
-				!messageWithChat[0] ||
-				messageWithChat[0].chat?.ownerId !== ctx.user.id
-			) {
-				throw new TRPCError({
-					code: "NOT_FOUND",
-					message: "Message not found",
-				});
-			}
-
-			const updatedMessage = await db
-				.update(messages)
-				.set({
-					...updateData,
-					updatedAt: new Date(),
-				})
-				.where(eq(messages.id, id))
-				.returning();
-
-			return updatedMessage[0];
 		}),
 
 	// Delete a message

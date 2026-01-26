@@ -1,6 +1,6 @@
 "use client";
 
-import type { FileUIPart, UIMessage } from "ai";
+import type { FileUIPart } from "ai";
 import {
 	ChevronLeftIcon,
 	ChevronRightIcon,
@@ -19,6 +19,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import type { UIMessage } from "@/types/chat";
 
 export type MessageProps = HTMLAttributes<HTMLDivElement> & {
 	from: UIMessage["role"];
