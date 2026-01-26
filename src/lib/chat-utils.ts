@@ -1,6 +1,14 @@
-import { createIdGenerator, type UIMessage } from "ai";
-import type { Message, MessageRole } from "@/db/schema";
-import { MessageStatus } from "@/db/schema";
+import {
+	type UIMessage as AISDKUIMessage,
+	createIdGenerator,
+	isReasoningUIPart,
+	isTextUIPart,
+	isToolUIPart,
+} from "ai";
+import { countTokens } from "gpt-tokenizer";
+import type { Message } from "@/db/schema";
+import type { ToolDescription } from "@/services/mcp-server";
+import { type MessageRole, MessageStatus, type UIMessage } from "@/types/chat";
 
 export const generateMessageId = createIdGenerator({
 	prefix: "msg",
@@ -13,11 +21,10 @@ export const generateMessageId = createIdGenerator({
 export function dbMessageToUIMessage(dbMessage: Message): UIMessage {
 	return {
 		id: dbMessage.id,
-		role: dbMessage.role as "user" | "assistant" | "system",
+		role: dbMessage.role,
 		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
 		parts: dbMessage.content as any,
-		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
-		metadata: dbMessage.metadata as any,
+		metadata: dbMessage.metadata || undefined,
 	};
 }
 
@@ -35,12 +42,10 @@ export function uiMessageToDbMessage(
 		role: uiMessage.role as MessageRole,
 		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
 		content: uiMessage.parts as any,
-		status: MessageStatus.COMPLETE,
+		status: uiMessage.metadata?.status || MessageStatus.COMPLETE,
 		parentId: parentId || null,
 		branchIndex: "0",
-		tokenUsage: null,
-		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
-		metadata: (uiMessage.metadata || {}) as any,
+		metadata: uiMessage.metadata || null,
 	};
 }
 
@@ -85,56 +90,6 @@ export function createTextMessagePart(text: string) {
 }
 
 /**
- * Creates a tool call message part
- */
-export function createToolCallMessagePart(
-	toolCallId: string,
-	toolName: string,
-	input: Record<string, unknown>,
-) {
-	return {
-		type: "tool-call",
-		toolCallId,
-		toolName,
-		input,
-	};
-}
-
-/**
- * Creates a tool result message part
- */
-export function createToolResultMessagePart(
-	toolCallId: string,
-	toolName: string,
-	result: Record<string, unknown>,
-	isError = false,
-) {
-	return {
-		type: "tool-result",
-		toolCallId,
-		toolName,
-		result,
-		isError,
-	};
-}
-
-/**
- * Validates if a message has valid content structure
- */
-export function isValidMessageContent(content: unknown): boolean {
-	if (!Array.isArray(content)) {
-		return false;
-	}
-
-	return content.every(
-		(part) =>
-			typeof part === "object" &&
-			part !== null &&
-			typeof (part as Record<string, unknown>).type === "string",
-	);
-}
-
-/**
  * Gets the text content from a message's parts
  */
 export function getMessageText(message: Message): string {
@@ -174,4 +129,50 @@ export function filterMessagesByRole(
 	role: MessageRole,
 ): Message[] {
 	return messages.filter((message) => message.role === role);
+}
+
+export function stringifyUIMessage(message: AISDKUIMessage): string {
+	let text = "";
+
+	for (const part of message.parts) {
+		if (isReasoningUIPart(part) || isTextUIPart(part)) {
+			text += `${part.text}\n`;
+			continue;
+		}
+		if (isToolUIPart(part)) {
+			text += part.title;
+
+			if ("toolName" in part && part.toolName) {
+				text += ` [${part.toolName}]\n`;
+			}
+
+			if (part.input) {
+				text += JSON.stringify(part.input);
+				text += "\n";
+			}
+
+			if (part.output) {
+				text += JSON.stringify(part.output);
+				text += "\n";
+			}
+			text += " ";
+		}
+	}
+
+	return text;
+}
+
+export function countUIMessageTokens(message: AISDKUIMessage): number {
+	const text = stringifyUIMessage(message);
+
+	const count = countTokens(text);
+
+	// console.log("Token count for message:", text, "is", count);
+
+	return count;
+}
+
+export function countToolTokens(tool: ToolDescription): number {
+	const content = `${tool.name} ${tool.description ?? ""} ${tool.inputSchema ? JSON.stringify(tool.inputSchema) : ""}`;
+	return countTokens(content);
 }

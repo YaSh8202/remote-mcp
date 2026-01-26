@@ -1,105 +1,9 @@
-/**
- * Client for fetching AI model data from models.dev API
- * https://github.com/sst/models.dev
- */
-
-import type {
-	ModelsData,
-	ModelsDevResponse,
-	ModelWithProvider,
-} from "@/types/models";
+import type { ProviderInfo } from "@tokenlens/core";
+import { fetchModels } from "tokenlens";
+import type { ModelsData, ModelWithProvider } from "@/types/models";
 import { LLMProvider } from "@/types/models";
 
-// Use our server-side proxy to avoid CORS issues
-const MODELS_DEV_API_URL =
-	typeof window !== "undefined" ? "/api/models" : "https://models.dev/api.json";
-const CACHE_KEY = "models-dev-data";
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
-const MAX_MODELS_PER_PROVIDER = 7; // Show only latest 7 models per provider
-
-interface CachedData {
-	data: ModelsDevResponse;
-	timestamp: number;
-}
-
-/**
- * Get cached models data from sessionStorage
- */
-function getCachedData(): ModelsDevResponse | null {
-	if (typeof window === "undefined") return null;
-
-	try {
-		const cached = sessionStorage.getItem(CACHE_KEY);
-		if (!cached) return null;
-
-		const { data, timestamp } = JSON.parse(cached) as CachedData;
-		const isExpired = Date.now() - timestamp > CACHE_DURATION;
-
-		if (isExpired) {
-			sessionStorage.removeItem(CACHE_KEY);
-			return null;
-		}
-
-		return data;
-	} catch {
-		return null;
-	}
-}
-
-/**
- * Cache models data in sessionStorage
- */
-function setCachedData(data: ModelsDevResponse): void {
-	if (typeof window === "undefined") return;
-
-	try {
-		const cached: CachedData = {
-			data,
-			timestamp: Date.now(),
-		};
-		sessionStorage.setItem(CACHE_KEY, JSON.stringify(cached));
-	} catch {
-		// Silently fail if sessionStorage is not available
-	}
-}
-
-/**
- * Fetch models data from models.dev API
- */
-export async function fetchModelsDevData(): Promise<ModelsDevResponse> {
-	// Check cache first
-	const cached = getCachedData();
-	if (cached) {
-		return cached;
-	}
-
-	try {
-		// Fetch from API
-		const response = await fetch(MODELS_DEV_API_URL, {
-			mode: "cors",
-			headers: {
-				Accept: "application/json",
-			},
-		});
-		if (!response.ok) {
-			throw new Error(
-				`Failed to fetch models data: ${response.status} ${response.statusText}`,
-			);
-		}
-
-		const data = (await response.json()) as ModelsDevResponse;
-
-		// Cache the data
-		setCachedData(data);
-
-		return data;
-	} catch (error) {
-		// Log error for debugging but don't throw to prevent page crashes
-		console.warn("Failed to fetch models.dev data:", error);
-		// Re-throw to let the query handle it gracefully
-		throw error;
-	}
-}
+const MAX_MODELS_PER_PROVIDER = 15; // Show only latest 7 models per provider
 
 /**
  * Provider ID mapping between our LLMProvider enum and models.dev IDs
@@ -119,8 +23,8 @@ const PROVIDER_ID_MAP: Record<LLMProvider, string> = {
  */
 function sortModelsByDate(models: ModelWithProvider[]): ModelWithProvider[] {
 	return models.sort((a, b) => {
-		const dateA = new Date(a.release_date).getTime();
-		const dateB = new Date(b.release_date).getTime();
+		const dateA = new Date(a.release_date ?? 0).getTime();
+		const dateB = new Date(b.release_date ?? 0).getTime();
 		return dateB - dateA; // Newest first
 	});
 }
@@ -130,9 +34,9 @@ function sortModelsByDate(models: ModelWithProvider[]): ModelWithProvider[] {
  * - Sorts models by release date
  * - Limits to latest 5 models per provider
  */
-export function processModelsDevData(
-	modelsDevData: ModelsDevResponse,
-): ModelsData {
+export function processModelsDevData(modelsDevData: {
+	[key: string]: ProviderInfo;
+}): ModelsData {
 	const providers: ModelsData["providers"] = [];
 	const allModels: ModelWithProvider[] = [];
 
@@ -146,22 +50,22 @@ export function processModelsDevData(
 		}
 
 		// Convert provider models to ModelWithProvider format
-		const providerModels: ModelWithProvider[] = Object.entries(
-			providerData.models,
-		).map(([modelId, modelData]) => ({
-			...modelData,
-			provider: providerId,
-			providerName: providerData.name,
-			fullId: `${providerId}:${modelId}`,
-		}));
+		const providerModels = Object.entries(providerData.models).map(
+			([modelId, modelData]) => ({
+				...modelData,
+				provider: providerId,
+				providerName: providerData.name,
+				fullId: `${providerId}:${modelId}`,
+			}),
+		) as ModelWithProvider[];
 
 		// Sort by release date and take latest 5
-		const sortedModels = sortModelsByDate(providerModels);
+		const sortedModels = sortModelsByDate(Object.values(providerModels));
 		const latestModels = sortedModels.slice(0, MAX_MODELS_PER_PROVIDER);
 
 		providers.push({
 			id: providerId,
-			name: providerData.name,
+			name: providerData.name || providerData.id,
 			models: latestModels,
 		});
 
@@ -178,6 +82,6 @@ export function processModelsDevData(
  * Fetch and process models data from models.dev
  */
 export async function getModelsData(): Promise<ModelsData> {
-	const modelsDevData = await fetchModelsDevData();
+	const modelsDevData = await fetchModels();
 	return processModelsDevData(modelsDevData);
 }

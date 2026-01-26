@@ -4,8 +4,6 @@ import {
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import type { UIMessage } from "ai";
-import { nanoid } from "nanoid";
 import { useCallback, useRef, useState } from "react";
 import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import {
@@ -29,9 +27,11 @@ import { SuggestionCard } from "@/components/chat/suggestion-card";
 import { FreeTierProviders } from "@/components/free-tier-providers";
 import { ModelSelector } from "@/components/model-selector";
 import { useTRPC } from "@/integrations/trpc/react";
-import { useChatStore } from "@/store/chat-store";
+import { countUIMessageTokens, generateMessageId } from "@/lib/chat-utils";
+import { useChatModel } from "@/store/chat-store";
 import { usePageHeader } from "@/store/header-store";
 import { useNewChatStore } from "@/store/new-chat-store";
+import { MessageStatus, type UIMessage } from "@/types/chat";
 import { LLMProvider } from "@/types/models";
 
 export const Route = createFileRoute("/_authed/chat/")({
@@ -85,8 +85,7 @@ function ChatPage() {
 	);
 	const hasProviders = llmProviders && llmProviders.length > 0;
 
-	// Model selection state
-	const { selectedModel, setSelectedModel } = useChatStore();
+	const chatModel = useChatModel();
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: trpc query keys are stable
 	const createNewChat = useCallback(
@@ -159,6 +158,10 @@ function ChatPage() {
 		async (input: PromptInputMessage) => {
 			if (!input.text && !input.files?.length) return;
 
+			if (!chatModel) {
+				throw new Error("Please select a model before starting a new chat.");
+			}
+
 			// Convert PromptInput message to UIMessage format
 			const parts: UIMessage["parts"] = [];
 
@@ -173,10 +176,20 @@ function ChatPage() {
 			}
 
 			const message: UIMessage = {
-				id: nanoid(),
+				id: generateMessageId(),
 				role: "user",
 				parts,
-				metadata: { status: "pending" },
+				metadata: {
+					status: MessageStatus.PENDING,
+					modelId: chatModel.fullId,
+					cost: null,
+					totalUsage: null,
+					messageTokens: countUIMessageTokens({
+						id: "",
+						role: "user",
+						parts,
+					}),
+				},
 			};
 
 			const chatTitle = input.text || "New Chat";
@@ -184,7 +197,7 @@ function ChatPage() {
 
 			navigate({ to: `/chat/${chatId}` });
 		},
-		[navigate],
+		[navigate, chatModel],
 	);
 
 	// Handle suggestion click
@@ -323,11 +336,7 @@ function ChatPage() {
 						<PromptInputFooter className="flex items-center justify-between px-3 py-2">
 							<div className="flex items-center gap-2">
 								<AttachFileButton disabled={!hasProviders} />
-								<ModelSelector
-									selectedModel={selectedModel}
-									onModelSelect={setSelectedModel}
-									disabled={!hasProviders}
-								/>
+								<ModelSelector disabled={!hasProviders} />
 							</div>
 							<PromptInputSubmit disabled={!hasProviders} />
 						</PromptInputFooter>

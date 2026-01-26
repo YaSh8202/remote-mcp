@@ -1,5 +1,7 @@
+import { useMemo } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import { useModels } from "@/hooks/use-models";
 import { LLMProvider } from "@/types/models";
 
 interface ChatStore {
@@ -73,3 +75,16 @@ export const useChatStore = create<ChatStore>()(
 		},
 	),
 );
+
+export const useChatModel = () => {
+	const selectedModel = useChatStore((state) => state.selectedModel);
+	const selectedProvider = useChatStore((state) => state.selectedProvider);
+
+	const modelId = `${selectedProvider}:${selectedModel}`;
+
+	const { getModel } = useModels();
+
+	const model = useMemo(() => getModel(modelId), [getModel, modelId]);
+
+	return model;
+};

@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useCallback } from "react";
 import { getModelsData } from "@/lib/models-dev";
 import type { ModelsData } from "@/types/models";
 
@@ -25,8 +26,16 @@ export const useModels = () => {
 		console.error("Failed to load models data:", error);
 	}
 
+	const getModel = useCallback(
+		(modelId: string) => {
+			return data?.allModels.find((model) => model.fullId === modelId);
+		},
+		[data],
+	);
+
 	return {
 		...(data ?? FALLBACK_MODELS_DATA),
+		getModel,
 		isLoading,
 		error,
 	};

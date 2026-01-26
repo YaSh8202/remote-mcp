@@ -26,6 +26,7 @@ import {
 import { useModels } from "@/hooks/use-models";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
+import { useChatModel, useChatStore } from "@/store/chat-store";
 import type { LLMProvider, ModelWithProvider } from "@/types/models";
 import { LLMProvider as LLMProviderEnum } from "@/types/models";
 import { AddLLMKeyDialog } from "./add-llm-key-dialog";
@@ -33,8 +34,6 @@ import { ProviderLogo } from "./icons";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 interface ModelSelectorProps {
-	selectedModel: string;
-	onModelSelect: (model: string, provider: LLMProvider) => void;
 	disabled?: boolean;
 }
 
@@ -86,14 +85,11 @@ const ModelCapabilities = ({ model }: { model: ModelWithProvider }) => {
 	);
 };
 
-export function ModelSelector({
-	selectedModel,
-	onModelSelect,
-	disabled,
-}: ModelSelectorProps) {
+export function ModelSelector({ disabled }: ModelSelectorProps) {
 	const [open, setOpen] = useState(false);
 	const [isAddKeyDialogOpen, setIsAddKeyDialogOpen] = useState(false);
 	const trpc = useTRPC();
+	const { setSelectedModel: onModelSelect } = useChatStore();
 
 	const { data: keys = [] } = useQuery(
 		trpc.llmProvider.getKeys.queryOptions({}),
@@ -113,13 +109,7 @@ export function ModelSelector({
 		);
 	}, [providers, validKeys]);
 
-	const selectedModelInfo = useMemo(() => {
-		for (const provider of availableProviders) {
-			const model = provider.models.find((m) => m.fullId === selectedModel);
-			if (model) return model;
-		}
-		return null;
-	}, [availableProviders, selectedModel]);
+	const selectedModelInfo = useChatModel();
 
 	// Calculate providers that don't have valid keys
 	const existingProviders = validKeys.map((key) => key.provider as LLMProvider);
@@ -203,7 +193,7 @@ export function ModelSelector({
 												key={model.fullId}
 												value={`${model.name} ${model.id} ${model.fullId}`}
 												onSelect={() => {
-													onModelSelect(model.fullId, model.provider);
+													onModelSelect(model.id, model.provider);
 													setOpen(false);
 												}}
 												className="py-3"
@@ -211,7 +201,7 @@ export function ModelSelector({
 												<Check
 													className={cn(
 														"mr-2 h-4 w-4",
-														selectedModel === model.fullId
+														selectedModelInfo?.fullId === model.fullId
 															? "opacity-100"
 															: "opacity-0",
 													)}
@@ -224,15 +214,19 @@ export function ModelSelector({
 														<ModelCapabilities model={model} />
 													</div>
 													<div className="flex items-center gap-2 text-xs text-muted-foreground">
-														<span>
-															Context: {(model.limit.context / 1000).toFixed(0)}
-															k
-														</span>
+														{model.limit?.context && (
+															<span>
+																Context:{" "}
+																{(model.limit?.context / 1000).toFixed(0)}k
+															</span>
+														)}
 														<span>•</span>
-														<span>
-															${model.cost.input.toFixed(2)}/$
-															{model.cost.output.toFixed(2)} per 1M tokens
-														</span>
+														{model.cost?.input && model.cost?.output && (
+															<span>
+																${model.cost.input.toFixed(2)}/$
+																{model.cost.output.toFixed(2)} per 1M tokens
+															</span>
+														)}
 													</div>
 												</div>
 											</CommandItem>

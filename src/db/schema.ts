@@ -1,5 +1,10 @@
 import { relations } from "drizzle-orm";
 import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	type MessageMetadata,
+	type MessageRole,
+	MessageStatus,
+} from "@/types/chat";
 import type { LLMProvider } from "@/types/models";
 
 export const users = pgTable("users", {
@@ -99,6 +104,7 @@ export enum AppConnectionType {
 	OAUTH2 = "OAUTH2",
 	NO_AUTH = "NO_AUTH",
 	SECRET_TEXT = "SECRET_TEXT",
+	CUSTOM_AUTH = "CUSTOM_AUTH",
 }
 
 export const appConnections = pgTable("app_connections", {
@@ -238,20 +244,6 @@ export const chats = pgTable("chats", {
 		.default({}),
 });
 
-export enum MessageRole {
-	USER = "user",
-	ASSISTANT = "assistant",
-	SYSTEM = "system",
-	TOOL = "tool",
-}
-
-export enum MessageStatus {
-	IN_PROGRESS = "in_progress",
-	COMPLETE = "complete",
-	CANCELLED = "cancelled",
-	ERROR = "error",
-}
-
 export const messages = pgTable("messages", {
 	id: text("id").primaryKey(),
 	createdAt: timestamp("created_at", { withTimezone: true })
@@ -296,34 +288,14 @@ export const messages = pgTable("messages", {
 	parentId: text("parent_id"),
 	// Branch index for multiple response variants
 	branchIndex: text("branch_index").default("0"),
-	// Token usage tracking
-	tokenUsage: jsonb("token_usage").$type<{
-		promptTokens?: number;
-		completionTokens?: number;
-		totalTokens?: number;
-	}>(),
 	// Additional metadata compatible with assistant-ui
-	metadata: jsonb("metadata")
-		.$type<{
-			steps?: Array<{
-				type: string;
-				toolCallId?: string;
-				toolName?: string;
-				input?: Record<string, unknown>;
-				output?: Record<string, unknown>;
-				status?: string;
-			}>;
-			attachments?: Array<{
-				id: string;
-				name: string;
-				contentType: string;
-				size?: number;
-				url?: string;
-			}>;
-			custom?: Record<string, unknown>;
-			[key: string]: unknown;
-		}>()
-		.default({}),
+	metadata: jsonb("metadata").$type<MessageMetadata>().default({
+		modelId: null,
+		cost: null,
+		totalUsage: null,
+		status: null,
+		messageTokens: 0,
+	}),
 });
 
 // Chat MCP Servers table for storing selected servers and tools per chat

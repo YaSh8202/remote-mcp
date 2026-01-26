@@ -1,15 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { getTokenCosts } from "@tokenlens/helpers";
 import {
 	createAgentUIStreamResponse,
+	type LanguageModelUsage,
 	stepCountIs,
 	ToolLoopAgent,
-	type UIMessage,
 	validateUIMessages,
 } from "ai";
-
+import { fetchModels } from "tokenlens";
 import { auth } from "@/lib/auth";
-import { generateMessageId } from "@/lib/chat-utils";
+import { countUIMessageTokens, generateMessageId } from "@/lib/chat-utils";
 import {
+	addMessageToChat,
 	deleteMessageAndAfter,
 	loadChat,
 	saveChat,
@@ -18,6 +20,7 @@ import {
 	getDefaultLLMProviderKey,
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
+import { MessageStatus, type UIMessage } from "@/types/chat";
 import { LLMProvider } from "@/types/models";
 import { getAIModel, getProviderOptions } from "./-libs/models";
 import { getChatTools } from "./-libs/tools";
@@ -52,7 +55,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 						system?: string;
 						chatId?: string;
 						provider?: LLMProvider;
-						model?: string;
+						model: string;
 						trigger?: "submit-message" | "regenerate-message";
 					} = body;
 
@@ -93,9 +96,10 @@ export const Route = createFileRoute("/api/chat/$id")({
 					// Get or create chat ID
 					const currentChatId = requestChatId;
 
-					if ((message.metadata as { status: string })?.status === "pending") {
+					if (message.metadata?.status === "pending") {
 						message.metadata = {
-							status: "done",
+							...message.metadata,
+							status: MessageStatus.COMPLETE,
 						};
 					}
 
@@ -223,12 +227,17 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 					const tools = await getChatTools(session.user.id, currentChatId);
 
+					let usage: LanguageModelUsage | undefined;
 					const codeAgent = new ToolLoopAgent({
 						model: aiSdkModel,
 						temperature: 0.7,
 						tools,
 						stopWhen: stepCountIs(25),
 						providerOptions: getProviderOptions(),
+						onFinish: async (finishResponse) => {
+							const { totalUsage } = finishResponse;
+							usage = totalUsage;
+						},
 					});
 
 					// Return the UI message stream response (AI SDK v5)
@@ -239,11 +248,27 @@ export const Route = createFileRoute("/api/chat/$id")({
 							"X-Chat-ID": currentChatId, // Include chat ID for frontend navigation
 						},
 						sendReasoning: true,
-						onFinish: async ({ messages }) => {
-							await saveChat({
+						sendSources: true,
+
+						onFinish: async ({ responseMessage }) => {
+							const modelId = `${provider}:${model}`;
+							const cost = getTokenCosts({
+								modelId,
+								usage: usage,
+								providers: await fetchModels(),
+							});
+
+							await addMessageToChat({
 								chatId: currentChatId,
-								messages: messages,
+								message: responseMessage,
 								userId: session.user.id,
+								messageMetadata: {
+									totalUsage: usage || null,
+									modelId,
+									status: MessageStatus.COMPLETE,
+									cost: cost,
+									messageTokens: countUIMessageTokens(responseMessage),
+								},
 							});
 						},
 						generateMessageId,
