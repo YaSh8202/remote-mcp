@@ -228,7 +228,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 					// Fetch models data upfront to avoid async call in onFinish callback
 					const [tools, modelsData] = await Promise.all([
 						getChatTools(session.user.id, currentChatId),
-						fetchModels(),
+						fetchModels(provider),
 					]);
 
 					let usage: LanguageModelUsage | undefined;
@@ -256,11 +256,13 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 						onFinish: async ({ responseMessage }) => {
 							const modelId = `${provider}:${model}`;
-							const cost = getTokenCosts({
-								modelId: `${provider}/${model}`,
-								usage: usage,
-								providers: modelsData,
-							});
+							const cost = modelsData
+								? getTokenCosts({
+										modelId: `${provider}/${model}`,
+										usage: usage,
+										providers: modelsData,
+									})
+								: null;
 
 							await addMessageToChat({
 								chatId: currentChatId,

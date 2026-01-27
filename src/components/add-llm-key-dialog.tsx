@@ -35,7 +35,7 @@ import { useTRPC } from "@/integrations/trpc/react";
 import { LLMProvider } from "@/types/models";
 
 const formSchema = z.object({
-	provider: z.nativeEnum(LLMProvider),
+	provider: z.enum(LLMProvider),
 	apiKey: z
 		.string()
 		.min(1, "API key is required")
