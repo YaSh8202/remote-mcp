@@ -4,13 +4,14 @@ import { and, desc, eq, isNull } from "drizzle-orm";
 import { z } from "zod/v4";
 import { db } from "@/db";
 import { chatMcpServers, chats, mcpServer, messages } from "@/db/schema";
+import { generateChatTitle } from "@/routes/api/chat/-libs/title-generator";
 import { saveChat } from "@/services/chat-service";
 import type { UIMessage } from "@/types/chat";
+import { LLMProviderSchema } from "@/types/models";
 import { createTRPCRouter, protectedProcedure } from "../init";
 
 // Zod schemas for input validation
 const createChatSchema = z.object({
-	title: z.string().optional(),
 	metadata: z.record(z.string(), z.unknown()).optional(),
 	messages: z.array(z.custom<UIMessage>(() => true)),
 });
@@ -74,13 +75,13 @@ export const chatRouter = createTRPCRouter({
 		.input(createChatSchema)
 		.mutation(async ({ ctx, input }) => {
 			const chatId = generateId();
-			const truncatedTitle = input.title ? input.title.slice(0, 64) : undefined;
 
+			// Use "New Chat" as placeholder - title will be generated async
 			const newChat = await db
 				.insert(chats)
 				.values({
 					id: chatId,
-					title: truncatedTitle,
+					title: "New Chat",
 					ownerId: ctx.user.id,
 					metadata: input.metadata || {},
 				})
@@ -99,6 +100,52 @@ export const chatRouter = createTRPCRouter({
 			}
 
 			return newChat[0];
+		}),
+
+	// Generate and update chat title using AI
+	generateTitle: protectedProcedure
+		.input(
+			z.object({
+				chatId: z.string(),
+				provider: LLMProviderSchema,
+				model: z.string(),
+				firstMessageText: z.string(),
+			}),
+		)
+		.mutation(async ({ ctx, input }) => {
+			// Verify chat ownership
+			const existingChat = await db
+				.select()
+				.from(chats)
+				.where(and(eq(chats.id, input.chatId), eq(chats.ownerId, ctx.user.id)))
+				.limit(1);
+
+			if (!existingChat[0]) {
+				throw new TRPCError({
+					code: "NOT_FOUND",
+					message: "Chat not found",
+				});
+			}
+
+			// Generate AI-powered title
+			const title = await generateChatTitle(
+				ctx.user.id,
+				input.provider,
+				input.model,
+				input.firstMessageText,
+			);
+
+			// Update the chat with the generated title
+			const updatedChat = await db
+				.update(chats)
+				.set({
+					title: title.slice(0, 64),
+					updatedAt: new Date(),
+				})
+				.where(eq(chats.id, input.chatId))
+				.returning();
+
+			return updatedChat[0];
 		}),
 
 	// Update a chat

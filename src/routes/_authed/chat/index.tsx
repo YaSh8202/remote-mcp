@@ -68,6 +68,15 @@ function ChatPage() {
 	const addMcpServerMutation = useMutation({
 		...trpc.chat.addMcpServer.mutationOptions(),
 	});
+	const generateTitleMutation = useMutation({
+		...trpc.chat.generateTitle.mutationOptions(),
+		onSuccess: () => {
+			// Invalidate chat list to show updated title
+			queryClient.invalidateQueries({
+				queryKey: trpc.chat.list.queryKey(),
+			});
+		},
+	});
 
 	// State for add LLM key dialog
 	const [addKeyDialogOpen, setAddKeyDialogOpen] = useState(false);
@@ -89,15 +98,8 @@ function ChatPage() {
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: trpc query keys are stable
 	const createNewChat = useCallback(
-		async ({
-			chatTitle,
-			message,
-		}: {
-			chatTitle: string;
-			message: UIMessage;
-		}) => {
+		async ({ message }: { message: UIMessage }) => {
 			const chatData = await createChatMutation.mutateAsync({
-				title: chatTitle,
 				messages: [message],
 			});
 
@@ -192,12 +194,22 @@ function ChatPage() {
 				},
 			};
 
-			const chatTitle = input.text || "New Chat";
-			const chatId = await createNewChatRef.current({ chatTitle, message });
+			const chatId = await createNewChatRef.current({ message });
 
+			// Navigate immediately for better UX
 			navigate({ to: `/chat/${chatId}` });
+
+			// Generate title in the background (non-blocking)
+			if (input.text) {
+				generateTitleMutation.mutate({
+					chatId,
+					provider: chatModel.provider,
+					model: chatModel.id,
+					firstMessageText: input.text,
+				});
+			}
 		},
-		[navigate, chatModel],
+		[navigate, chatModel, generateTitleMutation],
 	);
 
 	// Handle suggestion click
