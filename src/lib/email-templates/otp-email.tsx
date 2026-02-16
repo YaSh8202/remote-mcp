@@ -72,7 +72,7 @@ export const OTPEmail = ({ otp, type }: OTPEmailProps) => {
 					</Text>
 
 					<Text style={footer}>
-						© 2024 Remote MCP. All rights reserved.
+						© 2026 Remote MCP. All rights reserved.
 						<br />
 						If you have any questions, contact us at support@remotemcp.tech
 					</Text>

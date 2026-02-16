@@ -67,6 +67,13 @@ export const FloatingNav = ({
 					<a
 						key={`link=${idx}`}
 						href={navItem.link}
+						onClick={(e) => {
+							e.preventDefault();
+							const element = document.querySelector(navItem.link);
+							if (element) {
+								element.scrollIntoView({ behavior: "smooth", block: "start" });
+							}
+						}}
 						className={cn(
 							"relative dark:text-neutral-50 items-center flex space-x-1 text-neutral-600 dark:hover:text-neutral-300 hover:text-neutral-500",
 						)}
