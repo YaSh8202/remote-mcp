@@ -32,6 +32,7 @@ const GlowingEffect = memo(
 		const containerRef = useRef<HTMLDivElement>(null);
 		const lastPosition = useRef({ x: 0, y: 0 });
 		const animationFrameRef = useRef<number>(0);
+		const glowRef = useRef<HTMLDivElement>(null);
 
 		const handleMove = useCallback(
 			(e?: MouseEvent | { x: number; y: number }) => {
@@ -61,7 +62,7 @@ const GlowingEffect = memo(
 					const inactiveRadius = 0.5 * Math.min(width, height) * inactiveZone;
 
 					if (distanceFromCenter < inactiveRadius) {
-						element.style.setProperty("--active", "0");
+						glowRef.current?.style.setProperty("--active", "0");
 						return;
 					}
 
@@ -71,12 +72,14 @@ const GlowingEffect = memo(
 						mouseY > top - proximity &&
 						mouseY < top + height + proximity;
 
-					element.style.setProperty("--active", isActive ? "1" : "0");
+					glowRef.current?.style.setProperty("--active", isActive ? "1" : "0");
 
 					if (!isActive) return;
 
 					const currentAngle =
-						Number.parseFloat(element.style.getPropertyValue("--start")) || 0;
+						Number.parseFloat(
+							glowRef.current?.style.getPropertyValue("--start") ?? "0",
+						) || 0;
 					const targetAngle =
 						(180 * Math.atan2(mouseY - center[1], mouseX - center[0])) /
 							Math.PI +
@@ -89,7 +92,7 @@ const GlowingEffect = memo(
 						duration: movementDuration,
 						ease: [0.16, 1, 0.3, 1],
 						onUpdate: (value) => {
-							element.style.setProperty("--start", String(value));
+							glowRef.current?.style.setProperty("--start", String(value));
 						},
 					});
 				});
@@ -133,8 +136,6 @@ const GlowingEffect = memo(
 						{
 							"--blur": `${blur}px`,
 							"--spread": spread,
-							"--start": "0",
-							"--active": "0",
 							"--glowingeffect-border-width": `${borderWidth}px`,
 							"--repeating-conic-gradient-times": "5",
 							"--gradient":
@@ -167,6 +168,8 @@ const GlowingEffect = memo(
 					)}
 				>
 					<div
+						ref={glowRef}
+						style={{ "--active": "0", "--start": "0" } as React.CSSProperties}
 						className={cn(
 							"glow",
 							"rounded-[inherit]",

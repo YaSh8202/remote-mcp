@@ -26,6 +26,7 @@ interface DataTableViewOptionsProps<TData> {
 export function DataTableViewOptions<TData>({
 	table,
 }: DataTableViewOptionsProps<TData>) {
+	const [open, setOpen] = React.useState(false);
 	const columns = React.useMemo(
 		() =>
 			table
@@ -38,11 +39,13 @@ export function DataTableViewOptions<TData>({
 	);
 
 	return (
-		<Popover>
+		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					aria-label="Toggle columns"
 					role="combobox"
+					aria-expanded={open}
+					aria-controls="view-options-listbox"
 					variant="outline"
 					size="sm"
 					className="ml-auto hidden h-8 lg:flex"
@@ -52,7 +55,11 @@ export function DataTableViewOptions<TData>({
 					<ChevronsUpDown className="ml-auto opacity-50" />
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent align="end" className="w-44 p-0">
+			<PopoverContent
+				id="view-options-listbox"
+				align="end"
+				className="w-44 p-0"
+			>
 				<Command>
 					<CommandInput placeholder="Search columns..." />
 					<CommandList>

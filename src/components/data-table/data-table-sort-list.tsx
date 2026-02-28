@@ -324,6 +324,7 @@ function DataTableSortItem({
 						<Button
 							id={fieldTriggerId}
 							role="combobox"
+							aria-expanded={showFieldSelector}
 							aria-controls={fieldListboxId}
 							variant="outline"
 							size="sm"

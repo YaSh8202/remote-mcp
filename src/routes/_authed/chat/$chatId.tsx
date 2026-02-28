@@ -25,6 +25,57 @@ import { useChatModel } from "@/store/chat-store";
 import { usePageHeader } from "@/store/header-store";
 import type { UIMessage } from "@/types/chat";
 
+function ChatNotFoundComponent() {
+	const navigate = useNavigate();
+
+	return (
+		<div className="min-h-[60vh] flex flex-col items-center justify-center max-w-lg mx-auto p-8 space-y-8">
+			<div className="space-y-4 text-center">
+				<div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+					<svg
+						className="w-8 h-8 text-muted-foreground"
+						fill="none"
+						stroke="currentColor"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
+					>
+						<path
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth={2}
+							d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+						/>
+					</svg>
+				</div>
+				<div className="space-y-2">
+					<h1 className="text-2xl font-semibold text-foreground">
+						Chat Not Found
+					</h1>
+					<p className="text-sm text-muted-foreground max-w-md">
+						The chat you are looking for does not exist or may have been
+						deleted.
+					</p>
+				</div>
+			</div>
+			<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+				<Button
+					onClick={() => navigate({ to: "/chat" })}
+					className="min-w-[140px] gap-2"
+				>
+					New Chat
+				</Button>
+				<Button
+					variant="outline"
+					onClick={() => navigate({ to: "/" })}
+					className="min-w-[140px]"
+				>
+					Go to Home
+				</Button>
+			</div>
+		</div>
+	);
+}
+
 export const Route = createFileRoute("/_authed/chat/$chatId")({
 	loader: async ({ context, params }) => {
 		const { chatId } = params;
@@ -45,56 +96,7 @@ export const Route = createFileRoute("/_authed/chat/$chatId")({
 	},
 	component: ChatPageWithId,
 
-	notFoundComponent: () => {
-		const navigate = useNavigate();
-
-		return (
-			<div className="min-h-[60vh] flex flex-col items-center justify-center max-w-lg mx-auto p-8 space-y-8">
-				<div className="space-y-4 text-center">
-					<div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-						<svg
-							className="w-8 h-8 text-muted-foreground"
-							fill="none"
-							stroke="currentColor"
-							viewBox="0 0 24 24"
-							aria-hidden="true"
-						>
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-							/>
-						</svg>
-					</div>
-					<div className="space-y-2">
-						<h1 className="text-2xl font-semibold text-foreground">
-							Chat Not Found
-						</h1>
-						<p className="text-sm text-muted-foreground max-w-md">
-							The chat you are looking for does not exist or may have been
-							deleted.
-						</p>
-					</div>
-				</div>
-				<div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-					<Button
-						onClick={() => navigate({ to: "/chat" })}
-						className="min-w-[140px] gap-2"
-					>
-						New Chat
-					</Button>
-					<Button
-						variant="outline"
-						onClick={() => navigate({ to: "/" })}
-						className="min-w-[140px]"
-					>
-						Go to Home
-					</Button>
-				</div>
-			</div>
-		);
-	},
+	notFoundComponent: ChatNotFoundComponent,
 });
 
 type ChatWithMcpServers = Chat & {
