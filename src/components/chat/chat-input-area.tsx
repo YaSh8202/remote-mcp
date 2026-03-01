@@ -34,7 +34,6 @@ export type ChatInputAreaProps = {
 		chatMcpServer: ChatMcpServer;
 		mcpServerData: McpServer | null;
 	}>;
-	selectedServerIds?: string[];
 	onServerAdd?: (serverId: string) => void | Promise<void>;
 	onServerRemove?: (serverId: string) => void | Promise<void>;
 	placeholder?: string;
@@ -46,7 +45,6 @@ export function ChatInputArea({
 	status,
 	chatId,
 	currentChatServers = [],
-	selectedServerIds: externalSelectedServerIds,
 	onServerAdd: externalOnServerAdd,
 	onServerRemove: externalOnServerRemove,
 	placeholder = "Send a message...",
@@ -68,7 +66,7 @@ export function ChatInputArea({
 	const existingProviders = validKeys.map((key) => key.provider);
 
 	// Use external selectedServerIds if provided (for new chat store), otherwise use local state
-	const selectedServerIds = externalSelectedServerIds ?? localSelectedServerIds;
+	const selectedServerIds = localSelectedServerIds;
 
 	// Get external servers from chat (only for existing chats with chatId)
 	const externalServers = currentChatServers.filter(
@@ -77,7 +75,7 @@ export function ChatInputArea({
 
 	// Load selected servers from chat on mount (only for existing chats)
 	useEffect(() => {
-		if (chatId && currentChatServers.length > 0 && !externalSelectedServerIds) {
+		if (chatId && currentChatServers.length > 0) {
 			const serverIds = currentChatServers
 				.filter(
 					(
@@ -89,8 +87,10 @@ export function ChatInputArea({
 				)
 				.map((server) => server.mcpServerData.id);
 			setLocalSelectedServerIds(serverIds);
+		} else {
+			setLocalSelectedServerIds([]);
 		}
-	}, [chatId, currentChatServers, externalSelectedServerIds]);
+	}, [chatId, currentChatServers]);
 
 	// Mutations (only for existing chats)
 	const addMcpServerMutation = useMutation({
