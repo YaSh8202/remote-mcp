@@ -249,11 +249,13 @@ export async function addMessageToChat({
 	userId,
 	message,
 	messageMetadata,
+	parentId,
 }: {
 	chatId: string;
 	userId: string;
 	message: Omit<UIMessage, "metadata">;
 	messageMetadata: MessageMetadata;
+	parentId?: string | null;
 }): Promise<void> {
 	// Verify chat ownership
 	const chat = await db
@@ -266,14 +268,17 @@ export async function addMessageToChat({
 		throw new Error("Chat not found or access denied");
 	}
 
-	// Create complete UIMessage with metadata
+	// Create complete UIMessage with metadata (include parentId in metadata)
 	const completeMessage: UIMessage = {
 		...message,
-		metadata: messageMetadata,
+		metadata: {
+			...messageMetadata,
+			parentId: parentId !== undefined ? parentId : messageMetadata.parentId,
+		},
 	};
 
 	// Convert to DB format and insert
-	const dbMessage = uiMessageToDbMessage(completeMessage, chatId);
+	const dbMessage = uiMessageToDbMessage(completeMessage, chatId, parentId);
 	await db.insert(messages).values(dbMessage);
 
 	// Update chat timestamps

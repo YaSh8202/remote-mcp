@@ -297,18 +297,12 @@ export const chatRouter = createTRPCRouter({
 				});
 			}
 
-			// Get messages
+			// Get ALL messages including branches (client uses deriveVisiblePath to filter)
 			const chatMessages = await db
 				.select()
 				.from(messages)
-				.where(
-					and(
-						eq(messages.chatId, input.chatId),
-						isNull(messages.parentId), // Only get root messages for now
-					),
-				)
-				.orderBy(messages.createdAt)
-				.limit(input.messageLimit);
+				.where(eq(messages.chatId, input.chatId))
+				.orderBy(messages.createdAt);
 
 			return {
 				chat: chat[0],

@@ -191,6 +191,7 @@ function ChatPage() {
 						role: "user",
 						parts,
 					}),
+					parentId: null, // Root message
 				},
 			};
 

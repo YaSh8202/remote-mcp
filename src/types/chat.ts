@@ -36,6 +36,8 @@ export interface MessageMetadata {
 	cost: TokenCosts | null;
 	status: MessageStatus | null;
 	messageTokens: number;
+	parentId?: string | null;
+	editedFromId?: string;
 }
 
 // Create a typed UIMessage

@@ -24,7 +24,10 @@ export function dbMessageToUIMessage(dbMessage: Message): UIMessage {
 		role: dbMessage.role,
 		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
 		parts: dbMessage.content as any,
-		metadata: dbMessage.metadata || undefined,
+		metadata: {
+			...(dbMessage.metadata || {}),
+			parentId: dbMessage.parentId ?? null,
+		} as UIMessage["metadata"],
 	};
 }
 
@@ -36,6 +39,9 @@ export function uiMessageToDbMessage(
 	chatId: string,
 	parentId?: string | null,
 ): Omit<Message, "createdAt" | "updatedAt"> {
+	// Prefer explicit parentId parameter, then metadata.parentId, then null
+	const resolvedParentId =
+		parentId !== undefined ? parentId : (uiMessage.metadata?.parentId ?? null);
 	return {
 		id: uiMessage.id || generateMessageId(),
 		chatId,
@@ -43,7 +49,7 @@ export function uiMessageToDbMessage(
 		// biome-ignore lint/suspicious/noExplicitAny: Type assertion needed due to schema flexibility
 		content: uiMessage.parts as any,
 		status: uiMessage.metadata?.status || MessageStatus.COMPLETE,
-		parentId: parentId || null,
+		parentId: resolvedParentId,
 		branchIndex: "0",
 		metadata: uiMessage.metadata || null,
 	};
