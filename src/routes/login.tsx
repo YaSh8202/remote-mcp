@@ -27,12 +27,14 @@ import {
 import { Input } from "../components/ui/input";
 import { signIn, signUp } from "../lib/auth-client";
 
+const afterLoginRedirect = "/chat";
+
 export const Route = createFileRoute("/login")({
 	component: LoginPage,
 	beforeLoad: async ({ context }) => {
 		if (context.userSession?.user) {
 			throw redirect({
-				to: "/servers",
+				to: afterLoginRedirect,
 			});
 		}
 	},
@@ -41,103 +43,283 @@ export const Route = createFileRoute("/login")({
 	}),
 });
 
-// Schema for form validation
 const signInSchema = z.object({
-	email: z.string().email("Please enter a valid email address"),
-	password: z.string().min(8, "Password must be at least 8 characters"),
+	email: z.email({ error: "Please enter a valid email address" }),
+	password: z
+		.string()
+		.min(8, { error: "Password must be at least 8 characters" }),
 });
 
-const signUpSchema = z.object({
-	name: z.string().min(2, "Name must be at least 2 characters"),
-	email: z.string().email("Please enter a valid email address"),
-	password: z.string().min(8, "Password must be at least 8 characters"),
-});
+const signUpSchema = z
+	.object({
+		name: z
+			.string()
+			.min(2, { error: "Name must be at least 2 characters" })
+			.max(50, { error: "Name must be at most 50 characters" }),
+		email: z.email({ error: "Please enter a valid email address" }),
+		password: z
+			.string()
+			.min(8, { error: "Password must be at least 8 characters" })
+			.max(128, { error: "Password must be at most 128 characters" }),
+		confirmPassword: z.string(),
+	})
+	.superRefine((data, ctx) => {
+		if (data.password !== data.confirmPassword) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				message: "Passwords do not match",
+				path: ["confirmPassword"],
+			});
+		}
+	});
 
 type SignInFormData = z.infer<typeof signInSchema>;
 type SignUpFormData = z.infer<typeof signUpSchema>;
 
-function LoginPage() {
+// ---- Sign-In Form ----
+
+interface SignInFormProps {
+	callbackURL: string;
+	onToggle: () => void;
+}
+
+function SignInForm({ callbackURL, onToggle }: SignInFormProps) {
 	const navigate = useNavigate();
-	const [isSignUp, setIsSignUp] = useState(false);
-	const search = Route.useSearch();
-
-	const callbackURL = search.from || "/servers";
-
-	const form = useForm<SignInFormData | SignUpFormData>({
-		resolver: zodResolver(isSignUp ? signUpSchema : signInSchema),
-		defaultValues: {
-			email: "",
-			password: "",
-			...(isSignUp && { name: "" }),
-		},
+	const form = useForm<SignInFormData>({
+		resolver: zodResolver(signInSchema),
+		defaultValues: { email: "", password: "" },
 	});
 
-	const handleGoogleSignIn = async () => {
-		await signIn.social({
-			provider: "google",
-			callbackURL,
-		});
-	};
-
-	const handleGitHubSignIn = async () => {
-		await signIn.social({
-			provider: "github",
-			callbackURL,
-		});
-	};
-
-	const handleEmailAuth = async (data: SignInFormData | SignUpFormData) => {
-		if (isSignUp) {
-			const signUpData = data as SignUpFormData;
-			await signUp.email(
-				{
-					email: signUpData.email,
-					password: signUpData.password,
-					name: signUpData.name,
-					callbackURL,
-				},
-				{
-					onError: (ctx) => {
-						throw new Error(ctx.error.message);
-					},
-				},
-			);
-
-			// Redirect to verify email page after successful signup
-			navigate({
-				to: "/verify-email",
-			});
-		} else {
-			const signInData = data as SignInFormData;
+	const mutation = useMutation({
+		mutationFn: async (data: SignInFormData) => {
 			await signIn.email(
-				{
-					email: signInData.email,
-					password: signInData.password,
-					callbackURL,
-				},
+				{ email: data.email, password: data.password, callbackURL },
 				{
 					onError: (ctx) => {
-						// Handle email verification required error
 						if (ctx.error.status === 403) {
-							navigate({
-								to: "/verify-email",
-							});
+							navigate({ to: "/verify-email" });
 							return;
 						}
 						throw new Error(ctx.error.message);
 					},
 				},
 			);
+		},
+		onSuccess: () => {
+			navigate({ to: afterLoginRedirect });
+		},
+		onError: (error: Error) => {
+			toast.error("Sign In Failed", {
+				description:
+					error.message || "Failed to sign in. Please check your credentials.",
+			});
+		},
+	});
 
-			// Only navigate to servers if sign in was successful
-			navigate({ to: "/servers" });
-		}
-	};
+	return (
+		<Form {...form}>
+			<form
+				onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+				className="grid gap-6"
+			>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input
+									type="email"
+									autoFocus
+									placeholder="m@example.com"
+									autoComplete="email"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="password"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Password</FormLabel>
+							<FormControl>
+								<Input
+									type="password"
+									autoComplete="current-password"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<Button type="submit" className="w-full" disabled={mutation.isPending}>
+					{mutation.isPending && <LoadingSpinner />}
+					Login
+				</Button>
+				<div className="text-center text-sm">
+					Don&apos;t have an account?{" "}
+					<button
+						type="button"
+						onClick={onToggle}
+						className="underline underline-offset-4 hover:text-primary"
+					>
+						Sign up
+					</button>
+				</div>
+			</form>
+		</Form>
+	);
+}
+
+// ---- Sign-Up Form ----
+
+interface SignUpFormProps {
+	callbackURL: string;
+	onToggle: () => void;
+}
+
+function SignUpForm({ callbackURL, onToggle }: SignUpFormProps) {
+	const navigate = useNavigate();
+	const form = useForm<SignUpFormData>({
+		resolver: zodResolver(signUpSchema),
+		defaultValues: { name: "", email: "", password: "", confirmPassword: "" },
+	});
+
+	const mutation = useMutation({
+		mutationFn: async (data: SignUpFormData) => {
+			await signUp.email(
+				{
+					email: data.email,
+					password: data.password,
+					name: data.name,
+					callbackURL,
+				},
+				{
+					onError: (ctx) => {
+						throw new Error(ctx.error.message);
+					},
+				},
+			);
+		},
+		onSuccess: () => {
+			navigate({ to: "/verify-email" });
+		},
+		onError: (error: Error) => {
+			toast.error("Sign Up Failed", {
+				description:
+					error.message || "Failed to create account. Please try again.",
+			});
+		},
+	});
+
+	return (
+		<Form {...form}>
+			<form
+				onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+				className="grid gap-6"
+			>
+				<FormField
+					control={form.control}
+					name="name"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Name</FormLabel>
+							<FormControl>
+								<Input
+									placeholder="John Doe"
+									autoComplete="name"
+									autoFocus
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input
+									type="email"
+									placeholder="m@example.com"
+									autoComplete="email"
+									{...field}
+								/>
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="password"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Password</FormLabel>
+							<FormControl>
+								<Input type="password" autoComplete="new-password" {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="confirmPassword"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Confirm Password</FormLabel>
+							<FormControl>
+								<Input type="password" autoComplete="new-password" {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<Button type="submit" className="w-full" disabled={mutation.isPending}>
+					{mutation.isPending && <LoadingSpinner />}
+					Create Account
+				</Button>
+				<div className="text-center text-sm">
+					Already have an account?{" "}
+					<button
+						type="button"
+						onClick={onToggle}
+						className="underline underline-offset-4 hover:text-primary"
+					>
+						Sign in
+					</button>
+				</div>
+			</form>
+		</Form>
+	);
+}
+
+// ---- Login Page ----
+
+function LoginPage() {
+	const navigate = useNavigate();
+	const [isSignUp, setIsSignUp] = useState(false);
+	const search = Route.useSearch();
+
+	const callbackURL = search.from || afterLoginRedirect;
 
 	const googleSignInMutation = useMutation({
-		mutationFn: handleGoogleSignIn,
+		mutationFn: async () => {
+			await signIn.social({ provider: "google", callbackURL });
+		},
 		onSuccess: () => {
-			navigate({ to: "/servers" });
+			navigate({ to: afterLoginRedirect });
 		},
 		onError: (error: Error) => {
 			toast.error("Google Sign In Failed", {
@@ -148,9 +330,11 @@ function LoginPage() {
 	});
 
 	const githubSignInMutation = useMutation({
-		mutationFn: handleGitHubSignIn,
+		mutationFn: async () => {
+			await signIn.social({ provider: "github", callbackURL });
+		},
 		onSuccess: () => {
-			navigate({ to: "/servers" });
+			navigate({ to: afterLoginRedirect });
 		},
 		onError: (error: Error) => {
 			toast.error("GitHub Sign In Failed", {
@@ -159,36 +343,6 @@ function LoginPage() {
 			});
 		},
 	});
-
-	const emailAuthMutation = useMutation({
-		mutationFn: handleEmailAuth,
-		onSuccess: () => {
-			if (!isSignUp) {
-				navigate({ to: "/servers" });
-			}
-		},
-		onError: (error: Error) => {
-			const errorMessage =
-				error.message ||
-				(isSignUp
-					? "Failed to create account. Please try again."
-					: "Failed to sign in. Please check your credentials.");
-
-			toast.error(isSignUp ? "Sign Up Failed" : "Sign In Failed", {
-				description: errorMessage,
-			});
-		},
-	});
-
-	// Reset form when switching between sign in and sign up
-	const handleToggleMode = () => {
-		setIsSignUp(!isSignUp);
-		form.reset({
-			email: "",
-			password: "",
-			...(isSignUp && { name: "" }),
-		});
-	};
 
 	return (
 		<div className="flex min-h-screen items-center justify-center bg-secondary/70">
@@ -238,80 +392,17 @@ function LoginPage() {
 									Or continue with
 								</span>
 							</div>
-							<Form {...form}>
-								<form
-									onSubmit={form.handleSubmit((data) =>
-										emailAuthMutation.mutate(data),
-									)}
-									className="grid gap-6"
-								>
-									{isSignUp && (
-										<FormField
-											control={form.control}
-											name="name"
-											render={({ field }) => (
-												<FormItem>
-													<FormLabel>Name</FormLabel>
-													<FormControl>
-														<Input placeholder="John Doe" {...field} />
-													</FormControl>
-													<FormMessage />
-												</FormItem>
-											)}
-										/>
-									)}
-									<FormField
-										control={form.control}
-										name="email"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Email</FormLabel>
-												<FormControl>
-													<Input
-														type="email"
-														placeholder="m@example.com"
-														{...field}
-													/>
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<FormField
-										control={form.control}
-										name="password"
-										render={({ field }) => (
-											<FormItem>
-												<FormLabel>Password</FormLabel>
-												<FormControl>
-													<Input type="password" {...field} />
-												</FormControl>
-												<FormMessage />
-											</FormItem>
-										)}
-									/>
-									<Button
-										type="submit"
-										className="w-full"
-										disabled={emailAuthMutation.isPending}
-									>
-										{emailAuthMutation.isPending && <LoadingSpinner />}
-										{isSignUp ? "Create Account" : "Login"}
-									</Button>
-								</form>
-							</Form>
-							<div className="text-center text-sm">
-								{isSignUp
-									? "Already have an account?"
-									: "Don't have an account?"}{" "}
-								<button
-									type="button"
-									onClick={handleToggleMode}
-									className="underline underline-offset-4 hover:text-primary"
-								>
-									{isSignUp ? "Sign in" : "Sign up"}
-								</button>
-							</div>
+							{isSignUp ? (
+								<SignUpForm
+									callbackURL={callbackURL}
+									onToggle={() => setIsSignUp(false)}
+								/>
+							) : (
+								<SignInForm
+									callbackURL={callbackURL}
+									onToggle={() => setIsSignUp(true)}
+								/>
+							)}
 						</div>
 					</CardContent>
 				</Card>
