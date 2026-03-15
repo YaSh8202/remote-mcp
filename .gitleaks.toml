@@ -1,0 +1,9 @@
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allow lock files and generated files"
+paths = [
+  '''pnpm-lock\.yaml''',
+  '''src/routeTree\.gen\.ts''',
+]

@@ -1,1 +1,7 @@
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged -v
+else
+  echo "Warning: gitleaks is not installed. Skipping secret scanning."
+  echo "Install it with: brew install gitleaks"
+fi
 pnpm lint-staged
