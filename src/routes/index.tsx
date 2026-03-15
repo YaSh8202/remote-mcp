@@ -1,11 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Home, Layers, Mail, Users, Zap } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Home, Layers, Mail, Tag, Zap } from "lucide-react";
 import { FeaturesSection } from "@/components/FeaturesSection";
 import { AvailableAppsSection } from "@/components/landing/AvailableAppsSection";
 import { CTASection } from "@/components/landing/CTASection";
 import { HeroSection } from "@/components/landing/HeroSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { SocialProofSection } from "@/components/landing/SocialProofSection";
+import { PricingSection } from "@/components/landing/PricingSection";
 import { ThemeProvider } from "@/components/theme-provider";
 import { FloatingNav } from "@/components/ui/floating-navbar";
 
@@ -110,9 +109,9 @@ function RouteComponent() {
 			icon: <Layers className="h-4 w-4 text-neutral-500 dark:text-white" />,
 		},
 		{
-			name: "How it Works",
-			link: "#how-it-works",
-			icon: <Users className="h-4 w-4 text-neutral-500 dark:text-white" />,
+			name: "Pricing",
+			link: "#pricing",
+			icon: <Tag className="h-4 w-4 text-neutral-500 dark:text-white" />,
 		},
 		{
 			name: "Contact",
@@ -140,11 +139,10 @@ function RouteComponent() {
 				<div id="apps">
 					<AvailableAppsSection />
 				</div>
-				<div id="how-it-works">
-					<HowItWorksSection />
+				<div id="pricing">
+					<PricingSection />
 				</div>
 				<div id="contact">
-					<SocialProofSection />
 					<CTASection />
 				</div>
 			</div>
