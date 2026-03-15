@@ -1,7 +1,9 @@
-import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect, useMemo } from "react";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { useModels } from "@/hooks/use-models";
+import { useTRPC } from "@/integrations/trpc/react";
 import { LLMProvider } from "@/types/models";
 
 interface ChatStore {
@@ -79,10 +81,36 @@ export const useChatStore = create<ChatStore>()(
 export const useChatModel = () => {
 	const selectedModel = useChatStore((state) => state.selectedModel);
 	const selectedProvider = useChatStore((state) => state.selectedProvider);
+	const setSelectedModel = useChatStore((state) => state.setSelectedModel);
+
+	const trpc = useTRPC();
+	const { data: keys = [] } = useQuery(
+		trpc.llmProvider.getKeys.queryOptions({}),
+	);
+
+	const { providers, getModel } = useModels();
+
+	// Auto-select first available model if none selected
+	useEffect(() => {
+		if (!selectedProvider || !selectedModel) {
+			// Get providers with valid keys
+			const validKeys = keys.filter((key) => key.isValid === true);
+			if (validKeys.length === 0) return;
+
+			// Find first provider with valid key
+			const firstProviderKey = validKeys[0];
+			const firstProvider = providers.find(
+				(p) => p.id === firstProviderKey.provider,
+			);
+
+			if (firstProvider && firstProvider.models.length > 0) {
+				const firstModel = firstProvider.models[0];
+				setSelectedModel(firstModel.id, firstProvider.id);
+			}
+		}
+	}, [selectedProvider, selectedModel, keys, providers, setSelectedModel]);
 
 	const modelId = `${selectedProvider}:${selectedModel}`;
-
-	const { getModel } = useModels();
 
 	const model = useMemo(() => getModel(modelId), [getModel, modelId]);
 
