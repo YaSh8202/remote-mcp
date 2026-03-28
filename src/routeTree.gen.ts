@@ -217,11 +217,11 @@ export interface FileRoutesByFullPath {
   '/api/oauth/register': typeof ApiOauthRegisterRoute
   '/api/oauth/token': typeof ApiOauthTokenRoute
   '/api/trpc/$': typeof ApiTrpcSplatRoute
-  '/apps': typeof AuthedAppsIndexRoute
+  '/apps/': typeof AuthedAppsIndexRoute
   '/chat/': typeof AuthedChatIndexRoute
-  '/connections': typeof AuthedConnectionsIndexRoute
-  '/servers': typeof AuthedServersIndexRoute
-  '/api/chat': typeof ApiChatIndexRoute
+  '/connections/': typeof AuthedConnectionsIndexRoute
+  '/servers/': typeof AuthedServersIndexRoute
+  '/api/chat/': typeof ApiChatIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -313,11 +313,11 @@ export interface FileRouteTypes {
     | '/api/oauth/register'
     | '/api/oauth/token'
     | '/api/trpc/$'
-    | '/apps'
+    | '/apps/'
     | '/chat/'
-    | '/connections'
-    | '/servers'
-    | '/api/chat'
+    | '/connections/'
+    | '/servers/'
+    | '/api/chat/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -438,7 +438,7 @@ declare module '@tanstack/react-router' {
     '/_authed': {
       id: '/_authed'
       path: ''
-      fullPath: ''
+      fullPath: '/'
       preLoaderRoute: typeof AuthedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
@@ -501,21 +501,21 @@ declare module '@tanstack/react-router' {
     '/api/chat/': {
       id: '/api/chat/'
       path: '/api/chat'
-      fullPath: '/api/chat'
+      fullPath: '/api/chat/'
       preLoaderRoute: typeof ApiChatIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authed/servers/': {
       id: '/_authed/servers/'
       path: '/servers'
-      fullPath: '/servers'
+      fullPath: '/servers/'
       preLoaderRoute: typeof AuthedServersIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
     }
     '/_authed/connections/': {
       id: '/_authed/connections/'
       path: '/connections'
-      fullPath: '/connections'
+      fullPath: '/connections/'
       preLoaderRoute: typeof AuthedConnectionsIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
     }
@@ -529,7 +529,7 @@ declare module '@tanstack/react-router' {
     '/_authed/apps/': {
       id: '/_authed/apps/'
       path: '/apps'
-      fullPath: '/apps'
+      fullPath: '/apps/'
       preLoaderRoute: typeof AuthedAppsIndexRouteImport
       parentRoute: typeof AuthedRouteRoute
     }

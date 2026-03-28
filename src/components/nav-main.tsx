@@ -8,7 +8,6 @@ import {
 	Server,
 	Settings2,
 } from "lucide-react";
-import { useEffect, useState } from "react";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -60,12 +59,6 @@ const items = [
 export function NavMain() {
 	const router = useRouterState();
 	const isOnChatPage = router.location.pathname.startsWith("/chat");
-	const [isChatExpanded, setIsChatExpanded] = useState(isOnChatPage);
-
-	// Update expanded state when route changes
-	useEffect(() => {
-		setIsChatExpanded(isOnChatPage);
-	}, [isOnChatPage]);
 
 	return (
 		<SidebarGroup>
@@ -74,11 +67,7 @@ export function NavMain() {
 				{items.map((item) => {
 					if (item.title === "Chat") {
 						return (
-							<Collapsible
-								key={item.title}
-								open={isChatExpanded}
-								onOpenChange={setIsChatExpanded}
-							>
+							<Collapsible key={item.title} open={isOnChatPage}>
 								<SidebarMenuItem className="text-base">
 									<CollapsibleTrigger asChild>
 										<Link activeOptions={{ exact: false }} to={item.url}>
@@ -93,7 +82,7 @@ export function NavMain() {
 													{isOnChatPage && (
 														<ChevronRight
 															className={`ml-auto h-4 w-4 transition-transform ${
-																isChatExpanded ? "rotate-90" : ""
+																isOnChatPage ? "rotate-90" : ""
 															}`}
 														/>
 													)}
