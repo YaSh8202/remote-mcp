@@ -4,11 +4,11 @@
 
 # Remote MCP 🚀
 
-**Create and connect MCP servers to your favorite AI clients - no complex setup required!**
+**Easily create and connect MCP servers to your favorite AI clients — no complex setup required!**
 
 </div>
 
-[🌐 Try Remote MCP](https://remotemcp.tech) | [📖 What is MCP?](#what-is-mcp) | [🚀 Getting Started](#getting-started)
+[🌐 Try Remote MCP](https://remotemcp.tech) | [📖 What is MCP?](#what-is-mcp) | [💡 Why Remote MCP?](#why-remote-mcp) | [📱 Available Apps](#available-apps) | [🚀 Getting Started](#getting-started)
 
 ---
 
@@ -17,11 +17,7 @@
 
 Remote MCP is a cloud-based platform that lets you easily create and manage **Model Context Protocol (MCP) servers** and connect them to your favorite AI clients like Claude Desktop, Cursor, or any MCP-compatible application.
 
-Think of it as a bridge between your AI assistant and the apps you use every day - GitHub, Slack, YouTube, PostgreSQL, and many more!
-
-
-
-https://github.com/user-attachments/assets/3ddedf4e-571b-4e78-a46c-f15df8c4fe56
+Think of it as a bridge between your AI assistant and the apps you use every day — GitHub, Slack, YouTube, PostgreSQL, and many more!
 
 
 ## What is MCP?
@@ -37,7 +33,7 @@ The **Model Context Protocol (MCP)** is an open standard that enables AI assista
 
 ### How MCP Works
 
-```
+```text
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ AI Client   │────│ MCP Server  │────│   Your App  │
 │ (Claude)    │    │ (Remote MCP)│    │ (GitHub)    │
@@ -46,7 +42,7 @@ The **Model Context Protocol (MCP)** is an open standard that enables AI assista
 
 1. **AI Client**: Your favorite AI assistant (Claude Desktop, Cursor, etc.)
 2. **MCP Server**: Acts as a bridge (that's what Remote MCP provides!)
-3. **Your App**: The service you want to connect (GitHub, Slack, etc.)
+3. **Your App**: The service you want to connect to (GitHub, Slack, etc.)
 
 ## Why Remote MCP?
 
@@ -56,7 +52,7 @@ No need to run local servers or manage complex configurations. Just create, conf
 
 ### 🔒 **Secure & Reliable**
 
-Your credentials are encrypted and managed securely. We handle authentication, API limits, and security.
+Your credentials are encrypted and managed securely. We handle authentication, API rate limits, and security best practices.
 
 ### 🌍 **Always Available**
 
@@ -64,7 +60,7 @@ Cloud-hosted servers that work 24/7, accessible from any MCP client.
 
 ### 📊 **Visual Management**
 
-Easy-to-use dashboard to manage your servers, connections, and monitor usage.
+Easy-to-use dashboard to manage your servers, connections, and monitor usage in real-time.
 
 
 ## Available Apps
@@ -78,6 +74,7 @@ Remote MCP supports integration with popular apps and services:
 
 ### Communication & Productivity
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/slack.svg" width="16" height="16" style="vertical-align: middle;"> Slack** - Send messages, search conversations, and manage channels (5 tools)
+- **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/discord.svg" width="16" height="16" style="vertical-align: middle;"> Discord** - Send messages, manage servers, channels, and reactions (6 tools)
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/notion.svg" width="16" height="16" style="vertical-align: middle;"> Notion** - Database queries, page management, and content creation (18 tools)
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/spotify.svg" width="16" height="16" style="vertical-align: middle;"> Spotify** - Music playback control, playlist management, and discovery (19 tools)
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googledrive.svg" width="16" height="16" style="vertical-align: middle;"> Google Drive** - File management and Google Sheets operations (10 tools)
@@ -92,18 +89,18 @@ Remote MCP supports integration with popular apps and services:
 ### Utilities
 - **<img src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/fastapi.svg" width="16" height="16" style="vertical-align: middle;"> Fetch** - HTTP requests and web content fetching in multiple formats (4 tools)
 
-> **Total: 159+ tools across 11 integrated applications**
+> **Total: 165+ tools across 12 integrated applications**
 
-_New apps and tools are being added regularly! Have a specific integration in mind? Let us know!_
+_New apps and tools are being added regularly! Have a specific integration in mind? [Let us know!](https://remotemcp.tech)_
 
 ## Getting Started
 
 ### 1. Create Your MCP Server
 
 1. Visit [remotemcp.tech](https://remotemcp.tech)
-2. Sign up with Google or GitHub
+2. Sign up with Google or GitHub (it's quick and free!)
 3. Click "Add Server" to create your first MCP server
-4. Choose the apps you want to connect (GitHub, Slack, etc.)
+4. Choose the apps you want to connect (GitHub, Slack, Discord, etc.)
 
 ### 2. Configure App Connections
 
@@ -117,7 +114,7 @@ _New apps and tools are being added regularly! Have a specific integration in mi
 Add your Remote MCP server to your AI client:
 
 **For VS Code & Cursor:**
-Simply click the **"Add to VS Code"** or **"Add to Cursor"** button in your server dashboard - it automatically configures everything for you!
+Simply click the **"Add to VS Code"** or **"Add to Cursor"** button in your server dashboard — it automatically configures everything for you!
 
 **For Claude Desktop:**
 Add to your `claude_desktop_config.json`:
@@ -136,7 +133,7 @@ Add to your `claude_desktop_config.json`:
 }
 ```
 
-**For Other Clients:**
+**For Other MCP Clients:**
 Use the MCP endpoint URL: `https://remotemcp.tech/api/mcp/YOUR_SERVER_ID`
 
 ### 4. Start Using!
@@ -150,6 +147,7 @@ Your AI assistant can now interact with your connected apps. Try asking:
 
 **Communication & Content:**
 - "Send a message to the #general Slack channel"
+- "Post an announcement in my Discord server"
 - "Create a new page in my Notion workspace"
 - "Search for recent videos about AI on YouTube"
 
@@ -164,7 +162,7 @@ We welcome contributions! Check out our [contributing guidelines](CONTRIBUTING.m
 
 ## License
 
-This project is licensed under the MIT License - see the [MIT](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
 
 ---
 
