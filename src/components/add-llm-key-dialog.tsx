@@ -76,6 +76,10 @@ const providerApiKeyUrls: Partial<
 		url: "https://console.mistral.ai/api-keys",
 		label: "Mistral Console",
 	},
+	[LLMProvider.BEDROCK]: {
+		url: "https://console.aws.amazon.com/iam/home#/security_credentials",
+		label: "AWS IAM Console",
+	},
 };
 
 interface AddLLMKeyDialogProps {
@@ -245,12 +249,20 @@ export function AddLLMKeyDialog({
 							name="apiKey"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel className="text-sm font-medium">API Key</FormLabel>
+									<FormLabel className="text-sm font-medium">
+										{form.watch("provider") === LLMProvider.BEDROCK
+											? "Credentials (JSON)"
+											: "API Key"}
+									</FormLabel>
 									<FormControl>
 										<div className="relative">
 											<Input
 												type="password"
-												placeholder="sk-... or your provider's API key format"
+												placeholder={
+													form.watch("provider") === LLMProvider.BEDROCK
+														? '{"accessKeyId":"...","secretAccessKey":"...","region":"us-east-1"}'
+														: "sk-... or your provider's API key format"
+												}
 												className="h-12 pl-4 pr-4"
 												{...field}
 												autoComplete="off"

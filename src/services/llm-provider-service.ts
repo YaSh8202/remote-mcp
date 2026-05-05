@@ -289,6 +289,124 @@ export async function validateMistralKey(
 	}
 }
 
+export async function validateBedrockKey(
+	apiKey: string,
+): Promise<{ isValid: boolean; models?: string[]; error?: string }> {
+	try {
+		const creds = JSON.parse(apiKey) as {
+			accessKeyId?: string;
+			secretAccessKey?: string;
+			region?: string;
+		};
+
+		if (!creds.accessKeyId || !creds.secretAccessKey) {
+			return {
+				isValid: false,
+				error: "accessKeyId and secretAccessKey are required",
+			};
+		}
+
+		const region = creds.region || "us-east-1";
+
+		// Call the Bedrock ListFoundationModels API to validate credentials
+		const host = `bedrock.${region}.amazonaws.com`;
+		const endpoint = `https://${host}/foundation-models`;
+
+		// AWS Signature V4 signing
+		const now = new Date();
+		const amzDate =
+			now.toISOString().replace(/[:-]|\.\d{3}/g, "").slice(0, 15) + "Z";
+		const dateStamp = amzDate.slice(0, 8);
+
+		const canonicalUri = "/foundation-models";
+		const canonicalQueryString = "";
+		const canonicalHeaders = `host:${host}\nx-amz-date:${amzDate}\n`;
+		const signedHeaders = "host;x-amz-date";
+
+		const encoder = new TextEncoder();
+
+		async function sha256Hex(data: string): Promise<string> {
+			const buf = await crypto.subtle.digest("SHA-256", encoder.encode(data));
+			return Array.from(new Uint8Array(buf))
+				.map((b) => b.toString(16).padStart(2, "0"))
+				.join("");
+		}
+
+		async function hmacSha256(key: ArrayBuffer, data: string): Promise<ArrayBuffer> {
+			const cryptoKey = await crypto.subtle.importKey(
+				"raw",
+				key,
+				{ name: "HMAC", hash: "SHA-256" },
+				false,
+				["sign"],
+			);
+			return crypto.subtle.sign("HMAC", cryptoKey, encoder.encode(data));
+		}
+
+		const payloadHash = await sha256Hex("");
+		const canonicalRequest = [
+			"GET",
+			canonicalUri,
+			canonicalQueryString,
+			canonicalHeaders,
+			signedHeaders,
+			payloadHash,
+		].join("\n");
+
+		const credentialScope = `${dateStamp}/${region}/bedrock/aws4_request`;
+		const stringToSign = [
+			"AWS4-HMAC-SHA256",
+			amzDate,
+			credentialScope,
+			await sha256Hex(canonicalRequest),
+		].join("\n");
+
+		const kDate = await hmacSha256(
+			encoder.encode(`AWS4${creds.secretAccessKey}`),
+			dateStamp,
+		);
+		const kRegion = await hmacSha256(kDate, region);
+		const kService = await hmacSha256(kRegion, "bedrock");
+		const kSigning = await hmacSha256(kService, "aws4_request");
+		const signatureBuf = await hmacSha256(kSigning, stringToSign);
+		const signature = Array.from(new Uint8Array(signatureBuf))
+			.map((b) => b.toString(16).padStart(2, "0"))
+			.join("");
+
+		const authHeader = `AWS4-HMAC-SHA256 Credential=${creds.accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+		const response = await fetch(endpoint, {
+			method: "GET",
+			headers: {
+				Authorization: authHeader,
+				"x-amz-date": amzDate,
+			},
+		});
+
+		if (response.ok) {
+			const data = await response.json();
+			const models: string[] =
+				data.modelSummaries?.map(
+					(m: { modelId: string }) => m.modelId,
+				) ?? [];
+			return { isValid: true, models };
+		}
+
+		const errorData = await response.json().catch(() => ({}));
+		return {
+			isValid: false,
+			error:
+				(errorData as { message?: string }).message ||
+				`HTTP ${response.status}`,
+		};
+	} catch (error) {
+		return {
+			isValid: false,
+			error: error instanceof Error ? error.message : "Invalid credentials JSON",
+		};
+	}
+}
+
 export async function validateApiKey(provider: LLMProvider, apiKey: string) {
 	switch (provider) {
 		case LLMProvider.OPENAI:
@@ -305,6 +423,8 @@ export async function validateApiKey(provider: LLMProvider, apiKey: string) {
 			return await validateGitHubModelsKey(apiKey);
 		case LLMProvider.MISTRAL:
 			return await validateMistralKey(apiKey);
+		case LLMProvider.BEDROCK:
+			return await validateBedrockKey(apiKey);
 		default:
 			return { isValid: false, error: "Unsupported provider" };
 	}

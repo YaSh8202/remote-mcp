@@ -168,6 +168,8 @@ function getProviderDescription(provider: LLMProvider): string {
 			return "GitHub Models marketplace with various AI models";
 		case LLMProvider.MISTRAL:
 			return "Mistral AI's models including Mistral Large, Medium, and Small";
+		case LLMProvider.BEDROCK:
+			return "AWS Bedrock with access to Claude, Llama, Titan, and other foundation models";
 		default:
 			return "";
 	}
