@@ -14,6 +14,7 @@ const PROVIDER_ID_MAP: Record<LLMProvider, string> = {
 	[LLMProvider.GROQ]: "groq",
 	[LLMProvider.GITHUB_MODELS]: "github-models",
 	[LLMProvider.MISTRAL]: "mistral",
+	[LLMProvider.BEDROCK]: "amazon-bedrock",
 };
 
 /**

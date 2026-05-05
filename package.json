@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ai-sdk-tools/store": "^1.2.0",
+    "@ai-sdk/amazon-bedrock": "^4.0.100",
     "@ai-sdk/anthropic": "3.0.15",
     "@ai-sdk/google": "3.0.10",
     "@ai-sdk/groq": "3.0.10",

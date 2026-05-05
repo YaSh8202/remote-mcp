@@ -9,6 +9,7 @@ export enum LLMProvider {
 	GROQ = "groq",
 	GITHUB_MODELS = "github-models",
 	MISTRAL = "mistral",
+	BEDROCK = "bedrock",
 }
 
 export const supportedLLMProviders = Object.values(LLMProvider);

@@ -1,3 +1,4 @@
+import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import {
 	type AnthropicProviderOptions,
 	createAnthropic,
@@ -63,6 +64,20 @@ export function getAIModel(
 				baseURL: "https://models.github.ai/inference",
 				name: "github-models",
 			})(model || "gpt-4.1-mini");
+
+		case LLMProvider.BEDROCK: {
+			// apiKey is JSON: {"accessKeyId":"...","secretAccessKey":"...","region":"..."}
+			const creds = JSON.parse(apiKey) as {
+				accessKeyId: string;
+				secretAccessKey: string;
+				region: string;
+			};
+			return createAmazonBedrock({
+				accessKeyId: creds.accessKeyId,
+				secretAccessKey: creds.secretAccessKey,
+				region: creds.region || "us-east-1",
+			})(model || "anthropic.claude-3-5-sonnet-20241022-v2:0");
+		}
 
 		default:
 			throw new Error(`Unsupported provider: ${provider}`);

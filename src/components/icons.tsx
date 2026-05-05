@@ -579,6 +579,35 @@ export const Qwen = (props: SVGProps<SVGSVGElement>) => (
 	</svg>
 );
 
+export const AWSBedrock = (props: SVGProps<SVGSVGElement>) => (
+	<svg
+		{...props}
+		viewBox="0 0 40 40"
+		xmlns="http://www.w3.org/2000/svg"
+		width="1em"
+		height="1em"
+	>
+		<title>AWS Bedrock</title>
+		<path
+			d="M20 3L3 12.5v15L20 37l17-9.5v-15L20 3z"
+			fill="#232F3E"
+		/>
+		<path
+			d="M20 6.5L6 14.5v11L20 33.5l14-8v-11L20 6.5z"
+			fill="#FF9900"
+		/>
+		<path
+			d="M20 10l-10 5.5v9L20 30l10-5.5v-9L20 10z"
+			fill="#232F3E"
+		/>
+		<path
+			d="M20 13.5l-6.5 3.5v6l6.5 3.5 6.5-3.5v-6L20 13.5z"
+			fill="#FF9900"
+			opacity="0.85"
+		/>
+	</svg>
+);
+
 export const llmProviderIcons = {
 	[LLMProvider.ANTHROPIC]: AnthropicLogo,
 	[LLMProvider.OPENAI]: OpenAILogo,
@@ -587,6 +616,7 @@ export const llmProviderIcons = {
 	[LLMProvider.GROQ]: Groq,
 	[LLMProvider.ALIBABA]: Qwen,
 	[LLMProvider.GITHUB_MODELS]: MdiGithub,
+	[LLMProvider.BEDROCK]: AWSBedrock,
 };
 
 /**
