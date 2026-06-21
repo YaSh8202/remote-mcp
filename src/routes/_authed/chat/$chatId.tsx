@@ -32,7 +32,7 @@ import {
 	withBranchingMetadata,
 } from "@/lib/chat-branching";
 import { dbMessageToUIMessage } from "@/lib/chat-utils";
-import { useChatModel } from "@/store/chat-store";
+import { useChatModel, useChatStore } from "@/store/chat-store";
 import { usePageHeader } from "@/store/header-store";
 import type { UIMessage } from "@/types/chat";
 
@@ -250,6 +250,7 @@ function ChatPageWithId() {
 						model,
 						trigger,
 						parentId: nextParentIdRef.current,
+						yolo: useChatStore.getState().yolo,
 						...body,
 						...rest,
 					},

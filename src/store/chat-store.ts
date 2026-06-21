@@ -10,6 +10,9 @@ interface ChatStore {
 	selectedModel: string;
 	selectedProvider: LLMProvider;
 	setSelectedModel: (model: string, provider: LLMProvider) => void;
+	/** YOLO mode: auto-approve all tool calls instead of pausing for approval. */
+	yolo: boolean;
+	setYolo: (yolo: boolean) => void;
 }
 
 // Custom storage that maintains backward compatibility with the original localStorage keys
@@ -70,6 +73,8 @@ export const useChatStore = create<ChatStore>()(
 			selectedProvider: LLMProvider.OPENAI,
 			setSelectedModel: (model: string, provider: LLMProvider) =>
 				set({ selectedModel: model, selectedProvider: provider }),
+			yolo: false,
+			setYolo: (yolo: boolean) => set({ yolo }),
 		}),
 		{
 			name: "remotemcp:chat",

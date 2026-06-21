@@ -1,4 +1,4 @@
-import { generateText } from "ai";
+import { Agent } from "@mastra/core/agent";
 import { getDefaultLLMProviderKey } from "@/services/llm-provider-service";
 import type { LLMProvider } from "@/types/models";
 import { getAIModel } from "./models";
@@ -46,14 +46,20 @@ export async function generateChatTitle(
 		// Create the AI model instance
 		const aiModel = getAIModel(provider, model, apiKey);
 
-		// Generate the title
-		const { text } = await generateText({
+		// Generate the title with a lightweight Mastra agent
+		const titleAgent = new Agent({
+			id: "chat-title-generator",
+			name: "chat-title-generator",
+			instructions: SYSTEM_PROMPT,
 			model: aiModel,
-			maxOutputTokens: 60,
-			temperature: 0.7,
-			system: SYSTEM_PROMPT,
-			prompt: `Generate a title (maximum 50 characters) for a conversation that starts with this message:\n\n${truncatedMessage}`,
 		});
+
+		const { text } = await titleAgent.generate(
+			`Generate a title (maximum 50 characters) for a conversation that starts with this message:\n\n${truncatedMessage}`,
+			{
+				modelSettings: { maxOutputTokens: 60, temperature: 0.7 },
+			},
+		);
 
 		// Clean and validate the generated title
 		const generatedTitle = text.trim();

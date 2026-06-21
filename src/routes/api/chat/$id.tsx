@@ -1,23 +1,30 @@
+import { toAISdkStream } from "@mastra/ai-sdk";
 import { createFileRoute } from "@tanstack/react-router";
 import { getTokenCosts } from "@tokenlens/helpers";
 import {
-	createAgentUIStreamResponse,
+	createUIMessageStream,
+	createUIMessageStreamResponse,
 	type LanguageModelUsage,
-	stepCountIs,
-	ToolLoopAgent,
 	validateUIMessages,
 } from "ai";
 import { fetchModels } from "tokenlens";
 import { auth } from "@/lib/auth";
 import { buildPathEndingAt, ensureParentIds } from "@/lib/chat-branching";
 import { countUIMessageTokens, generateMessageId } from "@/lib/chat-utils";
-import { addMessageToChat, loadChat, saveChat } from "@/services/chat-service";
+import {
+	addMessageToChat,
+	loadChat,
+	saveChat,
+	upsertMessageToChat,
+} from "@/services/chat-service";
 import {
 	getDefaultLLMProviderKey,
 	hasValidLLMProviderKey,
 } from "@/services/llm-provider-service";
 import { MessageStatus, type UIMessage } from "@/types/chat";
 import { LLMProvider } from "@/types/models";
+import { extractApproval } from "./-libs/approval";
+import { buildChatAgent } from "./-libs/mastra";
 import { getAIModel, getProviderOptions } from "./-libs/models";
 import { getChatTools } from "./-libs/tools";
 
@@ -46,6 +53,7 @@ export const Route = createFileRoute("/api/chat/$id")({
 						model,
 						trigger,
 						parentId: requestParentId,
+						yolo = false,
 					}: {
 						message: UIMessage;
 						system?: string;
@@ -54,6 +62,8 @@ export const Route = createFileRoute("/api/chat/$id")({
 						model: string;
 						trigger?: "submit-message" | "regenerate-message";
 						parentId?: string | null;
+						/** YOLO mode: auto-approve all tool calls (skip the approval pause). */
+						yolo?: boolean;
 					} = body;
 
 					// Check if user has valid API keys for any provider
@@ -91,6 +101,85 @@ export const Route = createFileRoute("/api/chat/$id")({
 					}
 
 					const currentChatId = requestChatId;
+
+					// --- Tool-approval resume path ---------------------------------
+					// When the user approves/declines a pending tool call, AI SDK's
+					// addToolApprovalResponse re-sends the assistant message carrying
+					// the `approval-responded` part. Detect it and resume the suspended
+					// Mastra run instead of treating it as a new user message.
+					const approval = extractApproval(message);
+					if (approval) {
+						const aiSdkModel = getAIModel(provider, model, apiKey);
+						const [chatTools, modelsData] = await Promise.all([
+							getChatTools(session.user.id, currentChatId),
+							fetchModels(provider),
+						]);
+
+						const agent = buildChatAgent(aiSdkModel);
+						let usage: LanguageModelUsage | undefined;
+
+						const agentStream = await agent.resumeStream(approval.resumeData, {
+							runId: approval.runId,
+							toolsets: chatTools.toolsets,
+							modelSettings: { temperature: 0.7 },
+							providerOptions: getProviderOptions(),
+							onFinish: (event) => {
+								usage = event.usage as LanguageModelUsage;
+							},
+						});
+
+						const resumeParentId = message.metadata?.parentId ?? null;
+						const uiStream = createUIMessageStream<UIMessage>({
+							originalMessages: [message],
+							generateId: generateMessageId,
+							execute: async ({ writer }) => {
+								writer.merge(
+									toAISdkStream(agentStream, {
+										from: "agent",
+										version: "v6",
+										sendReasoning: true,
+										sendSources: true,
+									}) as Parameters<typeof writer.merge>[0],
+								);
+							},
+							onFinish: async ({ responseMessage }) => {
+								try {
+									const modelId = `${provider}:${model}`;
+									const cost = modelsData
+										? getTokenCosts({
+												modelId: `${provider}/${model}`,
+												usage: usage,
+												providers: modelsData,
+											})
+										: null;
+
+									// The resumed message extends the suspended assistant
+									// message (same id) — upsert rather than insert.
+									await upsertMessageToChat({
+										chatId: currentChatId,
+										userId: session.user.id,
+										message: responseMessage,
+										parentId: resumeParentId,
+										messageMetadata: {
+											totalUsage: usage || null,
+											modelId,
+											status: MessageStatus.COMPLETE,
+											cost: cost,
+											messageTokens: countUIMessageTokens(responseMessage),
+											parentId: resumeParentId,
+										},
+									});
+								} finally {
+									await chatTools.disconnect();
+								}
+							},
+						});
+
+						return createUIMessageStreamResponse({
+							stream: uiStream,
+							headers: { "X-Chat-ID": currentChatId },
+						});
+					}
 
 					if (message.metadata?.status === "pending") {
 						message.metadata = {
@@ -202,65 +291,83 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 					const aiSdkModel = getAIModel(provider, model, apiKey);
 
-					const [tools, modelsData] = await Promise.all([
+					const [chatTools, modelsData] = await Promise.all([
 						getChatTools(session.user.id, currentChatId),
 						fetchModels(provider),
 					]);
 
 					let usage: LanguageModelUsage | undefined;
-					const codeAgent = new ToolLoopAgent({
-						model: aiSdkModel,
-						temperature: 0.7,
-						tools,
-						stopWhen: stepCountIs(25),
-						providerOptions: getProviderOptions(),
-						onFinish: async (finishResponse) => {
-							const { totalUsage } = finishResponse;
-							usage = totalUsage;
+
+					const codeAgent = buildChatAgent(aiSdkModel);
+
+					const agentStream = await codeAgent.stream(
+						// ai v6 UIMessages (parts-based) are accepted at runtime; the cast
+						// only drops the MessageMetadata generic that Mastra's bundled
+						// UIMessage type doesn't carry.
+						promptMessages as unknown as Parameters<typeof codeAgent.stream>[0],
+						{
+							toolsets: chatTools.toolsets,
+							// Pause every tool call for approval unless YOLO mode is on.
+							requireToolApproval: !yolo,
+							modelSettings: { temperature: 0.7 },
+							providerOptions: getProviderOptions(),
+							maxSteps: 25,
+							onFinish: (event) => {
+								usage = event.usage as LanguageModelUsage;
+							},
+						},
+					);
+
+					const uiStream = createUIMessageStream<UIMessage>({
+						originalMessages: promptMessages,
+						generateId: generateMessageId,
+						execute: async ({ writer }) => {
+							writer.merge(
+								toAISdkStream(agentStream, {
+									from: "agent",
+									version: "v6",
+									sendReasoning: true,
+									sendSources: true,
+								}) as Parameters<typeof writer.merge>[0],
+							);
+						},
+						onFinish: async ({ responseMessage }) => {
+							try {
+								const modelId = `${provider}:${model}`;
+								const cost = modelsData
+									? getTokenCosts({
+											modelId: `${provider}/${model}`,
+											usage: usage,
+											providers: modelsData,
+										})
+									: null;
+
+								// Save assistant response with parentId pointing to the user message
+								await addMessageToChat({
+									chatId: currentChatId,
+									message: responseMessage,
+									userId: session.user.id,
+									parentId: userMessageId ?? null,
+									messageMetadata: {
+										totalUsage: usage || null,
+										modelId,
+										status: MessageStatus.COMPLETE,
+										cost: cost,
+										messageTokens: countUIMessageTokens(responseMessage),
+										parentId: userMessageId ?? null,
+									},
+								});
+							} finally {
+								await chatTools.disconnect();
+							}
 						},
 					});
 
-					console.log(
-						"Starting agent execution with prompt messages:",
-						JSON.stringify(promptMessages, null, 2),
-					);
-
-					return createAgentUIStreamResponse({
-						agent: codeAgent,
-						uiMessages: promptMessages,
+					return createUIMessageStreamResponse({
+						stream: uiStream,
 						headers: {
 							"X-Chat-ID": currentChatId,
 						},
-						sendReasoning: true,
-						sendSources: true,
-
-						onFinish: async ({ responseMessage }) => {
-							const modelId = `${provider}:${model}`;
-							const cost = modelsData
-								? getTokenCosts({
-										modelId: `${provider}/${model}`,
-										usage: usage,
-										providers: modelsData,
-									})
-								: null;
-
-							// Save assistant response with parentId pointing to the user message
-							await addMessageToChat({
-								chatId: currentChatId,
-								message: responseMessage,
-								userId: session.user.id,
-								parentId: userMessageId ?? null,
-								messageMetadata: {
-									totalUsage: usage || null,
-									modelId,
-									status: MessageStatus.COMPLETE,
-									cost: cost,
-									messageTokens: countUIMessageTokens(responseMessage),
-									parentId: userMessageId ?? null,
-								},
-							});
-						},
-						generateMessageId,
 					});
 				} catch (error) {
 					console.error("Chat API Error:", error);

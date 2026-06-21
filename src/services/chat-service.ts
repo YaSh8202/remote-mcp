@@ -289,6 +289,63 @@ export async function addMessageToChat({
 }
 
 /**
+ * Inserts a message, or updates its content/metadata if a row with the same id
+ * already exists. Used for the tool-approval resume flow: the suspended assistant
+ * message is first persisted with the approval request, then the same message id
+ * is extended with the tool output + final text once the user approves.
+ */
+export async function upsertMessageToChat({
+	chatId,
+	userId,
+	message,
+	messageMetadata,
+	parentId,
+}: {
+	chatId: string;
+	userId: string;
+	message: Omit<UIMessage, "metadata">;
+	messageMetadata: MessageMetadata;
+	parentId?: string | null;
+}): Promise<void> {
+	const chat = await db
+		.select()
+		.from(chats)
+		.where(and(eq(chats.id, chatId), eq(chats.ownerId, userId)))
+		.limit(1);
+
+	if (!chat[0]) {
+		throw new Error("Chat not found or access denied");
+	}
+
+	const completeMessage: UIMessage = {
+		...message,
+		metadata: {
+			...messageMetadata,
+			parentId: parentId !== undefined ? parentId : messageMetadata.parentId,
+		},
+	};
+
+	const dbMessage = uiMessageToDbMessage(completeMessage, chatId, parentId);
+	await db
+		.insert(messages)
+		.values(dbMessage)
+		.onConflictDoUpdate({
+			target: messages.id,
+			set: {
+				content: dbMessage.content,
+				status: dbMessage.status,
+				metadata: dbMessage.metadata,
+				updatedAt: new Date(),
+			},
+		});
+
+	await db
+		.update(chats)
+		.set({ updatedAt: new Date(), lastMessagedAt: new Date() })
+		.where(eq(chats.id, chatId));
+}
+
+/**
  * Deletes a specific message and all messages that come after it (used for regeneration)
  * This is used when regenerating an assistant's response - it deletes the old response
  * and any subsequent messages, keeping all messages before it for context

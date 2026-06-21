@@ -1,13 +1,13 @@
 "use client";
 
 import type { ToolUIPart } from "ai";
+import { CheckCircle2Icon, ShieldAlertIcon, XCircleIcon } from "lucide-react";
 import {
 	type ComponentProps,
 	createContext,
 	type ReactNode,
 	useContext,
 } from "react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +58,7 @@ const useConfirmation = () => {
 	return context;
 };
 
-export type ConfirmationProps = ComponentProps<typeof Alert> & {
+export type ConfirmationProps = ComponentProps<"div"> & {
 	approval?: ToolUIPartApproval;
 	state: ToolUIPart["state"];
 };
@@ -69,24 +69,39 @@ export const Confirmation = ({
 	state,
 	...props
 }: ConfirmationProps) => {
-	if (!approval || state === "input-streaming" || state === "input-available") {
+	// Only render the approval bar while a decision is pending. Once resolved, the
+	// header status badge (Completed / Denied) already conveys the outcome.
+	if (!approval || state !== "approval-requested") {
 		return null;
 	}
 
 	return (
 		<ConfirmationContext.Provider value={{ approval, state }}>
-			<Alert className={cn("flex flex-col gap-2", className)} {...props} />
+			<div
+				className={cn(
+					"flex flex-col gap-3 border-amber-500/20 border-t bg-amber-500/[0.04] px-3.5 py-2.5",
+					className,
+				)}
+				{...props}
+			/>
 		</ConfirmationContext.Provider>
 	);
 };
 
-export type ConfirmationTitleProps = ComponentProps<typeof AlertDescription>;
+export type ConfirmationTitleProps = ComponentProps<"div">;
 
 export const ConfirmationTitle = ({
 	className,
+	children,
 	...props
 }: ConfirmationTitleProps) => (
-	<AlertDescription className={cn("inline", className)} {...props} />
+	<div
+		className={cn("flex items-center gap-2 text-sm", className)}
+		{...props}
+	>
+		<ShieldAlertIcon className="size-4 shrink-0 text-amber-500" />
+		<span className="text-foreground">{children}</span>
+	</div>
 );
 
 export type ConfirmationRequestProps = {
@@ -101,7 +116,11 @@ export const ConfirmationRequest = ({ children }: ConfirmationRequestProps) => {
 		return null;
 	}
 
-	return children;
+	return (
+		<div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+			{children}
+		</div>
+	);
 };
 
 export type ConfirmationAcceptedProps = {
@@ -123,7 +142,12 @@ export const ConfirmationAccepted = ({
 		return null;
 	}
 
-	return children;
+	return (
+		<div className="flex items-center gap-2 text-emerald-600 text-sm dark:text-emerald-400">
+			<CheckCircle2Icon className="size-4 shrink-0" />
+			<span>{children}</span>
+		</div>
+	);
 };
 
 export type ConfirmationRejectedProps = {
@@ -145,7 +169,12 @@ export const ConfirmationRejected = ({
 		return null;
 	}
 
-	return children;
+	return (
+		<div className="flex items-center gap-2 text-red-600 text-sm dark:text-red-400">
+			<XCircleIcon className="size-4 shrink-0" />
+			<span>{children}</span>
+		</div>
+	);
 };
 
 export type ConfirmationActionsProps = ComponentProps<"div">;
@@ -163,7 +192,7 @@ export const ConfirmationActions = ({
 
 	return (
 		<div
-			className={cn("flex items-center justify-end gap-2 self-end", className)}
+			className={cn("flex shrink-0 items-center gap-2", className)}
 			{...props}
 		/>
 	);
@@ -171,6 +200,14 @@ export const ConfirmationActions = ({
 
 export type ConfirmationActionProps = ComponentProps<typeof Button>;
 
-export const ConfirmationAction = (props: ConfirmationActionProps) => (
-	<Button className="h-8 px-3 text-sm" type="button" {...props} />
+export const ConfirmationAction = ({
+	className,
+	...props
+}: ConfirmationActionProps) => (
+	<Button
+		className={cn("h-8 gap-1.5 px-3 text-sm", className)}
+		size="sm"
+		type="button"
+		{...props}
+	/>
 );
