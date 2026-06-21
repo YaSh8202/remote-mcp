@@ -32,6 +32,18 @@ importers:
       '@ai-sdk/openai-compatible':
         specifier: 2.0.51
         version: 2.0.51(zod@4.1.9)
+      '@ai-sdk/provider-utils-v5':
+        specifier: npm:@ai-sdk/provider-utils@3.0.25
+        version: '@ai-sdk/provider-utils@3.0.25(zod@4.1.9)'
+      '@ai-sdk/provider-utils-v6':
+        specifier: npm:@ai-sdk/provider-utils@4.0.27
+        version: '@ai-sdk/provider-utils@4.0.27(zod@4.1.9)'
+      '@ai-sdk/provider-v5':
+        specifier: npm:@ai-sdk/provider@2.0.3
+        version: '@ai-sdk/provider@2.0.3'
+      '@ai-sdk/provider-v6':
+        specifier: npm:@ai-sdk/provider@3.0.10
+        version: '@ai-sdk/provider@3.0.10'
       '@ai-sdk/react':
         specifier: 3.0.210
         version: 3.0.210(react@19.2.3)(zod@4.1.9)

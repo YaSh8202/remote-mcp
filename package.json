@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "start": "node .output/server/index.mjs",
-    "build": "vite build",
+    "build": "vite build && node scripts/patch-mastra-aliases.mjs",
     "serve": "vite preview",
     "test": "vitest run",
     "format": "biome check --write",
@@ -23,6 +23,10 @@
   "dependencies": {
     "@ai-sdk-tools/store": "^1.2.0",
     "@ai-sdk/anthropic": "3.0.85",
+    "@ai-sdk/provider-utils-v5": "npm:@ai-sdk/provider-utils@3.0.25",
+    "@ai-sdk/provider-utils-v6": "npm:@ai-sdk/provider-utils@4.0.27",
+    "@ai-sdk/provider-v5": "npm:@ai-sdk/provider@2.0.3",
+    "@ai-sdk/provider-v6": "npm:@ai-sdk/provider@3.0.10",
     "@ai-sdk/google": "3.0.83",
     "@ai-sdk/groq": "3.0.42",
     "@ai-sdk/mcp": "1.0.52",
