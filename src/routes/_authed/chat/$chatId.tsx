@@ -236,12 +236,23 @@ function ChatPageWithId() {
 		id: chatId,
 		transport: new DefaultChatTransport({
 			prepareSendMessagesRequest: ({ messages, body, trigger, ...rest }) => {
-				const lastMessage = messages[messages.length - 1];
-				if (!lastMessage.metadata?.modelId) {
+				// A live-streamed assistant message (e.g. the awaiting-approval message
+				// re-sent on Approve/Reject) has no modelId yet — it's only stamped on
+				// persistence. Use the most recent message that carries one (the user
+				// message that started this turn), falling back to the selected model.
+				const store = useChatStore.getState();
+				const modelId =
+					[...messages].reverse().find((m) => m.metadata?.modelId)?.metadata
+						?.modelId ??
+					(store.selectedModel
+						? `${store.selectedProvider}:${store.selectedModel}`
+						: undefined);
+
+				if (!modelId) {
 					throw new Error("Model ID not found in message metadata");
 				}
 
-				const [provider, model] = lastMessage.metadata.modelId.split(":");
+				const [provider, model] = modelId.split(":");
 
 				return {
 					body: {
