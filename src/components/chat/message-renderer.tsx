@@ -14,10 +14,8 @@ import {
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
 	Confirmation,
-	ConfirmationAccepted,
 	ConfirmationAction,
 	ConfirmationActions,
-	ConfirmationRejected,
 	ConfirmationRequest,
 	ConfirmationTitle,
 } from "@/components/ai-elements/confirmation";
@@ -243,7 +241,10 @@ export function MessageRenderer({
 								if (!("toolCallId" in part)) return null;
 
 								return (
-									<Tool key={partIndex} className="overflow-hidden">
+									<Tool
+										key={partIndex}
+										awaitingApproval={part.state === "approval-requested"}
+									>
 										<ToolHeader
 											title={
 												"toolName" in part
@@ -256,55 +257,12 @@ export function MessageRenderer({
 											state={part.state}
 										/>
 										<ToolContent>
-											<ToolInput input={JSON.stringify(part.input, null, 2)} />
-
-											{/* Approval UI */}
-											<Confirmation approval={part.approval} state={part.state}>
-												<ConfirmationRequest>
-													<ConfirmationTitle>
-														This tool requires approval to execute
-													</ConfirmationTitle>
-													<ConfirmationActions>
-														<ConfirmationAction
-															onClick={() => {
-																if (part.approval?.id)
-																	onToolApproval?.({
-																		id: part.approval?.id,
-																		approved: true,
-																	});
-															}}
-														>
-															Approve
-														</ConfirmationAction>
-														<ConfirmationAction
-															variant="outline"
-															onClick={() => {
-																if (part.approval?.id)
-																	onToolApproval?.({
-																		id: part.approval?.id,
-																		approved: false,
-																		reason: "User rejected",
-																	});
-															}}
-														>
-															Reject
-														</ConfirmationAction>
-													</ConfirmationActions>
-												</ConfirmationRequest>
-
-												<ConfirmationAccepted>
-													Tool execution approved
-												</ConfirmationAccepted>
-
-												<ConfirmationRejected>
-													Tool execution rejected
-												</ConfirmationRejected>
-											</Confirmation>
+											<ToolInput input={part.input} />
 
 											{/* Existing output rendering */}
 											{part.state === "output-available" && (
 												<ToolOutput
-													output={JSON.stringify(part.output, null, 2)}
+													output={part.output}
 													errorText={part.errorText}
 												/>
 											)}
@@ -315,6 +273,45 @@ export function MessageRenderer({
 												/>
 											)}
 										</ToolContent>
+
+										{/* Approval bar — below the card, visible even when collapsed */}
+										<Confirmation approval={part.approval} state={part.state}>
+											<ConfirmationRequest>
+												<ConfirmationTitle>
+													Approve this tool call before it runs
+												</ConfirmationTitle>
+												<ConfirmationActions>
+													<ConfirmationAction
+														className="bg-emerald-600 text-white hover:bg-emerald-600/90 dark:bg-emerald-600 dark:text-white"
+														onClick={() => {
+															if (part.approval?.id)
+																onToolApproval?.({
+																	id: part.approval?.id,
+																	approved: true,
+																});
+														}}
+													>
+														<CheckIcon className="size-4" />
+														Approve
+													</ConfirmationAction>
+													<ConfirmationAction
+														variant="outline"
+														className="text-muted-foreground hover:text-foreground"
+														onClick={() => {
+															if (part.approval?.id)
+																onToolApproval?.({
+																	id: part.approval?.id,
+																	approved: false,
+																	reason: "User rejected",
+																});
+														}}
+													>
+														<XIcon className="size-4" />
+														Reject
+													</ConfirmationAction>
+												</ConfirmationActions>
+											</ConfirmationRequest>
+										</Confirmation>
 									</Tool>
 								);
 							}

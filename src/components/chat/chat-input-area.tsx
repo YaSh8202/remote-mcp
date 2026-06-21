@@ -4,7 +4,7 @@ import {
 	useSuspenseQuery,
 } from "@tanstack/react-query";
 import type { ChatStatus } from "ai";
-import { KeyIcon } from "lucide-react";
+import { KeyIcon, ZapIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AddLLMKeyDialog } from "@/components/add-llm-key-dialog";
 import type { PromptInputMessage } from "@/components/ai-elements/prompt-input";
@@ -22,9 +22,45 @@ import ToolsSelector from "@/components/chat/chat-tools-selector";
 import { ServerSelectionBar } from "@/components/chat/server-selection-bar";
 import { ModelSelector } from "@/components/model-selector";
 import { Button } from "@/components/ui/button";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { ChatMcpServer, McpServer } from "@/db/schema";
 import { useTRPC } from "@/integrations/trpc/react";
+import { cn } from "@/lib/utils";
+import { useChatStore } from "@/store/chat-store";
 import ChatContext from "./chat-context";
+
+/** Toggles YOLO mode: when on, tool calls auto-approve instead of pausing. */
+function YoloToggle() {
+	const yolo = useChatStore((s) => s.yolo);
+	const setYolo = useChatStore((s) => s.setYolo);
+
+	return (
+		<Tooltip>
+			<TooltipTrigger asChild>
+				<Button
+					type="button"
+					variant={yolo ? "default" : "ghost"}
+					size="sm"
+					aria-pressed={yolo}
+					onClick={() => setYolo(!yolo)}
+					className={cn("gap-1.5", yolo && "bg-amber-500 hover:bg-amber-600")}
+				>
+					<ZapIcon className="size-4" />
+					YOLO
+				</Button>
+			</TooltipTrigger>
+			<TooltipContent>
+				{yolo
+					? "YOLO mode ON — tool calls run without approval"
+					: "Require approval before each tool call (click to auto-approve)"}
+			</TooltipContent>
+		</Tooltip>
+	);
+}
 
 export type ChatInputAreaProps = {
 	onSubmit: (input: PromptInputMessage) => Promise<void>;
@@ -322,6 +358,7 @@ export function ChatInputArea({
 							<AttachFileButton />
 							<ModelSelector disabled={!hasValidKeys} />
 							{selectedServerIds.length > 0 && <ToolsSelector />}
+							{selectedServerIds.length > 0 && <YoloToggle />}
 						</div>
 						<div className="flex items-center gap-2">
 							<ChatContext chatId={chatId} />
