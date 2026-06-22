@@ -28,6 +28,46 @@ import { buildChatAgent } from "./-libs/mastra";
 import { getAIModel, getProviderOptions } from "./-libs/models";
 import { getChatTools } from "./-libs/tools";
 
+type ModelsData = Parameters<typeof getTokenCosts>[2] | undefined;
+
+/**
+ * Stamps model + usage metadata onto the streamed assistant message (on the
+ * `start` and `finish` events) so the model name + token usage footer renders
+ * live, instead of only appearing after the message is persisted and refetched.
+ */
+function buildMessageMetadata(
+	provider: LLMProvider,
+	model: string,
+	modelsData: ModelsData,
+) {
+	return ({
+		part,
+	}: {
+		part: { type: string; totalUsage?: LanguageModelUsage };
+	}) => {
+		if (part.type !== "start" && part.type !== "finish") return undefined;
+		const modelId = `${provider}:${model}`;
+		if (part.type === "start") {
+			return { modelId } as Partial<UIMessage["metadata"]>;
+		}
+		const usage = part.totalUsage;
+		const cost =
+			modelsData && usage
+				? getTokenCosts({
+						modelId: `${provider}/${model}`,
+						usage,
+						providers: modelsData,
+					})
+				: null;
+		return {
+			modelId,
+			totalUsage: usage ?? null,
+			cost,
+			status: MessageStatus.COMPLETE,
+		} as Partial<UIMessage["metadata"]>;
+	};
+}
+
 export const Route = createFileRoute("/api/chat/$id")({
 	server: {
 		handlers: {
@@ -139,6 +179,11 @@ export const Route = createFileRoute("/api/chat/$id")({
 										version: "v6",
 										sendReasoning: true,
 										sendSources: true,
+										messageMetadata: buildMessageMetadata(
+											provider,
+											model,
+											modelsData,
+										),
 									}) as Parameters<typeof writer.merge>[0],
 								);
 							},
@@ -328,6 +373,11 @@ export const Route = createFileRoute("/api/chat/$id")({
 									version: "v6",
 									sendReasoning: true,
 									sendSources: true,
+									messageMetadata: buildMessageMetadata(
+										provider,
+										model,
+										modelsData,
+									),
 								}) as Parameters<typeof writer.merge>[0],
 							);
 						},
