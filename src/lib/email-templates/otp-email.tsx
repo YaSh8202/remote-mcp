@@ -12,7 +12,7 @@ import {
 
 interface OTPEmailProps {
 	otp: string;
-	type: "email-verification" | "sign-in" | "forget-password";
+	type: "email-verification" | "sign-in" | "forget-password" | "change-email";
 }
 
 export const OTPEmail = ({ otp, type }: OTPEmailProps) => {
@@ -24,6 +24,8 @@ export const OTPEmail = ({ otp, type }: OTPEmailProps) => {
 				return "Sign In Code";
 			case "forget-password":
 				return "Reset Your Password";
+			case "change-email":
+				return "Confirm Email Change";
 			default:
 				return "Verification Code";
 		}
@@ -37,6 +39,8 @@ export const OTPEmail = ({ otp, type }: OTPEmailProps) => {
 				return "Use the code below to sign in to your account.";
 			case "forget-password":
 				return "You requested to reset your password. Use the code below to proceed.";
+			case "change-email":
+				return "Use the code below to confirm your new email address.";
 			default:
 				return "Use the verification code below.";
 		}

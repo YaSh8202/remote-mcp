@@ -1,7 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP } from "better-auth/plugins";
-import { reactStartCookies } from "better-auth/react-start";
+import { tanstackStartCookies } from "better-auth/tanstack-start";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { env } from "../env";
@@ -46,7 +46,7 @@ export const auth = betterAuth({
 	secret: env.BETTER_AUTH_SECRET,
 	baseURL: env.BETTER_AUTH_URL,
 	plugins: [
-		reactStartCookies(),
+		tanstackStartCookies(),
 		emailOTP({
 			async sendVerificationOTP({ email, otp, type }) {
 				await sendOTPEmail({
