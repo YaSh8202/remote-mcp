@@ -20,3 +20,10 @@ app.config.timestamp_*.js
 .tanstack
 env.sh
 .env*.local
+.webreel
+videos
+
+# Ignore all CLAUDE.md files except the project root file
+**/CLAUDE.md
+!/CLAUDE.md
+

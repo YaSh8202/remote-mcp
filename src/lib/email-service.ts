@@ -7,7 +7,7 @@ const resend = new Resend(env.RESEND_API_KEY);
 export interface SendOTPEmailOptions {
 	to: string;
 	otp: string;
-	type: "email-verification" | "sign-in" | "forget-password";
+	type: "email-verification" | "sign-in" | "forget-password" | "change-email";
 }
 
 /**
@@ -42,7 +42,7 @@ export async function sendOTPEmail({
 }
 
 function getEmailSubject(
-	type: "email-verification" | "sign-in" | "forget-password",
+	type: "email-verification" | "sign-in" | "forget-password" | "change-email",
 ): string {
 	switch (type) {
 		case "email-verification":
@@ -51,6 +51,8 @@ function getEmailSubject(
 			return "Your Sign In Code - Remote MCP";
 		case "forget-password":
 			return "Reset Your Password - Remote MCP";
+		case "change-email":
+			return "Confirm Your Email Change - Remote MCP";
 		default:
 			return "Verification Code - Remote MCP";
 	}
