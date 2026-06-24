@@ -6,6 +6,8 @@ import {
 	ChevronDownIcon,
 	CircleIcon,
 	ClockIcon,
+	Loader2Icon,
+	SearchIcon,
 	WrenchIcon,
 	XCircleIcon,
 } from "lucide-react";
@@ -54,6 +56,61 @@ const splitToolName = (name: string) => {
 	const idx = name.indexOf("-");
 	if (idx <= 0) return { namespace: null as string | null, action: name };
 	return { namespace: name.slice(0, idx), action: name.slice(idx + 1) };
+};
+
+/**
+ * Compact, single-line indicator for the tool-search meta-tools (`search_tools` /
+ * `load_tool`). These are internal discovery steps rather than real tool calls, so
+ * we skip the full parameter/result card and just show a slim status line.
+ */
+export const ToolSearchSummary = ({
+	toolName,
+	state,
+	input,
+}: {
+	toolName: string;
+	state: ToolUIPart["state"];
+	input: ToolUIPart["input"];
+}) => {
+	const running = state === "input-streaming" || state === "input-available";
+	const failed = state === "output-error";
+	const isLoad = toolName === "load_tool";
+
+	const query =
+		!isLoad && input && typeof input === "object" && "query" in input
+			? String((input as { query?: unknown }).query ?? "")
+			: "";
+
+	const label = failed
+		? "Tool search failed"
+		: isLoad
+			? running
+				? "Loading tools"
+				: "Tools loaded"
+			: running
+				? "Searching tools"
+				: "Searched tools";
+
+	return (
+		<div
+			className={cn(
+				"mb-3 flex items-center gap-2 px-1 text-xs",
+				failed ? "text-destructive" : "text-muted-foreground",
+			)}
+		>
+			{running ? (
+				<Loader2Icon className="size-3.5 animate-spin" />
+			) : (
+				<SearchIcon className="size-3.5" />
+			)}
+			<span className="font-medium">{label}</span>
+			{query && (
+				<span className="min-w-0 truncate text-muted-foreground/70">
+					“{query}”
+				</span>
+			)}
+		</div>
+	);
 };
 
 const STATUS_CONFIG: Record<

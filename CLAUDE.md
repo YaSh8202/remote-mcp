@@ -119,6 +119,22 @@ if (includeAllTools) {
 }
 ```
 
+**Dynamic tool search (large tool sets):** When a chat's flattened tool count exceeds
+`TOOL_SEARCH_THRESHOLD` (15, in `src/routes/api/chat/-libs/mastra.ts`), the chat agent
+routes MCP tools through Mastra's `ToolSearchProcessor` (an `inputProcessor`) instead of
+sending every tool schema upfront. The model discovers tools via a `search_tools`
+meta-tool (`autoLoad: true`, `storage: "context"` for serverless-safe state). Mechanics:
+- `flattenToolsets()` (`-libs/tools.ts`) flattens the filtered `toolsets` into the flat
+  pool the processor needs; collisions get server-key-prefixed.
+- The `search_tools`/`load_tool` meta-tools bypass the approval pause (via a
+  `requireToolApproval` predicate); real tools still pause.
+- **Approval-resume must rebuild the processor too:** Mastra restores dynamic tool
+  executors on resume by iterating the agent's input processors
+  (`listInputProcessorLoadedTools`), so the resume path rebuilds the agent *with* the
+  processor when the chat is in tool-search mode, and also keeps passing the full
+  `toolsets` as a name-based fallback (the app sends no `threadId`, so the processor's
+  context-store state is not reliable across serverless instances).
+
 ## AI Elements Component Library (Custom Chat UI)
 
 **Migration from assistant-ui:**

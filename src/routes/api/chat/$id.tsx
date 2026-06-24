@@ -24,9 +24,9 @@ import {
 import { MessageStatus, type UIMessage } from "@/types/chat";
 import { LLMProvider } from "@/types/models";
 import { extractApproval } from "./-libs/approval";
-import { buildChatAgent } from "./-libs/mastra";
+import { buildChatAgent, TOOL_SEARCH_THRESHOLD } from "./-libs/mastra";
 import { getAIModel, getProviderOptions } from "./-libs/models";
-import { getChatTools } from "./-libs/tools";
+import { flattenToolsets, getChatTools } from "./-libs/tools";
 
 type ModelsData = Parameters<typeof getTokenCosts>[2] | undefined;
 
@@ -155,7 +155,21 @@ export const Route = createFileRoute("/api/chat/$id")({
 							fetchModels(provider),
 						]);
 
-						const agent = buildChatAgent(aiSdkModel);
+						// The suspended run may have loaded the pending tool via the tool-search
+						// processor. Mastra rebuilds dynamic executors on resume by iterating the
+						// agent's input processors (listInputProcessorLoadedTools), so the processor
+						// MUST be present on the resume agent when the chat is in tool-search mode —
+						// otherwise the resumed call loses its executor. We also keep passing the
+						// full toolsets so the executor resolves by name regardless of whether the
+						// processor's context-store state survived (this app sends no threadId, so
+						// that state is not reliable across serverless instances).
+						const useToolSearch = chatTools.toolCount > TOOL_SEARCH_THRESHOLD;
+						const agent = useToolSearch
+							? buildChatAgent(aiSdkModel, {
+									toolSearchPool: flattenToolsets(chatTools.toolsets),
+									connectionLabels: chatTools.connectionLabels,
+								})
+							: buildChatAgent(aiSdkModel);
 						let usage: LanguageModelUsage | undefined;
 
 						const agentStream = await agent.resumeStream(approval.resumeData, {
@@ -343,7 +357,16 @@ export const Route = createFileRoute("/api/chat/$id")({
 
 					let usage: LanguageModelUsage | undefined;
 
-					const codeAgent = buildChatAgent(aiSdkModel);
+					// When a chat exposes many tools, route them through ToolSearchProcessor
+					// (dynamic discovery) instead of sending every tool schema upfront.
+					const useToolSearch = chatTools.toolCount > TOOL_SEARCH_THRESHOLD;
+
+					const codeAgent = useToolSearch
+						? buildChatAgent(aiSdkModel, {
+								toolSearchPool: flattenToolsets(chatTools.toolsets),
+								connectionLabels: chatTools.connectionLabels,
+							})
+						: buildChatAgent(aiSdkModel);
 
 					const agentStream = await codeAgent.stream(
 						// ai v6 UIMessages (parts-based) are accepted at runtime; the cast
@@ -351,9 +374,19 @@ export const Route = createFileRoute("/api/chat/$id")({
 						// UIMessage type doesn't carry.
 						promptMessages as unknown as Parameters<typeof codeAgent.stream>[0],
 						{
-							toolsets: chatTools.toolsets,
-							// Pause every tool call for approval unless YOLO mode is on.
-							requireToolApproval: !yolo,
+							// In tool-search mode the pool is supplied to the processor at
+							// construction; the model discovers tools via `search_tools`.
+							toolsets: useToolSearch ? {} : chatTools.toolsets,
+							// Pause every tool call for approval unless YOLO mode is on. The
+							// `search_tools`/`load_tool` meta-tools are read-only discovery and
+							// never prompt.
+							requireToolApproval: yolo
+								? false
+								: useToolSearch
+									? (ctx) =>
+											ctx.toolName !== "search_tools" &&
+											ctx.toolName !== "load_tool"
+									: true,
 							modelSettings: { temperature: 0.7 },
 							providerOptions: getProviderOptions(),
 							maxSteps: 25,

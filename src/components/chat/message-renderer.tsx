@@ -43,6 +43,7 @@ import {
 	ToolHeader,
 	ToolInput,
 	ToolOutput,
+	ToolSearchSummary,
 } from "@/components/ai-elements/tool";
 import { Button } from "@/components/ui/button";
 import { useModels } from "@/hooks/use-models";
@@ -240,19 +241,33 @@ export function MessageRenderer({
 								// Type guard for tool call
 								if (!("toolCallId" in part)) return null;
 
+								const toolName =
+									"toolName" in part
+										? part.toolName
+										: part.type.startsWith("tool-")
+											? part.type.slice(5)
+											: "Tool";
+
+								// Tool-search meta-tools are internal discovery steps — render a
+								// slim status line instead of the full parameter/result card.
+								if (toolName === "search_tools" || toolName === "load_tool") {
+									return (
+										<ToolSearchSummary
+											key={partIndex}
+											toolName={toolName}
+											state={part.state}
+											input={part.input}
+										/>
+									);
+								}
+
 								return (
 									<Tool
 										key={partIndex}
 										awaitingApproval={part.state === "approval-requested"}
 									>
 										<ToolHeader
-											title={
-												"toolName" in part
-													? part.toolName
-													: part.type.startsWith("tool-")
-														? part.type.slice(5)
-														: "Tool"
-											}
+											title={toolName}
 											type="tool-call"
 											state={part.state}
 										/>
