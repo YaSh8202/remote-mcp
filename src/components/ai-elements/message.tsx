@@ -309,6 +309,11 @@ export const MessageResponse = memo(
 		<Streamdown
 			className={cn(
 				"size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+					// Streamdown indents lists with `ml-4` + `list-outside`, so the marker
+					// hangs into the left margin — which MessageContent's `overflow-hidden`
+					// clips for two-digit numbers (10, 11, …). Move the indent to padding
+					// (inside the clip box) so wide markers stay fully visible.
+					"[&_ol]:ml-0 [&_ol]:ps-6 [&_ul]:ml-0 [&_ul]:ps-6",
 				className,
 			)}
 			{...props}
