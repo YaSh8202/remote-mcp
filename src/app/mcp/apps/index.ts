@@ -1,6 +1,7 @@
 import type { McpApp } from "../mcp-app";
 import { atlassianMcpApp } from "./atlassian";
 import { braveMcpApp } from "./brave";
+import { discordMcpApp } from "./discord";
 import { fetchMcpApp } from "./fetch";
 import { firecrawlMcpApp } from "./firecrawl";
 import { githubMcpApp } from "./github";
@@ -21,6 +22,7 @@ export const mcpApps = [
 	firecrawlMcpApp,
 	youtubeMcpApp,
 	slackMcpApp,
+	discordMcpApp,
 	braveMcpApp,
 	postgresMcpApp,
 	notionMcpApp,
