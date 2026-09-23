@@ -5,6 +5,7 @@ import {
 	createUIMessageStream,
 	createUIMessageStreamResponse,
 	type LanguageModelUsage,
+	type UIMessageChunk,
 	validateUIMessages,
 } from "ai";
 import { fetchModels } from "tokenlens";
@@ -13,8 +14,10 @@ import { buildPathEndingAt, ensureParentIds } from "@/lib/chat-branching";
 import { countUIMessageTokens, generateMessageId } from "@/lib/chat-utils";
 import {
 	addMessageToChat,
+	clearActiveStreamId,
 	loadChat,
 	saveChat,
+	setActiveStreamId,
 	upsertMessageToChat,
 } from "@/services/chat-service";
 import {
@@ -26,6 +29,7 @@ import { LLMProvider } from "@/types/models";
 import { extractApproval } from "./-libs/approval";
 import { buildChatAgent, TOOL_SEARCH_THRESHOLD } from "./-libs/mastra";
 import { getAIModel, getProviderOptions } from "./-libs/models";
+import { getResumableStreamContext } from "./-libs/resumable-stream";
 import { flattenToolsets, getChatTools } from "./-libs/tools";
 
 type ModelsData = Parameters<typeof getTokenCosts>[2] | undefined;
@@ -66,6 +70,49 @@ function buildMessageMetadata(
 			status: MessageStatus.COMPLETE,
 		} as Partial<UIMessage["metadata"]>;
 	};
+}
+
+/**
+ * Wraps a UI message stream in a response that is also persisted as a resumable
+ * stream. `createUIMessageStreamResponse` tees the SSE stream; we consume one
+ * branch through `resumable-stream` so a client that reloads or reconnects can
+ * pick the generation back up via GET /api/chat/:id/stream.
+ */
+function createResumableChatResponse({
+	uiStream,
+	chatId,
+	streamId,
+}: {
+	uiStream: ReadableStream<UIMessageChunk>;
+	chatId: string;
+	streamId: string;
+}) {
+	const context = getResumableStreamContext();
+	return createUIMessageStreamResponse({
+		stream: uiStream,
+		headers: { "X-Chat-ID": chatId },
+		consumeSseStream: async ({ stream }) => {
+			try {
+				const resumableStream = await context.resumableStream(
+					streamId,
+					() => stream,
+				);
+				if (resumableStream) {
+					// Drive the producer to completion so chunks are buffered and fanned
+					// out to any listener that connects while it runs.
+					const reader = resumableStream.getReader();
+					while (true) {
+						const { done } = await reader.read();
+						if (done) break;
+					}
+				}
+			} catch (error) {
+				console.error("Resumable stream producer failed:", error);
+			} finally {
+				await clearActiveStreamId(chatId, streamId);
+			}
+		},
+	});
 }
 
 export const Route = createFileRoute("/api/chat/$id")({
@@ -234,9 +281,12 @@ export const Route = createFileRoute("/api/chat/$id")({
 							},
 						});
 
-						return createUIMessageStreamResponse({
-							stream: uiStream,
-							headers: { "X-Chat-ID": currentChatId },
+						const streamId = crypto.randomUUID();
+						await setActiveStreamId(currentChatId, streamId);
+						return createResumableChatResponse({
+							uiStream,
+							chatId: currentChatId,
+							streamId,
 						});
 					}
 
@@ -446,11 +496,12 @@ export const Route = createFileRoute("/api/chat/$id")({
 						},
 					});
 
-					return createUIMessageStreamResponse({
-						stream: uiStream,
-						headers: {
-							"X-Chat-ID": currentChatId,
-						},
+					const streamId = crypto.randomUUID();
+					await setActiveStreamId(currentChatId, streamId);
+					return createResumableChatResponse({
+						uiStream,
+						chatId: currentChatId,
+						streamId,
 					});
 				} catch (error) {
 					console.error("Chat API Error:", error);

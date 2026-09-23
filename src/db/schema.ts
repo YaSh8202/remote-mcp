@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	bigserial,
+	boolean,
+	index,
+	jsonb,
+	pgTable,
+	text,
+	timestamp,
+} from "drizzle-orm/pg-core";
 import {
 	type MessageMetadata,
 	type MessageRole,
@@ -242,6 +250,10 @@ export const chats = pgTable("chats", {
 			[key: string]: unknown;
 		}>()
 		.default({}),
+	// ID of the in-flight resumable stream (see the `resumable-stream` package),
+	// or null when no stream is active. Lets a reconnecting client resume a
+	// generation that is still running on the server.
+	activeStreamId: text("active_stream_id"),
 });
 
 export const messages = pgTable("messages", {
@@ -326,6 +338,38 @@ export const chatMcpServers = pgTable("chat_mcp_servers", {
 	tools: jsonb("tools").$type<string[]>().notNull().default([]),
 	includeAllTools: boolean("include_all_tools").notNull().default(true),
 });
+
+/**
+ * Key/value store backing the `resumable-stream` package's sentinels and
+ * listener counters. Postgres-backed so resumable chat streams survive across
+ * serverless instances (e.g. Vercel), where in-memory state is not shared.
+ */
+export const streamKv = pgTable("stream_kv", {
+	key: text("key").primaryKey(),
+	value: text("value").notNull(),
+	expiresAt: timestamp("expires_at", { withTimezone: true }),
+});
+
+/**
+ * Append-only pub/sub log backing resumable chat streams. The `resumable-stream`
+ * package publishes control + chunk messages to channels; subscribers poll this
+ * table for new rows because Postgres LISTEN/NOTIFY is unavailable through
+ * serverless connection poolers.
+ */
+export const streamMessages = pgTable(
+	"stream_messages",
+	{
+		id: bigserial("id", { mode: "number" }).primaryKey(),
+		channel: text("channel").notNull(),
+		message: text("message").notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.notNull()
+			.defaultNow(),
+	},
+	(table) => [
+		index("stream_messages_channel_id_idx").on(table.channel, table.id),
+	],
+);
 
 export type Chat = typeof chats.$inferSelect;
 export type NewChat = typeof chats.$inferInsert;

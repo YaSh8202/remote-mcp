@@ -391,3 +391,49 @@ export async function deleteMessageAndAfter(
 			),
 		);
 }
+
+/**
+ * Records the id of the in-flight resumable stream for a chat. A reconnecting
+ * client reads this to resume a generation that is still running on the server.
+ */
+export async function setActiveStreamId(
+	chatId: string,
+	streamId: string,
+): Promise<void> {
+	await db
+		.update(chats)
+		.set({ activeStreamId: streamId })
+		.where(eq(chats.id, chatId));
+}
+
+/**
+ * Clears the active stream id for a chat once the stream finishes. Only clears
+ * when the stored id still matches `streamId`, so a finishing stream can't wipe
+ * the id of a newer stream that started in the meantime.
+ */
+export async function clearActiveStreamId(
+	chatId: string,
+	streamId: string,
+): Promise<void> {
+	await db
+		.update(chats)
+		.set({ activeStreamId: null })
+		.where(and(eq(chats.id, chatId), eq(chats.activeStreamId, streamId)));
+}
+
+/**
+ * Returns the active stream id for a chat the user owns, or null when there is
+ * no in-flight stream (or the chat does not belong to the user).
+ */
+export async function getActiveStreamId(
+	chatId: string,
+	userId: string,
+): Promise<string | null> {
+	const rows = await db
+		.select({ activeStreamId: chats.activeStreamId })
+		.from(chats)
+		.where(and(eq(chats.id, chatId), eq(chats.ownerId, userId)))
+		.limit(1);
+
+	return rows[0]?.activeStreamId ?? null;
+}

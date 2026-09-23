@@ -267,9 +267,19 @@ function ChatPageWithId() {
 					},
 				};
 			},
+			// The transport's `api` already includes the chat id, so the default
+			// reconnect URL (`${api}/${chatId}/stream`) would be wrong. Point the
+			// resume request at the dedicated stream endpoint instead.
+			prepareReconnectToStreamRequest: ({ id }) => ({
+				api: `/api/chat/${id}/stream`,
+			}),
 			api: `/api/chat/${chatId}`,
 		}),
 		messages: allDbMessages,
+
+		// Resume an in-flight generation after a reload/reconnect. On mount the
+		// hook calls GET /api/chat/:id/stream; a 204 means nothing is running.
+		resume: true,
 
 		// Auto-continue after all approvals are submitted
 		sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
