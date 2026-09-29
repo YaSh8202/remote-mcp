@@ -44,6 +44,16 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
+const providerDisplayNames: Record<LLMProvider, string> = {
+	[LLMProvider.OPENAI]: "OpenAI",
+	[LLMProvider.ANTHROPIC]: "Anthropic",
+	[LLMProvider.GOOGLE]: "Google",
+	[LLMProvider.ALIBABA]: "Alibaba",
+	[LLMProvider.GROQ]: "Groq",
+	[LLMProvider.GITHUB_MODELS]: "GitHub Models",
+	[LLMProvider.MISTRAL]: "Mistral",
+};
+
 // API key URLs for each provider
 const providerApiKeyUrls: Partial<
 	Record<LLMProvider, { url: string; label: string }>
@@ -138,8 +148,11 @@ export function AddLLMKeyDialog({
 		);
 	};
 
-	const getProviderDisplayName = (provider: LLMProvider) => {
-		return providers.find((p) => p.id === provider)?.name;
+	const getProviderDisplayName = (provider: LLMProvider): string => {
+		return (
+			providers.find((p) => p.id === provider)?.name ||
+			providerDisplayNames[provider]
+		);
 	};
 
 	const renderSelectedProvider = (value: string) => {
