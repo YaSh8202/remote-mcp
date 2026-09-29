@@ -85,6 +85,13 @@
 			"when": 1769431363819,
 			"tag": "0011_romantic_sugar_man",
 			"breakpoints": true
+		},
+		{
+			"idx": 12,
+			"version": "7",
+			"when": 1790176016239,
+			"tag": "0012_dear_shard",
+			"breakpoints": true
 		}
 	]
 }

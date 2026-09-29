@@ -39,6 +39,7 @@ import { Route as AuthedServersIdRouteImport } from './routes/_authed/servers/$i
 import { Route as AuthedChatChatIdRouteImport } from './routes/_authed/chat/$chatId'
 import { Route as AuthedAppsIdRouteImport } from './routes/_authed/apps/$id'
 import { Route as DotwellKnownOauthAuthorizationServerSplatRouteImport } from './routes/[.]well-known/oauth-authorization-server.$'
+import { Route as ApiChatIdStreamRouteImport } from './routes/api/chat/$id.stream'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -191,6 +192,11 @@ const DotwellKnownOauthAuthorizationServerSplatRoute =
     path: '/.well-known/oauth-authorization-server/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiChatIdStreamRoute = ApiChatIdStreamRouteImport.update({
+  id: '/stream',
+  path: '/stream',
+  getParentRoute: () => ApiChatIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -210,7 +216,7 @@ export interface FileRoutesByFullPath {
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/chat/$id': typeof ApiChatIdRouteWithChildren
   '/api/mcp/$id': typeof ApiMcpIdRoute
   '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
   '/api/oauth/client': typeof ApiOauthClientRoute
@@ -222,6 +228,7 @@ export interface FileRoutesByFullPath {
   '/connections/': typeof AuthedConnectionsIndexRoute
   '/servers/': typeof AuthedServersIndexRoute
   '/api/chat/': typeof ApiChatIndexRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -240,7 +247,7 @@ export interface FileRoutesByTo {
   '/chat/$chatId': typeof AuthedChatChatIdRoute
   '/servers/$id': typeof AuthedServersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/chat/$id': typeof ApiChatIdRouteWithChildren
   '/api/mcp/$id': typeof ApiMcpIdRoute
   '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
   '/api/oauth/client': typeof ApiOauthClientRoute
@@ -252,6 +259,7 @@ export interface FileRoutesByTo {
   '/connections': typeof AuthedConnectionsIndexRoute
   '/servers': typeof AuthedServersIndexRoute
   '/api/chat': typeof ApiChatIndexRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -273,7 +281,7 @@ export interface FileRoutesById {
   '/_authed/chat/$chatId': typeof AuthedChatChatIdRoute
   '/_authed/servers/$id': typeof AuthedServersIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/chat/$id': typeof ApiChatIdRoute
+  '/api/chat/$id': typeof ApiChatIdRouteWithChildren
   '/api/mcp/$id': typeof ApiMcpIdRoute
   '/api/oauth/authorize': typeof ApiOauthAuthorizeRoute
   '/api/oauth/client': typeof ApiOauthClientRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/_authed/connections/': typeof AuthedConnectionsIndexRoute
   '/_authed/servers/': typeof AuthedServersIndexRoute
   '/api/chat/': typeof ApiChatIndexRoute
+  '/api/chat/$id/stream': typeof ApiChatIdStreamRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -318,6 +327,7 @@ export interface FileRouteTypes {
     | '/connections/'
     | '/servers/'
     | '/api/chat/'
+    | '/api/chat/$id/stream'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/connections'
     | '/servers'
     | '/api/chat'
+    | '/api/chat/$id/stream'
   id:
     | '__root__'
     | '/'
@@ -380,6 +391,7 @@ export interface FileRouteTypes {
     | '/_authed/connections/'
     | '/_authed/servers/'
     | '/api/chat/'
+    | '/api/chat/$id/stream'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -395,7 +407,7 @@ export interface RootRouteChildren {
   OauthRedirectRoute: typeof OauthRedirectRoute
   DotwellKnownOauthAuthorizationServerSplatRoute: typeof DotwellKnownOauthAuthorizationServerSplatRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
-  ApiChatIdRoute: typeof ApiChatIdRoute
+  ApiChatIdRoute: typeof ApiChatIdRouteWithChildren
   ApiMcpIdRoute: typeof ApiMcpIdRoute
   ApiOauthAuthorizeRoute: typeof ApiOauthAuthorizeRoute
   ApiOauthClientRoute: typeof ApiOauthClientRoute
@@ -617,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotwellKnownOauthAuthorizationServerSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat/$id/stream': {
+      id: '/api/chat/$id/stream'
+      path: '/stream'
+      fullPath: '/api/chat/$id/stream'
+      preLoaderRoute: typeof ApiChatIdStreamRouteImport
+      parentRoute: typeof ApiChatIdRoute
+    }
   }
 }
 
@@ -660,6 +679,18 @@ const AuthedRouteRouteWithChildren = AuthedRouteRoute._addFileChildren(
   AuthedRouteRouteChildren,
 )
 
+interface ApiChatIdRouteChildren {
+  ApiChatIdStreamRoute: typeof ApiChatIdStreamRoute
+}
+
+const ApiChatIdRouteChildren: ApiChatIdRouteChildren = {
+  ApiChatIdStreamRoute: ApiChatIdStreamRoute,
+}
+
+const ApiChatIdRouteWithChildren = ApiChatIdRoute._addFileChildren(
+  ApiChatIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthedRouteRoute: AuthedRouteRouteWithChildren,
@@ -675,7 +706,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownOauthAuthorizationServerSplatRoute:
     DotwellKnownOauthAuthorizationServerSplatRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
-  ApiChatIdRoute: ApiChatIdRoute,
+  ApiChatIdRoute: ApiChatIdRouteWithChildren,
   ApiMcpIdRoute: ApiMcpIdRoute,
   ApiOauthAuthorizeRoute: ApiOauthAuthorizeRoute,
   ApiOauthClientRoute: ApiOauthClientRoute,
