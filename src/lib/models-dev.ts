@@ -12,7 +12,6 @@ const PROVIDER_ID_MAP: Record<LLMProvider, string> = {
 	[LLMProvider.GOOGLE]: "google",
 	[LLMProvider.ALIBABA]: "alibaba",
 	[LLMProvider.GROQ]: "groq",
-	[LLMProvider.GITHUB_MODELS]: "github-models",
 	[LLMProvider.MISTRAL]: "mistral",
 };
 

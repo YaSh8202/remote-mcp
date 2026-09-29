@@ -50,7 +50,6 @@ const providerDisplayNames: Record<LLMProvider, string> = {
 	[LLMProvider.GOOGLE]: "Google",
 	[LLMProvider.ALIBABA]: "Alibaba",
 	[LLMProvider.GROQ]: "Groq",
-	[LLMProvider.GITHUB_MODELS]: "GitHub Models",
 	[LLMProvider.MISTRAL]: "Mistral",
 };
 
@@ -77,10 +76,6 @@ const providerApiKeyUrls: Partial<
 	[LLMProvider.GROQ]: {
 		url: "https://console.groq.com/keys",
 		label: "Groq Console",
-	},
-	[LLMProvider.GITHUB_MODELS]: {
-		url: "https://github.com/settings/tokens",
-		label: "GitHub Settings",
 	},
 	[LLMProvider.MISTRAL]: {
 		url: "https://console.mistral.ai/api-keys",

@@ -81,7 +81,7 @@ function ChatPage() {
 	// State for add LLM key dialog
 	const [addKeyDialogOpen, setAddKeyDialogOpen] = useState(false);
 	const [selectedLLMProvider, setSelectedLLMProvider] = useState<LLMProvider>(
-		LLMProvider.GITHUB_MODELS,
+		LLMProvider.OPENAI,
 	);
 
 	// New chat store for managing servers before chat creation

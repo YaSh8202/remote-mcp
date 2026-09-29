@@ -7,7 +7,6 @@ export enum LLMProvider {
 	GOOGLE = "google",
 	ALIBABA = "alibaba",
 	GROQ = "groq",
-	GITHUB_MODELS = "github-models",
 	MISTRAL = "mistral",
 }
 
