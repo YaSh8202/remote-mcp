@@ -56,14 +56,6 @@ export function getAIModel(
 				name: "alibaba",
 			})(model || "qwen3-max");
 
-		case LLMProvider.GITHUB_MODELS:
-			// GitHub Models uses OpenAI-compatible API
-			return createOpenAICompatible({
-				apiKey: apiKey,
-				baseURL: "https://models.github.ai/inference",
-				name: "github-models",
-			})(model || "gpt-4.1-mini");
-
 		default:
 			throw new Error(`Unsupported provider: ${provider}`);
 	}

@@ -222,41 +222,6 @@ export async function validateGroqKey(
 	}
 }
 
-export async function validateGitHubModelsKey(
-	apiKey: string,
-): Promise<{ isValid: boolean; models?: string[]; error?: string }> {
-	try {
-		// Use GitHub Models API to validate the key
-		const response = await fetch(
-			"https://models.inference.ai.azure.com/models",
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${apiKey}`,
-					"Content-Type": "application/json",
-				},
-			},
-		);
-
-		if (response.ok) {
-			const data = await response.json();
-			const models = data.data?.map((model: { id: string }) => model.id) || [];
-			return { isValid: true, models };
-		}
-
-		const errorData = await response.json().catch(() => ({}));
-		return {
-			isValid: false,
-			error: errorData.error?.message || `HTTP ${response.status}`,
-		};
-	} catch (error) {
-		return {
-			isValid: false,
-			error: error instanceof Error ? error.message : "Network error",
-		};
-	}
-}
-
 export async function validateMistralKey(
 	apiKey: string,
 ): Promise<{ isValid: boolean; models?: string[]; error?: string }> {
@@ -301,8 +266,6 @@ export async function validateApiKey(provider: LLMProvider, apiKey: string) {
 			return await validateAlibabaKey(apiKey);
 		case LLMProvider.GROQ:
 			return await validateGroqKey(apiKey);
-		case LLMProvider.GITHUB_MODELS:
-			return await validateGitHubModelsKey(apiKey);
 		case LLMProvider.MISTRAL:
 			return await validateMistralKey(apiKey);
 		default:

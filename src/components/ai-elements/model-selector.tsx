@@ -126,7 +126,6 @@ export type ModelSelectorLogoProps = Omit<
 		| "venice"
 		| "chutes"
 		| "cortecs"
-		| "github-models"
 		| "togetherai"
 		| "azure"
 		| "baseten"

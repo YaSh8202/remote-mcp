@@ -1,5 +1,4 @@
 import type { SVGProps } from "react";
-import { MdiGithub } from "@/app/mcp/apps/icons";
 import { LLMProvider } from "@/types/models";
 export const MCPIcon = (props: SVGProps<SVGSVGElement>) => (
 	<svg
@@ -586,7 +585,6 @@ export const llmProviderIcons = {
 	[LLMProvider.MISTRAL]: MistralAI,
 	[LLMProvider.GROQ]: Groq,
 	[LLMProvider.ALIBABA]: Qwen,
-	[LLMProvider.GITHUB_MODELS]: MdiGithub,
 };
 
 /**

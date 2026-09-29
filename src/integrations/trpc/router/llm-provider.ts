@@ -164,8 +164,6 @@ function getProviderDescription(provider: LLMProvider): string {
 			return "Alibaba's Qwen models via DashScope API";
 		case LLMProvider.GROQ:
 			return "Groq's fast inference API with various open-source models";
-		case LLMProvider.GITHUB_MODELS:
-			return "GitHub Models marketplace with various AI models";
 		case LLMProvider.MISTRAL:
 			return "Mistral AI's models including Mistral Large, Medium, and Small";
 		default:

@@ -21,13 +21,6 @@ const FREE_TIER_PROVIDERS: FreeTierProvider[] = [
 		docsUrl: "https://ai.google.dev/",
 	},
 	{
-		provider: LLMProvider.GITHUB_MODELS,
-		name: "GitHub Models",
-		freeTier: "Free tier with rate limits",
-		highlight: "GPT-4o, Claude, Llama & more",
-		docsUrl: "https://github.com/marketplace/models",
-	},
-	{
 		provider: LLMProvider.GROQ,
 		name: "Groq",
 		freeTier: "Free tier available",
